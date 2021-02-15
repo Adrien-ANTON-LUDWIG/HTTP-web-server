@@ -1,8 +1,18 @@
 stages:
     - Build
+    - Mandatory
 build:
     stage: Build
     tags:
         - docker
     script:
-        - echo "Nothing"
+        - ./autogen.sh
+        - ./configure
+        - make
+Pre Commit:
+    stage: Mandatory
+    tags:
+        - docker
+    script:
+        - pre-commit install
+        - pre-commit run --all-files
