@@ -4,7 +4,7 @@ stages:
 build:
     stage: Build
     tags:
-        - docker
+        - default
     script:
         - ./autogen.sh
         - ./configure
@@ -12,7 +12,7 @@ build:
 Pre Commit:
     stage: Mandatory
     tags:
-        - docker
+        - default
     script:
         - pre-commit install
         - pre-commit run --all-files
