@@ -1,0 +1,8 @@
+stages:
+    - Build
+build:
+    stage: Build
+    tags:
+        - docker
+    script:
+        - echo "Nothing"
