@@ -27,7 +27,9 @@ namespace http
          *
          * \param conf VHostConfig virtual host configuration.
          */
-        explicit VHost(const VHostConfig &);
+        explicit VHost(const VHostConfig &vhost_c)
+            : conf_(vhost_c)
+        {}
 
         VHost() = delete;
         VHost(const VHost &) = delete;

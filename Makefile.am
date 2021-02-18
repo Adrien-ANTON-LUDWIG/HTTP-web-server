@@ -85,10 +85,9 @@ SOURCES = \
           src/vhost/connection.hh \
           src/vhost/dispatcher.hh \
           src/vhost/vhost-factory.hh \
-          src/vhost/vhost-reverse-proxy.hh \
           src/vhost/vhost-static-file.hh \
-          src/vhost/vhost.hh \
-          $(NULL)
+          $(NULL)-static-file.hh \
+          src/vhost/vhost
 
 
 # Compile source files again to avoid silenting undefined references.
