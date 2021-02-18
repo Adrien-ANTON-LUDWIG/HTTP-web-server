@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "misc/fd.hh"
 #include "misc/socket.hh"
 
 namespace http
@@ -15,7 +16,7 @@ namespace http
     {
         try
         {
-            return sys::recv(dst, len);
+            return sys::recv(*fd_, dst, len, 0);
         }
         catch (const std::exception &e)
         {
@@ -28,7 +29,7 @@ namespace http
     {
         try
         {
-            return sys::send(fd_, buf, buf_len, 0);
+            return sys::send(*fd_, buf, buf_len, 0);
         }
         catch (const std::exception &e)
         {
@@ -42,7 +43,7 @@ namespace http
     {
         try
         {
-            return sys::sendfile(fd, offset, len);
+            return sys::sendfile(*fd_, *fd, &offset, len);
         }
         catch (const std::exception &e)
         {
@@ -55,7 +56,7 @@ namespace http
     {
         try
         {
-            sys::bind(fd_, addr, len);
+            sys::bind(*fd_, addr, len);
         }
         catch (const std::exception &e)
         {
@@ -68,7 +69,7 @@ namespace http
     {
         try
         {
-            sys::listen(fd_, backlog);
+            sys::listen(*fd_, backlog);
         }
         catch (const std::exception &e)
         {
@@ -81,7 +82,7 @@ namespace http
     {
         try
         {
-            sys::setsockopt(level, optname, optval);
+            sys::setsockopt(*fd_, level, optname, &optval, sizeof(int));
         }
         catch (const std::exception &e)
         {
@@ -93,7 +94,8 @@ namespace http
     {
         try
         {
-            sys::getsockopt(level, optname, optval);
+            unsigned int len = sizeof(int);
+            sys::getsockopt(*fd_, level, optname, &optval, &len);
         }
         catch (const std::exception &e)
         {
@@ -105,8 +107,12 @@ namespace http
     {
         try
         {
-            auto new_fd = sys::accept(fd_, addr, addrlen);
-            return std::make_shared<http::Socket>(new_fd);
+            misc::FileDescriptor new_fd = sys::accept(*fd_, addr, addrlen);
+            misc::shared_fd fd_ptr =
+                std::shared_ptr<misc::FileDescriptor>(&new_fd);
+            shared_socket ptr =
+                std::shared_ptr<Socket>(new DefaultSocket(fd_ptr));
+            return ptr;
         }
         catch (const std::exception &e)
         {
@@ -119,7 +125,7 @@ namespace http
     {
         try
         {
-            sys::connect(fd_, addr, addrlen);
+            sys::connect(*fd_, addr, addrlen);
         }
         catch (const std::exception &e)
         {
