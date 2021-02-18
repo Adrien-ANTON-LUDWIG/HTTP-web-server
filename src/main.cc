@@ -4,12 +4,14 @@
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "events/listener.hh"
+#include "events/register.hh"
 #include "misc/addrinfo/addrinfo.hh"
 #include "socket/default-socket.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
 
 http::Dispatcher dispatcher;
+http::EventWatcherRegistry event_register;
 
 static http::ListenerEW *create_and_bind(http::shared_vhost x)
 {
@@ -54,7 +56,8 @@ static void start_server()
     for (auto x : dispatcher)
     {
         auto lew = create_and_bind(x);
-        (void)(lew);
+        auto lew_shared = std::shared_ptr<http::ListenerEW>(lew);
+        event_register.register_event<http::ListenerEW>(*lew_shared);
     }
 }
 
@@ -86,6 +89,6 @@ int main(int argc, char *argv[])
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     start_server();
-
+    
     return 0;
 }
