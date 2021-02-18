@@ -16,7 +16,10 @@ namespace http
      */
     struct DefaultSocket : public Socket
     {
-        explicit DefaultSocket(const misc::shared_fd &);
+        explicit DefaultSocket(const misc::shared_fd &fd)
+            : Socket(fd)
+        {}
+
         DefaultSocket(int domain, int type, int protocol);
 
         DefaultSocket() = default;

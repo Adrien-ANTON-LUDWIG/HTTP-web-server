@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <arpa/inet.h>
+
 #include "events/events.hh"
 #include "socket/socket.hh"
 
@@ -20,12 +22,23 @@ namespace http
         /**
          * \brief Create a ListenerEW from a listener socket.
          */
-        explicit ListenerEW(shared_socket socket);
+        explicit ListenerEW(shared_socket socket)
+            : EventWatcher(socket->fd_get()->fd_, EV_READ)
+        {
+            sock_ = socket;
+            struct sockaddr_in sin;
+            socklen_t len = sizeof(sin);
+            getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
+            port_ = ntohs(sin.sin_port);
+        }
 
         /**
          * \brief Start accepting connections on listener socket.
          */
-        void operator()() final;
+        void operator()() final
+        {
+            return;
+        }
 
     private:
         /**

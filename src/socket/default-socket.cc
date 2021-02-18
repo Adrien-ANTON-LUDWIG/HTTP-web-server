@@ -1,5 +1,8 @@
 #include "socket/default-socket.hh"
 
+#include <iostream>
+
+#include "misc/fd.hh"
 #include "misc/socket.hh"
 
 namespace http
@@ -9,53 +12,125 @@ namespace http
             sys::socket(domain, type, protocol)) }
     {}
 
-    ssize_t DefaultSocket::recv(void *, size_t)
+    ssize_t DefaultSocket::recv(void *dst, size_t len)
     {
-        /* FIXME */
-        return -1;
+        try
+        {
+            return sys::recv(*fd_, dst, len, 0);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Reception failed : " << e.what() << '\n';
+            return -1;
+        }
     }
 
-    ssize_t DefaultSocket::send(const void *, size_t)
+    ssize_t DefaultSocket::send(const void *buf, size_t buf_len)
     {
-        /* FIXME */
-        return -1;
+        try
+        {
+            return sys::send(*fd_, buf, buf_len, 0);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Send Failed : << " << e.what() << '\n';
+            return -1;
+        }
     }
 
-    ssize_t DefaultSocket::sendfile(misc::shared_fd &, off_t &, size_t)
+    ssize_t DefaultSocket::sendfile(misc::shared_fd &fd, off_t &offset,
+                                    size_t len)
     {
-        /* FIXME */
-        return -1;
+        try
+        {
+            return sys::sendfile(*fd_, *fd, &offset, len);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Sendfile Failed : " << e.what() << '\n';
+            return -1;
+        }
     }
 
-    void DefaultSocket::bind(const sockaddr *, socklen_t)
+    void DefaultSocket::bind(const sockaddr *addr, socklen_t len)
     {
-        /* FIXME */
+        try
+        {
+            sys::bind(*fd_, addr, len);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Bind Failed : " << e.what() << '\n';
+            throw e;
+        }
     }
 
-    void DefaultSocket::listen(int)
+    void DefaultSocket::listen(int backlog)
     {
-        /* FIXME */
+        try
+        {
+            sys::listen(*fd_, backlog);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            throw e;
+        }
     }
 
-    void DefaultSocket::setsockopt(int, int, int)
+    void DefaultSocket::setsockopt(int level, int optname, int optval)
     {
-        /* FIXME */
+        try
+        {
+            sys::setsockopt(*fd_, level, optname, &optval, sizeof(int));
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Setsockopt Failed: " << e.what() << '\n';
+        }
     }
 
-    void DefaultSocket::getsockopt(int, int, int &)
+    void DefaultSocket::getsockopt(int level, int optname, int &optval)
     {
-        /* FIXME */
+        try
+        {
+            unsigned int len = sizeof(int);
+            sys::getsockopt(*fd_, level, optname, &optval, &len);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Getsockopt Failed: " << e.what() << '\n';
+        }
     }
 
-    shared_socket DefaultSocket::accept(sockaddr *, socklen_t *)
+    shared_socket DefaultSocket::accept(sockaddr *addr, socklen_t *addrlen)
     {
-        /* FIXME*/
-        return nullptr;
+        try
+        {
+            misc::FileDescriptor new_fd = sys::accept(*fd_, addr, addrlen);
+            misc::shared_fd fd_ptr =
+                std::shared_ptr<misc::FileDescriptor>(&new_fd);
+            shared_socket ptr =
+                std::shared_ptr<Socket>(new DefaultSocket(fd_ptr));
+            return ptr;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Accept Failed : " << e.what() << '\n';
+            return nullptr;
+        }
     }
 
-    void DefaultSocket::connect(const sockaddr *, socklen_t)
+    void DefaultSocket::connect(const sockaddr *addr, socklen_t addrlen)
     {
-        /* FIXME */
+        try
+        {
+            sys::connect(*fd_, addr, addrlen);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Connection Failed: " << e.what() << '\n';
+        }
     }
 
 } // namespace http
