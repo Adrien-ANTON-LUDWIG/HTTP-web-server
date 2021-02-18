@@ -1,6 +1,7 @@
 #include "config.hh"
 
 #include <fstream>
+#include <iostream>
 
 #include "misc/json.hh"
 
@@ -8,22 +9,39 @@ namespace http
 {
     struct ServerConfig parse_configuration(const std::string &path)
     {
-        std::ifstream file_in(path);
+        try
+        {
+            std::ifstream file_in(path);
 
-        json j;
+            struct ServerConfig s_conf;
+            json j;
+            file_in >> j;
 
-        file_in >> j;
+            if (j.find("vhosts") == j.end())
+                exit(1);
 
-        struct ServerConfig s_conf;
+            auto vhosts = *j.find("vhosts");
 
-        s_conf.ip = j["ip"];
-        s_conf.port = j["port"];
-        s_conf.server_name = j["server_name"];
-        s_conf.root = j["root"];
+            for (auto v : vhosts)
+            {
+                struct VHostConfig vhost;
+                vhost.ip = v["ip"];
+                vhost.port = v["port"];
+                vhost.server_name = v["server_name"];
+                vhost.root = v["root"];
 
-        if (j.count("default_file"))
-            s_conf.default_file = j["default_file"];
+                if (v.find("default_file") != v.end())
+                    vhost.default_file = v["default_file"];
 
-        return s_conf;
+                s_conf.vhosts.push_back(vhost);
+            }
+
+            return s_conf;
+        }
+        catch (json::exception &e)
+        {
+            std::cerr << e.what() << "\n";
+            exit(1);
+        }
     }
 } // namespace http
