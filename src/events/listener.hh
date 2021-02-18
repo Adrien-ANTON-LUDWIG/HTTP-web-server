@@ -23,18 +23,22 @@ namespace http
          * \brief Create a ListenerEW from a listener socket.
          */
         explicit ListenerEW(shared_socket socket)
-            : sock_(socket)
+            : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
+            sock_ = socket;
             struct sockaddr_in sin;
             socklen_t len = sizeof(sin);
             getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
-            port_ = ntohs(sin.sin_port());
+            port_ = ntohs(sin.sin_port);
         }
 
         /**
          * \brief Start accepting connections on listener socket.
          */
-        void operator()() final;
+        void operator()() final
+        {
+            return;
+        }
 
     private:
         /**

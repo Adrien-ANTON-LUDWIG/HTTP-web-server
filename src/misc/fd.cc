@@ -6,7 +6,7 @@ namespace misc
 {
     FileDescriptor::~FileDescriptor()
     {
-        /* FIXME */
+        sys::close(fd_);
     }
 
     FileDescriptor &FileDescriptor::operator=(FileDescriptor &&fileDescriptor)
