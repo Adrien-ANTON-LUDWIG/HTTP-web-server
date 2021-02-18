@@ -7,7 +7,7 @@ Lines counter:
     tags:
         - default
     script:
-        - find . -name '*.c' | xargs wc -l
+        - find . -name '*.cc' -o -name '*.hh*' | xargs wc -l
 Build:
     stage: Build
     tags:
