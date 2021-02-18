@@ -40,6 +40,9 @@ namespace http
          * \param req Request.
          * \param conn std::shared_ptr<Connection>.
          */
-        void respond(Request &, std::shared_ptr<Connection>) final;
+        void respond(Request &, std::shared_ptr<Connection>) final
+        {
+            return;
+        }
     };
 } // namespace http

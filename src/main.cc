@@ -6,6 +6,8 @@
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
 
+http::Dispatcher dispatcher;
+
 int main(int argc, char *argv[])
 {
     std::cout << "Let's go !\n";
@@ -26,11 +28,12 @@ int main(int argc, char *argv[])
     std::string path(argv[1]);
 
     auto config = http::parse_configuration(path);
-    http::Dispatcher dispatcher;
+
     for (auto v : config.vhosts)
         dispatcher.add_vhost(http::VHostFactory::Create(v));
-
-    std::cout << "Listening...\n";
+    
+    for (auto v : dispatcher)
+        std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     return 0;
 }
