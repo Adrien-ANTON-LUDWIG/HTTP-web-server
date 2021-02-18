@@ -6,10 +6,10 @@
 
 #include <cstring>
 #include <netdb.h>
+#include <ostream>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <utility>
-#include <ostream>
 
 #include "addrinfo-error.hh"
 #include "addrinfo-iterator.hh"
@@ -26,8 +26,8 @@ namespace misc
         /**
          * \brief Constructor from an addrinfo struct.
          */
-        AddrInfo(::addrinfo* info)
-            : info_{info}
+        AddrInfo(::addrinfo *info)
+            : info_{ info }
         {}
 
         ~AddrInfo()
@@ -35,12 +35,12 @@ namespace misc
             freeaddrinfo(info_);
         }
 
-        AddrInfo(const AddrInfo&) = delete;
-        AddrInfo& operator=(const AddrInfo&) = delete;
-        AddrInfo(AddrInfo&& addr)
-            : info_{std::exchange(addr.info_, nullptr)}
+        AddrInfo(const AddrInfo &) = delete;
+        AddrInfo &operator=(const AddrInfo &) = delete;
+        AddrInfo(AddrInfo &&addr)
+            : info_{ std::exchange(addr.info_, nullptr) }
         {}
-        AddrInfo& operator=(AddrInfo&& addr)
+        AddrInfo &operator=(AddrInfo &&addr)
         {
             freeaddrinfo(info_);
             info_ = std::exchange(addr.info_, nullptr);
@@ -83,7 +83,7 @@ namespace misc
         /**
          * \brief Addrinfo structure held by the object.
          */
-        ::addrinfo* info_;
+        ::addrinfo *info_;
     };
 
     /**
@@ -101,7 +101,7 @@ namespace misc
         /**
          * \brief Specify the flag member of the structure.
          */
-        AddrInfoHint& flags(int val)
+        AddrInfoHint &flags(int val)
         {
             this->ai_flags = val;
             return *this;
@@ -110,7 +110,7 @@ namespace misc
         /**
          * \brief Specify the family member of the structure.
          */
-        AddrInfoHint& family(int val)
+        AddrInfoHint &family(int val)
         {
             this->ai_family = val;
             return *this;
@@ -119,7 +119,7 @@ namespace misc
         /**
          * \brief Specify the socktype member of the structure.
          */
-        AddrInfoHint& socktype(int val)
+        AddrInfoHint &socktype(int val)
         {
             this->ai_socktype = val;
             return *this;
@@ -128,7 +128,7 @@ namespace misc
         /**
          * \brief Specify the protocol member of the structure.
          */
-        AddrInfoHint& protocol(int val)
+        AddrInfoHint &protocol(int val)
         {
             this->ai_protocol = val;
             return *this;
@@ -137,7 +137,7 @@ namespace misc
         /**
          * \brief Specify the member of the structure.
          */
-        AddrInfoHint& addrlen(socklen_t val)
+        AddrInfoHint &addrlen(socklen_t val)
         {
             this->ai_addrlen = val;
             return *this;
@@ -146,7 +146,7 @@ namespace misc
         /**
          * \brief Specify the addr member of the structure.
          */
-        AddrInfoHint& addr(::sockaddr* val)
+        AddrInfoHint &addr(::sockaddr *val)
         {
             this->ai_addr = val;
             return *this;
@@ -155,7 +155,7 @@ namespace misc
         /**
          * \brief Specify the canonname member of the structure.
          */
-        AddrInfoHint& canonname(char* val)
+        AddrInfoHint &canonname(char *val)
         {
             this->ai_canonname = val;
             return *this;
@@ -164,7 +164,7 @@ namespace misc
         /**
          * \brief Specify the member next of the structure.
          */
-        AddrInfoHint& next(::addrinfo* val)
+        AddrInfoHint &next(::addrinfo *val)
         {
             this->ai_next = val;
             return *this;
@@ -174,8 +174,8 @@ namespace misc
     /**
      * \brief Wrapper around getaddrinfo(3).
      */
-    AddrInfo getaddrinfo(const char* node, const char* service,
-                         const AddrInfoHint& hints);
+    AddrInfo getaddrinfo(const char *node, const char *service,
+                         const AddrInfoHint &hints);
 } // namespace misc
 
 /**
@@ -183,4 +183,4 @@ namespace misc
  *
  * Only used for debug purposes.
  */
-std::ostream& operator<<(std::ostream&, const ::addrinfo&);
+std::ostream &operator<<(std::ostream &, const ::addrinfo &);

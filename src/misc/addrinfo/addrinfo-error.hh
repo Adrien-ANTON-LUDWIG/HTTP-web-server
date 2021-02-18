@@ -47,7 +47,7 @@ namespace misc
         /**
          * \brief Name of the category.
          */
-        virtual const char* name() const noexcept override
+        virtual const char *name() const noexcept override
         {
             return "addrinfo_error_category";
         }
@@ -63,7 +63,7 @@ namespace misc
     /**
      * \brief Singleton instance of the new error_category.
      */
-    const std::error_category& addrinfo_category();
+    const std::error_category &addrinfo_category();
 } // namespace misc
 
 namespace std

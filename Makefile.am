@@ -35,6 +35,7 @@ bin_PROGRAMS = spider
 lib_LTLIBRARIES = libspider.la
 
 SOURCES = \
+          src/config/config.cc \
           src/config/config.hh \
           src/error/init-error.hh \
           src/error/not-implemented.hh \

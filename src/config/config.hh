@@ -20,10 +20,10 @@ namespace http
     struct VHostConfig
     {
         VHostConfig() = default;
-        VHostConfig(const VHostConfig&) = default;
-        VHostConfig& operator=(const VHostConfig&) = default;
-        VHostConfig(VHostConfig&&) = default;
-        VHostConfig& operator=(VHostConfig&&) = default;
+        VHostConfig(const VHostConfig &) = default;
+        VHostConfig &operator=(const VHostConfig &) = default;
+        VHostConfig(VHostConfig &&) = default;
+        VHostConfig &operator=(VHostConfig &&) = default;
 
         ~VHostConfig() = default;
 
@@ -40,15 +40,20 @@ namespace http
     struct ServerConfig
     {
         ServerConfig() = default;
-        ServerConfig(const ServerConfig&) = default;
-        ServerConfig& operator=(const ServerConfig&) = default;
-        ServerConfig(ServerConfig&&) = default;
-        ServerConfig& operator=(ServerConfig&&) = default;
+        ServerConfig(const ServerConfig &) = default;
+        ServerConfig &operator=(const ServerConfig &) = default;
+        ServerConfig(ServerConfig &&) = default;
+        ServerConfig &operator=(ServerConfig &&) = default;
 
         ~ServerConfig() = default;
 
         /* FIXME: Add members to store the information relative to the
            configuration of the server. */
+        std::string ip;
+        unsigned int port;
+        std::string server_name;
+        std::string root;
+        std::string default_file = "index.html";
     };
 
     /**
@@ -58,6 +63,5 @@ namespace http
      * file.
      * \return The server configuration.
      */
-    struct ServerConfig parse_configuration(const std::string& path);
-
+    struct ServerConfig parse_configuration(const std::string &path);
 } // namespace http

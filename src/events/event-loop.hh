@@ -32,12 +32,12 @@ namespace http
          *
          * \param loop ev_loop* custom ev_loop.
          */
-        explicit EventLoop(struct ev_loop*);
+        explicit EventLoop(struct ev_loop *);
 
-        EventLoop(const EventLoop&) = default;
-        EventLoop& operator=(const EventLoop&) = default;
-        EventLoop(EventLoop&&) = default;
-        EventLoop& operator=(EventLoop&&) = default;
+        EventLoop(const EventLoop &) = default;
+        EventLoop &operator=(const EventLoop &) = default;
+        EventLoop(EventLoop &&) = default;
+        EventLoop &operator=(EventLoop &&) = default;
 
         /**
          * \brief Destroy the ev_loop.
@@ -51,28 +51,28 @@ namespace http
          *
          * \param watcher EventWatcher* to register in the loop.
          */
-        void register_watcher(EventWatcher*);
+        void register_watcher(EventWatcher *);
 
         /**
          * \brief Stop the given ev_io.
          *
          * \param watcher EventWatcher* to unregister in the loop.
          */
-        void unregister_watcher(EventWatcher*);
+        void unregister_watcher(EventWatcher *);
 
         /**
          * \brief Register SIGINT ev_signal.
          *
          * \param watcher ev_signal* to register in the loop.
          */
-        void register_sigint_watcher(ev_signal*) const;
+        void register_sigint_watcher(ev_signal *) const;
 
         /**
          * \brief Start ev_timer.
          *
          * \param watcher ev_timer* to register in the loop.
          */
-        void register_timer_watcher(ev_timer* et) const
+        void register_timer_watcher(ev_timer *et) const
         {
             // This is just a hack for clang++ warning
             // change this body once you implement timeouts
@@ -85,7 +85,7 @@ namespace http
          *
          * \param watcher ev_timer* to unregister in the loop.
          */
-        void unregister_timer_watcher(ev_timer* et) const
+        void unregister_timer_watcher(ev_timer *et) const
         {
             // This is just a hack for clang++ warning
             // change this body once you implement timeouts
@@ -100,7 +100,7 @@ namespace http
         /**
          * \brief Libev's event loop.
          */
-        struct ev_loop* loop;
+        struct ev_loop *loop;
     };
 
 } // namespace http

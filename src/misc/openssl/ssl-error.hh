@@ -30,7 +30,7 @@ namespace ssl
         SSL = SSL_ERROR_SSL
     };
 
-    inline constexpr const char* ssl_message(SSL_ERROR error)
+    inline constexpr const char *ssl_message(SSL_ERROR error)
     {
         switch (error)
         {
@@ -66,7 +66,7 @@ namespace ssl
     class ssl_error_category : public std::error_category
     {
     public:
-        virtual const char* name() const noexcept override
+        virtual const char *name() const noexcept override
         {
             return "ssl_error_category";
         }
@@ -77,7 +77,7 @@ namespace ssl
         }
     };
 
-    const std::error_category& ssl_category();
+    const std::error_category &ssl_category();
 
 } // namespace ssl
 

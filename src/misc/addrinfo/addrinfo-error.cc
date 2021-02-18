@@ -2,7 +2,7 @@
 
 namespace misc
 {
-    const std::error_category& addrinfo_category()
+    const std::error_category &addrinfo_category()
     {
         static addrinfo_error_category instance;
         return instance;

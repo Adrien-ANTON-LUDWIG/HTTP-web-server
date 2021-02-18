@@ -30,10 +30,10 @@ namespace http
     {
     public:
         EventWatcherRegistry() = default;
-        EventWatcherRegistry(const EventWatcherRegistry&) = delete;
-        EventWatcherRegistry& operator=(const EventWatcherRegistry&) = delete;
-        EventWatcherRegistry(EventWatcherRegistry&&) = delete;
-        EventWatcherRegistry& operator=(EventWatcherRegistry&&) = delete;
+        EventWatcherRegistry(const EventWatcherRegistry &) = delete;
+        EventWatcherRegistry &operator=(const EventWatcherRegistry &) = delete;
+        EventWatcherRegistry(EventWatcherRegistry &&) = delete;
+        EventWatcherRegistry &operator=(EventWatcherRegistry &&) = delete;
 
         ~EventWatcherRegistry() = default;
 
@@ -50,8 +50,7 @@ namespace http
          * \return A shared pointer on the constructed EventWatcher object.
          */
         template <typename EventWatcher, typename... Args>
-        std::shared_ptr<EventWatcher> register_event(Args&&...);
-
+        std::shared_ptr<EventWatcher> register_event(Args &&...);
 
         /**
          * \brief Unregister a given event watcher.
@@ -59,7 +58,7 @@ namespace http
          * \param watcher EventWatcher* to unregister.
          * \return If the operation was successful.
          */
-        bool unregister_ew(EventWatcher*);
+        bool unregister_ew(EventWatcher *);
 
         /**
          * \brief Access EventWatcher in the map.
@@ -67,7 +66,7 @@ namespace http
          * \param watcher EventWatcher* key to the events_ map.
          * \return The found EventWatcher otherwise std::nullopt.
          */
-        std::optional<std::shared_ptr<EventWatcher>> at(EventWatcher*);
+        std::optional<std::shared_ptr<EventWatcher>> at(EventWatcher *);
 
     private:
         /**
@@ -76,7 +75,7 @@ namespace http
          * This map is used to associate an ev_io to its registered
          * EventWatcher instance.
          */
-        std::unordered_map<EventWatcher*, std::shared_ptr<EventWatcher>>
+        std::unordered_map<EventWatcher *, std::shared_ptr<EventWatcher>>
             events_;
 
         /**

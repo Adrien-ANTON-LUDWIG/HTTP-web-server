@@ -36,7 +36,7 @@ namespace sys
      */
     inline auto kill = make_wrapper<void>(::kill);
 
-    static int open_wrapper(const char* path, int flags)
+    static int open_wrapper(const char *path, int flags)
     {
         return ::open(path, flags);
     }

@@ -8,7 +8,7 @@ namespace http
     {
     public:
         NotImplemented()
-            : std::logic_error{"not implemented exception"}
+            : std::logic_error{ "not implemented exception" }
         {}
         virtual ~NotImplemented() = default;
     };

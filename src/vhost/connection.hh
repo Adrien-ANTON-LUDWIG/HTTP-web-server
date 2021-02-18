@@ -22,10 +22,10 @@ namespace http
     struct Connection
     {
         Connection() = default;
-        Connection(const Connection& con) = default;
-        Connection& operator=(const Connection&) = default;
-        Connection(Connection&&) = default;
-        Connection& operator=(Connection&&) = default;
+        Connection(const Connection &con) = default;
+        Connection &operator=(const Connection &) = default;
+        Connection(Connection &&) = default;
+        Connection &operator=(Connection &&) = default;
         ~Connection() = default;
 
         /* FIXME: Add members to store the information relative to the

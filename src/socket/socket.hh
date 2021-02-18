@@ -23,36 +23,36 @@ namespace http
         /**
          * \brief Create a Socket from a fd.
          */
-        explicit Socket(const misc::shared_fd& fd)
-            : fd_{fd}
+        explicit Socket(const misc::shared_fd &fd)
+            : fd_{ fd }
         {}
 
         Socket() = default;
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-        Socket(Socket&&) = default;
-        Socket& operator=(Socket&&) = default;
+        Socket(const Socket &) = delete;
+        Socket &operator=(const Socket &) = delete;
+        Socket(Socket &&) = default;
+        Socket &operator=(Socket &&) = default;
         virtual ~Socket() = default;
 
         /**
          * \brief recv(2).
          */
-        virtual ssize_t recv(void* dst, size_t len) = 0;
+        virtual ssize_t recv(void *dst, size_t len) = 0;
 
         /**
          * \brief send(2).
          */
-        virtual ssize_t send(const void* src, size_t len) = 0;
+        virtual ssize_t send(const void *src, size_t len) = 0;
 
         /**
          * \brief sendfile(2).
          */
-        virtual ssize_t sendfile(misc::shared_fd&, off_t&, size_t) = 0;
+        virtual ssize_t sendfile(misc::shared_fd &, off_t &, size_t) = 0;
 
         /**
          * \brief bind(2).
          */
-        virtual void bind(const sockaddr* addr, socklen_t addrlen) = 0;
+        virtual void bind(const sockaddr *addr, socklen_t addrlen) = 0;
 
         /**
          * \brief listen(2).
@@ -67,18 +67,18 @@ namespace http
         /**
          * \brief getsockopt(2).
          */
-        virtual void getsockopt(int level, int optname, int& optval) = 0;
+        virtual void getsockopt(int level, int optname, int &optval) = 0;
 
         /**
          * \brief accept(2).
          */
-        virtual std::shared_ptr<Socket> accept(sockaddr* addr,
-                                               socklen_t* addrlen) = 0;
+        virtual std::shared_ptr<Socket> accept(sockaddr *addr,
+                                               socklen_t *addrlen) = 0;
 
         /**
          * \brief connect(2).
          */
-        virtual void connect(const sockaddr*, socklen_t) = 0;
+        virtual void connect(const sockaddr *, socklen_t) = 0;
 
         const misc::shared_fd fd_get() const noexcept
         {

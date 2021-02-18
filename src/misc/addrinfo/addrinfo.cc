@@ -2,10 +2,10 @@
 
 namespace misc
 {
-    AddrInfo getaddrinfo(const char* node, const char* service,
-                         const AddrInfoHint& hints)
+    AddrInfo getaddrinfo(const char *node, const char *service,
+                         const AddrInfoHint &hints)
     {
-        struct addrinfo* res;
+        struct addrinfo *res;
 
         auto rc = ::getaddrinfo(node, service, &hints, &res);
         if (rc)
@@ -16,7 +16,7 @@ namespace misc
     }
 } // namespace misc
 
-std::ostream& operator<<(std::ostream& os, const addrinfo&)
+std::ostream &operator<<(std::ostream &os, const addrinfo &)
 {
     os << "addrinfo{"
        << "}";

@@ -30,7 +30,7 @@ namespace misc
          * \brief Constructor from a given AddrInfo.
          * \param p Value* the AddrInfo
          */
-        explicit addrinfo_iter(Value* p)
+        explicit addrinfo_iter(Value *p)
             : m_node(p)
         {}
 
@@ -64,7 +64,7 @@ namespace misc
         /**
          * \brief Check equality between iterators.
          */
-        bool equal(const addrinfo_iter<Value>& other) const
+        bool equal(const addrinfo_iter<Value> &other) const
         {
             return this->m_node == other.m_node;
         }
@@ -72,7 +72,7 @@ namespace misc
         /**
          * \brief Access to the value through dereferenciation
          */
-        Value& dereference() const
+        Value &dereference() const
         {
             return *m_node;
         }
@@ -80,7 +80,7 @@ namespace misc
         /**
          * \brief Begin of a given iterator.
          */
-        Value& begin(const addrinfo_iter<Value>& n)
+        Value &begin(const addrinfo_iter<Value> &n)
         {
             return n->m_node;
         }
@@ -88,7 +88,7 @@ namespace misc
         /**
          * \brief Current value of the iterator.
          */
-        Value* m_node;
+        Value *m_node;
     };
 
     /**

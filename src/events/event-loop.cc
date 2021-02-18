@@ -1,6 +1,5 @@
 #include "events/event-loop.hh"
 
-
 namespace http
 {
     EventLoop::EventLoop()
@@ -8,7 +7,7 @@ namespace http
         /* FIXME */
     }
 
-    EventLoop::EventLoop(struct ev_loop*)
+    EventLoop::EventLoop(struct ev_loop *)
     {
         /* FIXME */
     }
@@ -17,6 +16,5 @@ namespace http
     {
         /* FIXME */
     }
-
 
 } // namespace http

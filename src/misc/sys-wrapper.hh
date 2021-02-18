@@ -22,13 +22,13 @@ namespace sys
     {
     public:
         SysWrapper(SysRetType syscall(Args...))
-            : syscall_{syscall}
+            : syscall_{ syscall }
         {}
 
         /* Needs template to enable universal referencing.
            Template deduction should be done automatically. */
         template <typename... UniversalArgs>
-        RetType operator()(UniversalArgs&&... args)
+        RetType operator()(UniversalArgs &&...args)
         {
             SysRetType ret;
 

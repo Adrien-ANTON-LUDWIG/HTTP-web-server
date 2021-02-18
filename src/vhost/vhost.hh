@@ -27,13 +27,13 @@ namespace http
          *
          * \param conf VHostConfig virtual host configuration.
          */
-        explicit VHost(const VHostConfig&);
+        explicit VHost(const VHostConfig &);
 
         VHost() = delete;
-        VHost(const VHost&) = delete;
-        VHost& operator=(const VHost&) = delete;
-        VHost(VHost&&) = delete;
-        VHost& operator=(VHost&&) = delete;
+        VHost(const VHost &) = delete;
+        VHost &operator=(const VHost &) = delete;
+        VHost(VHost &&) = delete;
+        VHost &operator=(VHost &&) = delete;
         virtual ~VHost() = default;
 
         /**
@@ -42,10 +42,9 @@ namespace http
          * \param req Request.
          * \param conn Connection.
          */
-        virtual void respond(Request&, std::shared_ptr<Connection>) = 0;
+        virtual void respond(Request &, std::shared_ptr<Connection>) = 0;
 
-
-        inline const VHostConfig& conf_get() const noexcept
+        inline const VHostConfig &conf_get() const noexcept
         {
             return conf_;
         }
@@ -70,8 +69,9 @@ namespace http
          * Warning: with this unique_ptr syntax, you'll need to instanciate the
          * pointer with both a value and a Deleter function.
          */
-        std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free)*> ssl_ctx_{
-            nullptr, SSL_CTX_free};
+        std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) *> ssl_ctx_{
+            nullptr, SSL_CTX_free
+        };
     };
 
     using shared_vhost = std::shared_ptr<VHost>;

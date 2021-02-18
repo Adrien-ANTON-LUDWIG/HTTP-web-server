@@ -15,7 +15,7 @@ namespace ssl
      * \param message encoded in base64.
      * \return The decoded message.
      */
-    std::string base64_decode(const std::string& b64message);
+    std::string base64_decode(const std::string &b64message);
 
     /**
      * \brief Encode a string in base64.
@@ -23,5 +23,5 @@ namespace ssl
      * \param buffer that needs to be encoded.
      * \return The encoded message.
      */
-    std::string base64_encode(const std::string& buffer);
+    std::string base64_encode(const std::string &buffer);
 } // namespace ssl

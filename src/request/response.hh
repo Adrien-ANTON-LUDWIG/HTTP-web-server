@@ -16,14 +16,14 @@ namespace http
      */
     struct Response
     {
-        explicit Response(const STATUS_CODE&);
-        Response(const Request&, const STATUS_CODE& = STATUS_CODE::OK);
+        explicit Response(const STATUS_CODE &);
+        Response(const Request &, const STATUS_CODE & = STATUS_CODE::OK);
 
         Response() = default;
-        Response(const Response&) = default;
-        Response& operator=(const Response&) = default;
-        Response(Response&&) = default;
-        Response& operator=(Response&&) = default;
+        Response(const Response &) = default;
+        Response &operator=(const Response &) = default;
+        Response(Response &&) = default;
+        Response &operator=(Response &&) = default;
         ~Response() = default;
         // FIXME: Add members to store the information relative to a response.
     };

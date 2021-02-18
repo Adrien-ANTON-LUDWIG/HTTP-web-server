@@ -1,5 +1,6 @@
 aclocal.m4
-config.h*
+config.h.in
+config.h.in~
 configure*
 Makefile.in
 autom4te.cache
@@ -19,3 +20,4 @@ configure.ac
 *.a
 *.lai
 spider
+.vscode

@@ -28,11 +28,11 @@ namespace ssl
     {
     public:
         SSLWrapper(FuncRetType func(Args...))
-            : func_{func}
+            : func_{ func }
         {}
 
         template <typename... UniversalArgs>
-        RetType operator()(::SSL* ssl, UniversalArgs&&... args)
+        RetType operator()(::SSL *ssl, UniversalArgs &&...args)
         {
             FuncRetType ret;
 
@@ -81,12 +81,12 @@ namespace ssl
     {
     public:
         SSLCtxWrapper(FuncRetType func(Args...))
-            : func_{func}
+            : func_{ func }
         {}
 
         template <typename... UniversalArgs>
-        RetType operator()(const std::string& error_string,
-                           UniversalArgs&&... args)
+        RetType operator()(const std::string &error_string,
+                           UniversalArgs &&...args)
         {
             auto ret = func_(std::forward<UniversalArgs>(args)...);
 

@@ -6,9 +6,9 @@
 #pragma once
 
 #include "config/config.hh"
-#include "request/request.hh"
 #include "misc/addrinfo/addrinfo-iterator.hh"
 #include "misc/addrinfo/addrinfo.hh"
+#include "request/request.hh"
 #include "vhost/connection.hh"
 #include "vhost/vhost.hh"
 
@@ -31,7 +31,7 @@ namespace http
          *
          * \param config VHostConfig virtual host configuration.
          */
-        explicit VHostReverseProxy(const VHostConfig&);
+        explicit VHostReverseProxy(const VHostConfig &);
 
     public:
         /**
@@ -40,6 +40,6 @@ namespace http
          * \param req Request.
          * \param conn std::shared_ptr<Connection>.
          */
-        void respond(Request&, std::shared_ptr<Connection>) final;
+        void respond(Request &, std::shared_ptr<Connection>) final;
     };
 } // namespace http

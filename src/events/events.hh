@@ -34,11 +34,10 @@ namespace http
          */
         EventWatcher(int fd, int flags);
 
-
-        EventWatcher(const EventWatcher&) = delete;
-        EventWatcher& operator=(const EventWatcher&) = delete;
-        EventWatcher(EventWatcher&&) = delete;
-        EventWatcher& operator=(EventWatcher&&) = delete;
+        EventWatcher(const EventWatcher &) = delete;
+        EventWatcher &operator=(const EventWatcher &) = delete;
+        EventWatcher(EventWatcher &&) = delete;
+        EventWatcher &operator=(EventWatcher &&) = delete;
         virtual ~EventWatcher() = default;
 
         /**
@@ -49,8 +48,7 @@ namespace http
          */
         virtual void operator()() = 0;
 
-
-        ev_io& watcher_get() noexcept
+        ev_io &watcher_get() noexcept
         {
             return watcher_;
         }
@@ -65,7 +63,7 @@ namespace http
          *
          * \param watcher ev_io* which received an event.
          */
-        static void event_callback(struct ev_loop* loop, ev_io* w, int revents);
+        static void event_callback(struct ev_loop *loop, ev_io *w, int revents);
 
         /**
          * \brief Libev's io watcher.

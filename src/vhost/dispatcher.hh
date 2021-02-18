@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 namespace http
 {
     /**
@@ -16,10 +15,10 @@ namespace http
     {
     public:
         Dispatcher() = default;
-        Dispatcher(const Dispatcher&) = delete;
-        Dispatcher& operator=(const Dispatcher&) = delete;
-        Dispatcher(Dispatcher&&) = delete;
-        Dispatcher& operator=(Dispatcher&&) = delete;
+        Dispatcher(const Dispatcher &) = delete;
+        Dispatcher &operator=(const Dispatcher &) = delete;
+        Dispatcher(Dispatcher &&) = delete;
+        Dispatcher &operator=(Dispatcher &&) = delete;
 
     private:
         /* FIXME: Add members to store the information relative to the

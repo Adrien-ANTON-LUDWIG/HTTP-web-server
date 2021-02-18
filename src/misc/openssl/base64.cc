@@ -9,7 +9,7 @@
 
 namespace ssl
 {
-    static size_t decode_length(const std::string& b64input)
+    static size_t decode_length(const std::string &b64input)
     {
         size_t len = b64input.length();
         size_t padding = 0;
@@ -24,10 +24,10 @@ namespace ssl
         return (len * 3) / 4 - padding;
     }
 
-    std::string base64_decode(const std::string& b64message)
+    std::string base64_decode(const std::string &b64message)
     {
-        BIO* bio;
-        BIO* b64;
+        BIO *bio;
+        BIO *b64;
 
         auto decode_len = decode_length(b64message);
 
@@ -54,11 +54,11 @@ namespace ssl
         return buffer;
     }
 
-    std::string base64_encode(const std::string& buffer)
+    std::string base64_encode(const std::string &buffer)
     {
-        BIO* bio;
-        BIO* b64;
-        char* buffer_ptr;
+        BIO *bio;
+        BIO *b64;
+        char *buffer_ptr;
 
         b64 = BIO_new(BIO_f_base64());
         bio = BIO_new(BIO_s_mem());
@@ -75,7 +75,7 @@ namespace ssl
         BIO_flush(bio);
 
         const size_t len = BIO_get_mem_data(bio, &buffer_ptr);
-        std::string encoded_string{buffer_ptr, len};
+        std::string encoded_string{ buffer_ptr, len };
 
         BIO_free_all(bio);
 

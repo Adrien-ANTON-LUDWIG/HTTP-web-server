@@ -25,31 +25,31 @@ namespace misc
          */
 
         explicit FileDescriptor(int fd)
-            : fd_{fd}
+            : fd_{ fd }
         {}
 
         FileDescriptor() = default;
-        FileDescriptor(const FileDescriptor&) = delete;
-        FileDescriptor& operator=(const FileDescriptor&) = delete;
+        FileDescriptor(const FileDescriptor &) = delete;
+        FileDescriptor &operator=(const FileDescriptor &) = delete;
 
-        FileDescriptor(FileDescriptor&& fileDescriptor)
-            : fd_{std::exchange(fileDescriptor.fd_, -1)}
+        FileDescriptor(FileDescriptor &&fileDescriptor)
+            : fd_{ std::exchange(fileDescriptor.fd_, -1) }
         {}
-        FileDescriptor& operator=(FileDescriptor&& fileDescriptor);
+        FileDescriptor &operator=(FileDescriptor &&fileDescriptor);
 
         ~FileDescriptor();
 
         /**
          * \brief Implicit conversion to int.
          */
-        operator int() const&;
+        operator int() const &;
 
         /**
          * \brief Implicit conversion to bool.
          *
          * \return Whether or not the FileDescriptor holds a valid fd.
          */
-        operator bool() const&;
+        operator bool() const &;
 
         /**
          * \brief The fd held by the FileDescriptor object.
