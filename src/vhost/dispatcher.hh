@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "vhost/vhost.hh"
+
 namespace http
 {
     /**
@@ -20,10 +22,16 @@ namespace http
         Dispatcher(Dispatcher &&) = delete;
         Dispatcher &operator=(Dispatcher &&) = delete;
 
+        void add_vhost(const shared_vhost &vhost)
+        {
+            vhosts_.push_back(vhost);
+        }
+
     private:
         /* FIXME: Add members to store the information relative to the
         ** Dispatcher.
         */
+        std::vector<shared_vhost> vhosts_;
     };
 
     /**

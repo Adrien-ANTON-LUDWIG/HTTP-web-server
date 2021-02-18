@@ -9,6 +9,7 @@
 #include "request/request.hh"
 #include "request/response.hh"
 #include "vhost/connection.hh"
+#include "vhost/vhost-factory.hh"
 #include "vhost/vhost.hh"
 
 namespace http

@@ -3,6 +3,8 @@
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
+#include "vhost/dispatcher.hh"
+#include "vhost/vhost-factory.hh"
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +26,10 @@ int main(int argc, char *argv[])
     std::string path(argv[1]);
 
     auto config = http::parse_configuration(path);
+    http::Dispatcher dispatcher;
+    for (auto v : config.vhosts)
+        dispatcher.add_vhost(http::VHostFactory::Create(v));
+
     std::cout << "Listening...\n";
 
     return 0;
