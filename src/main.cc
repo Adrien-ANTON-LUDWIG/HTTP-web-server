@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     for (auto v : config.vhosts)
         dispatcher.add_vhost(http::VHostFactory::Create(v));
-    
+
     for (auto v : dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 

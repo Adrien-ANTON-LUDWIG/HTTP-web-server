@@ -3,8 +3,8 @@
  * \brief VHostFactory
  */
 
-#include "vhost/vhost.hh"
 #include "vhost/vhost-static-file.hh"
+#include "vhost/vhost.hh"
 
 namespace http
 {
@@ -20,10 +20,10 @@ namespace http
          */
         static shared_vhost Create(const VHostConfig &vhost_c)
         {
-            shared_vhost ptr = std::shared_ptr<VHost>(new VHostStaticFile(vhost_c));
-            return ptr;
+            // shared_vhost ptr = std::shared_ptr<VHost>(new
+            // VHostStaticFile(vhost_c)); return ptr;
 
-            std::ma
+            return std::make_shared<VHost>(vhost_c);
         }
     };
 

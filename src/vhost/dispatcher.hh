@@ -17,6 +17,7 @@ namespace http
     {
         using iterator = std::vector<shared_vhost>::iterator;
         using const_iterator = std::vector<shared_vhost>::const_iterator;
+
     public:
         Dispatcher() = default;
         Dispatcher(const Dispatcher &) = delete;
