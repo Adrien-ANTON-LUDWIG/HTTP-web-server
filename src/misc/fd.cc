@@ -6,7 +6,8 @@ namespace misc
 {
     FileDescriptor::~FileDescriptor()
     {
-        sys::close(fd_);
+        if (fd_ >= 0)
+            sys::close(fd_);
     }
 
     FileDescriptor &FileDescriptor::operator=(FileDescriptor &&fileDescriptor)
