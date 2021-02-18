@@ -1,7 +1,14 @@
 stages:
     - Build
     - Mandatory
-build:
+    - Misc
+Lines counter:
+    stage: Misc
+    tags:
+        - default
+    script:
+        - find . -name '*.c' -o name '*.h' | xargs wc -l
+Build:
     stage: Build
     tags:
         - default
