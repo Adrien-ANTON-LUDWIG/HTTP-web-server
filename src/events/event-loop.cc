@@ -31,4 +31,9 @@ namespace http
     {
         ev_signal_start(loop, es);
     }
+
+    void EventLoop::operator()() const
+    {
+        ev_run(loop);
+    }
 } // namespace http

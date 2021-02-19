@@ -10,10 +10,9 @@
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
 
-http::Dispatcher dispatcher;
-http::EventWatcherRegistry event_register;
+http::Dispatcher http::dispatcher;
 
-static http::ListenerEW *create_and_bind(http::shared_vhost x)
+static http::shared_socket create_and_bind(http::shared_vhost x)
 {
     auto port = x->conf_get().port;
     std::string host = x->conf_get().ip;
@@ -48,17 +47,18 @@ static http::ListenerEW *create_and_bind(http::shared_vhost x)
 
     http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
-    return new http::ListenerEW(sock);
+    // return new http::ListenerEW(sock);
+    return sock;
 }
 
 static void start_server()
 {
-    for (auto x : dispatcher)
+    for (auto x : http::dispatcher)
     {
         auto lew = create_and_bind(x);
-        auto lew_shared = std::shared_ptr<http::ListenerEW>(lew);
-        event_register.register_event<http::ListenerEW>(lew_shared);
+        http::event_register.register_event<http::ListenerEW>(lew);
     }
+    http::event_register.launch_loop();
 }
 
 int main(int argc, char *argv[])
@@ -83,9 +83,9 @@ int main(int argc, char *argv[])
     auto config = http::parse_configuration(path);
 
     for (auto v : config.vhosts)
-        dispatcher.add_vhost(http::VHostFactory::Create(v));
+        http::dispatcher.add_vhost(http::VHostFactory::Create(v));
 
-    for (auto v : dispatcher)
+    for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     start_server();

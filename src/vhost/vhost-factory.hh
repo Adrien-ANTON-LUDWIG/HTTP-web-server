@@ -1,3 +1,4 @@
+#pragma once
 /**
  * \file vhost/vhost-factory.hh
  * \brief VHostFactory
