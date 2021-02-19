@@ -57,7 +57,7 @@ static void start_server()
     {
         auto lew = create_and_bind(x);
         auto lew_shared = std::shared_ptr<http::ListenerEW>(lew);
-        event_register.register_event<http::ListenerEW>(*lew_shared);
+        event_register.register_event<http::ListenerEW>(lew_shared);
     }
 }
 
@@ -89,6 +89,6 @@ int main(int argc, char *argv[])
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     start_server();
-    
+
     return 0;
 }
