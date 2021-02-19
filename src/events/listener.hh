@@ -37,7 +37,7 @@ namespace http
          */
         void operator()() final
         {
-            return;
+            std::cout << "Client connected !\n";
         }
 
     private:

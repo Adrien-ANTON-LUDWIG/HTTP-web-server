@@ -29,7 +29,11 @@ namespace http
     class EventWatcherRegistry
     {
     public:
-        EventWatcherRegistry() = default;
+        EventWatcherRegistry()
+        {
+            events_ = std::unordered_map<EventWatcher *,
+                                         std::shared_ptr<EventWatcher>>();
+        }
         EventWatcherRegistry(const EventWatcherRegistry &) = delete;
         EventWatcherRegistry &operator=(const EventWatcherRegistry &) = delete;
         EventWatcherRegistry(EventWatcherRegistry &&) = delete;
@@ -59,6 +63,11 @@ namespace http
          * \return If the operation was successful.
          */
         bool unregister_ew(EventWatcher *);
+
+        void launch_loop()
+        {
+            loop_();
+        }
 
         /**
          * \brief Access EventWatcher in the map.

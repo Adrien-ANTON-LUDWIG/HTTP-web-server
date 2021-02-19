@@ -4,14 +4,15 @@
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "events/listener.hh"
+#include "events/register.hh"
 #include "misc/addrinfo/addrinfo.hh"
 #include "socket/default-socket.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
 
-http::Dispatcher dispatcher;
+http::Dispatcher http::dispatcher;
 
-static http::ListenerEW *create_and_bind(http::shared_vhost x)
+static http::shared_socket create_and_bind(http::shared_vhost x)
 {
     auto port = x->conf_get().port;
     std::string host = x->conf_get().ip;
@@ -23,14 +24,14 @@ static http::ListenerEW *create_and_bind(http::shared_vhost x)
     auto addrinfo =
         misc::getaddrinfo(host.c_str(), std::to_string(port).c_str(), hint);
 
-    http::DefaultSocket sfd;
+    http::DefaultSocket *sfd = new http::DefaultSocket();
     for (auto rp : addrinfo)
     {
         try
         {
-            sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
-                                      rp.ai_protocol);
-            sfd.bind(rp.ai_addr, rp.ai_addrlen);
+            *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
+                                       rp.ai_protocol);
+            sfd->bind(rp.ai_addr, rp.ai_addrlen);
             break;
         }
         catch (const std::exception &)
@@ -38,24 +39,26 @@ static http::ListenerEW *create_and_bind(http::shared_vhost x)
             continue;
         }
     }
-    if (sfd.fd_get().get()->fd_ == -1)
+    if (sfd->fd_get().get()->fd_ == -1)
     {
         std::cerr << "Could not bind to any interface\n";
         exit(0);
     }
 
-    http::shared_socket sock = std::shared_ptr<http::Socket>(&sfd);
+    http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
-    return new http::ListenerEW(sock);
+    // return new http::ListenerEW(sock);
+    return sock;
 }
 
 static void start_server()
 {
-    for (auto x : dispatcher)
+    for (auto x : http::dispatcher)
     {
         auto lew = create_and_bind(x);
-        (void)(lew);
+        http::event_register.register_event<http::ListenerEW>(lew);
     }
+    http::event_register.launch_loop();
 }
 
 int main(int argc, char *argv[])
@@ -80,9 +83,9 @@ int main(int argc, char *argv[])
     auto config = http::parse_configuration(path);
 
     for (auto v : config.vhosts)
-        dispatcher.add_vhost(http::VHostFactory::Create(v));
+        http::dispatcher.add_vhost(http::VHostFactory::Create(v));
 
-    for (auto v : dispatcher)
+    for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     start_server();

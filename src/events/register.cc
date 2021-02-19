@@ -7,9 +7,13 @@ namespace http
     EventWatcherRegistry event_register;
 
     std::optional<std::shared_ptr<EventWatcher>>
-    EventWatcherRegistry::at(EventWatcher *)
+    EventWatcherRegistry::at(EventWatcher *ew)
     {
-        /* FIXME */
+        for (auto x : event_register.events_)
+        {
+            if (x.first == ew)
+                return std::optional<std::shared_ptr<EventWatcher>>(x.second);
+        }
         return std::nullopt;
     }
 

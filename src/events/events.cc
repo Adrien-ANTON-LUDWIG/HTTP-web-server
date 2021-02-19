@@ -1,5 +1,8 @@
 #include "events/events.hh"
 
+#include <iostream>
+#include <optional>
+
 #include "events/register.hh"
 
 namespace http
@@ -13,7 +16,12 @@ namespace http
     void EventWatcher::event_callback(struct ev_loop *, ev_io *w, int)
     {
         auto ew = reinterpret_cast<EventWatcher *>(w->data);
-        auto shared_ew = event_register.at(ew).value();
-        (*shared_ew)();
+        auto shared_ew = event_register.at(ew);
+        if (shared_ew == std::nullopt)
+        {
+            std::cerr << "Null optional\n";
+            return;
+        }
+        (*(shared_ew.value()))();
     }
 } // namespace http

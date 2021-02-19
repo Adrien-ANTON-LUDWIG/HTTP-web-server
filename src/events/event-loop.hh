@@ -51,21 +51,21 @@ namespace http
          *
          * \param watcher EventWatcher* to register in the loop.
          */
-        void register_watcher(EventWatcher *);
+        void register_watcher(EventWatcher *ew);
 
         /**
          * \brief Stop the given ev_io.
          *
          * \param watcher EventWatcher* to unregister in the loop.
          */
-        void unregister_watcher(EventWatcher *);
+        void unregister_watcher(EventWatcher *ew);
 
         /**
          * \brief Register SIGINT ev_signal.
          *
          * \param watcher ev_signal* to register in the loop.
          */
-        void register_sigint_watcher(ev_signal *) const;
+        void register_sigint_watcher(ev_signal *es) const;
 
         /**
          * \brief Start ev_timer.
