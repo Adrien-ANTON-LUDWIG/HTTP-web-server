@@ -8,6 +8,8 @@
 #include <arpa/inet.h>
 
 #include "events/events.hh"
+#include "events/recvrequest.hh"
+#include "events/register.hh"
 #include "socket/socket.hh"
 
 namespace http
@@ -39,12 +41,9 @@ namespace http
         {
             try
             {
-                std::cout << "Client waiting to be accepted...\n";
-                // (void) addr_size;
-                sock_->accept(nullptr, nullptr);
-                // sock_.get()->accept((struct sockaddr *)&their_addr,
-                // &addr_size);
-                std::cout << "Client (really) connected !\n";
+                auto client_socket = sock_->accept(nullptr, nullptr);
+                event_register.register_event<RecvRequestEW>(client_socket);
+                std::cout << "Client connected !\n";
             }
             catch (const std::exception &e)
             {
@@ -52,8 +51,6 @@ namespace http
                           << '\n';
                 return;
             }
-
-            std::cout << "Client connected !\n";
         }
 
     private:

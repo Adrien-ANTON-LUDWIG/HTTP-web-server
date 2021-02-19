@@ -1,0 +1,10 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": "carotte",
+            "server_name": "localhost",
+            "root": "."
+        }
+    ]
+}

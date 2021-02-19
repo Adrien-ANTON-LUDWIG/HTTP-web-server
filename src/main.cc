@@ -6,6 +6,7 @@
 #include "events/listener.hh"
 #include "events/register.hh"
 #include "misc/addrinfo/addrinfo.hh"
+#include "misc/readiness/readiness.hh"
 #include "socket/default-socket.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
@@ -61,7 +62,6 @@ static void start_server()
         auto lew = create_and_bind(x);
         http::event_register.register_event<http::ListenerEW>(lew);
     }
-    http::event_register.launch_loop();
 }
 
 int main(int argc, char *argv[])
@@ -92,6 +92,9 @@ int main(int argc, char *argv[])
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 
     start_server();
+
+    misc::announce_spider_readiness(argv[0]);
+    http::event_register.launch_loop();
 
     return 0;
 }

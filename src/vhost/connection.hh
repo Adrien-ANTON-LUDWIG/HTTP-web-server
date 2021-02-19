@@ -28,8 +28,12 @@ namespace http
         Connection &operator=(Connection &&) = default;
         ~Connection() = default;
 
+        int nb_bytes_read;
+        int nb_to_read;
         /* FIXME: Add members to store the information relative to the
         ** connection.
         */
+        // RecvHeadersEW headers;
+        // RecvBodyEW body;
     };
 } // namespace http

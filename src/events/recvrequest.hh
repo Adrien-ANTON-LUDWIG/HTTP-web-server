@@ -8,12 +8,15 @@
 #include <arpa/inet.h>
 
 #include "events/events.hh"
+#include "vhost/dispatcher.hh"
+
+#define BUFFER_SIZE 512
 
 namespace http
 {
     /**
-     * \class RecvRequestEW
-     * \brief Workflow for Receive Request events.
+     * \class RecvHeadersEW
+     * \brief Workflow for Receive Headers events.
      */
     class RecvRequestEW : public EventWatcher
     {
@@ -32,7 +35,19 @@ namespace http
          */
         void operator()() final
         {
-            return;
+            char buffer[BUFFER_SIZE];
+            auto read_size = sock_->recv(buffer, BUFFER_SIZE);
+            message.append(buffer, buffer + read_size);
+            std::string carriage = "\r\n\r\n";
+
+            if (message.find(carriage) == message.size() - carriage.size())
+            {
+                std::cout << message;
+                // Process
+                // dispatcher.dispatch(this);
+
+                message.erase();
+            }
         }
 
     private:
@@ -45,5 +60,11 @@ namespace http
          * \brief Message of the client
          */
         std::string message = "";
+
+        /**
+         * @brief
+         *
+         */
+        Connection connection;
     };
 } // namespace http

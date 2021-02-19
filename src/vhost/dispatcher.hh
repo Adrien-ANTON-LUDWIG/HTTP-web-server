@@ -30,6 +30,11 @@ namespace http
             vhosts_.push_back(vhost);
         }
 
+        /*void dispatch(const RecvRequestEW &request)
+        {
+            vhosts_.response();
+        }*/
+
         iterator begin()
         {
             return vhosts_.begin();
