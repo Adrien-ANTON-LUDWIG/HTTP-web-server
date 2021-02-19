@@ -105,20 +105,11 @@ namespace http
 
     shared_socket DefaultSocket::accept(sockaddr *addr, socklen_t *addrlen)
     {
-        try
-        {
-            misc::FileDescriptor new_fd = sys::accept(*fd_, addr, addrlen);
-            misc::shared_fd fd_ptr =
-                std::shared_ptr<misc::FileDescriptor>(&new_fd);
-            shared_socket ptr =
-                std::shared_ptr<Socket>(new DefaultSocket(fd_ptr));
-            return ptr;
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "Accept Failed : " << e.what() << '\n';
-            return nullptr;
-        }
+        misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
+            sys::accept(*fd_, addr, addrlen));
+        shared_socket ptr = std::make_shared<DefaultSocket>(fd_ptr);
+        sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
+        return ptr;
     }
 
     void DefaultSocket::connect(const sockaddr *addr, socklen_t addrlen)

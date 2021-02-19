@@ -22,11 +22,14 @@ AM_CXXFLAGS = \
               -Wno-inline \
               $(NULL) \
               -g \
-              -Og
+              -Og \
+              -D_DEBUG \
+              -fsanitize=address
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
              $(BOOST_LDFLAGS) \
+             -lasan \
              -lev \
              -lssl \
              -lcrypto \

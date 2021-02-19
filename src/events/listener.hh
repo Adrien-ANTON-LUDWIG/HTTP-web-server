@@ -37,6 +37,22 @@ namespace http
          */
         void operator()() final
         {
+            try
+            {
+                std::cout << "Client waiting to be accepted...\n";
+                // (void) addr_size;
+                sock_->accept(nullptr, nullptr);
+                // sock_.get()->accept((struct sockaddr *)&their_addr,
+                // &addr_size);
+                std::cout << "Client (really) connected !\n";
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << "Error while accepting client: " << e.what()
+                          << '\n';
+                return;
+            }
+
             std::cout << "Client connected !\n";
         }
 
