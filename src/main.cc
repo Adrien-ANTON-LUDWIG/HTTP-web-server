@@ -25,14 +25,14 @@ static http::ListenerEW *create_and_bind(http::shared_vhost x)
     auto addrinfo =
         misc::getaddrinfo(host.c_str(), std::to_string(port).c_str(), hint);
 
-    http::DefaultSocket sfd;
+    http::DefaultSocket *sfd = new http::DefaultSocket();
     for (auto rp : addrinfo)
     {
         try
         {
-            sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
-                                      rp.ai_protocol);
-            sfd.bind(rp.ai_addr, rp.ai_addrlen);
+            *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
+                                       rp.ai_protocol);
+            sfd->bind(rp.ai_addr, rp.ai_addrlen);
             break;
         }
         catch (const std::exception &)
@@ -40,13 +40,13 @@ static http::ListenerEW *create_and_bind(http::shared_vhost x)
             continue;
         }
     }
-    if (sfd.fd_get().get()->fd_ == -1)
+    if (sfd->fd_get().get()->fd_ == -1)
     {
         std::cerr << "Could not bind to any interface\n";
         exit(0);
     }
 
-    http::shared_socket sock = std::shared_ptr<http::Socket>(&sfd);
+    http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
     return new http::ListenerEW(sock);
 }
