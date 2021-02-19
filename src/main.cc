@@ -31,6 +31,9 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
         {
             *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
                                        rp.ai_protocol);
+#ifdef _DEBUG
+            sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
+#endif
             sfd->bind(rp.ai_addr, rp.ai_addrlen);
             break;
         }
