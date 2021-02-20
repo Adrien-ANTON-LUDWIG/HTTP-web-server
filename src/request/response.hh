@@ -17,7 +17,8 @@ namespace http
     struct Response
     {
         explicit Response(const STATUS_CODE &);
-        Response(const Request &, const STATUS_CODE & = STATUS_CODE::OK);
+        Response(const struct Request &req,
+                 const STATUS_CODE & = STATUS_CODE::OK);
 
         Response() = default;
         Response(const Response &) = default;
@@ -25,5 +26,7 @@ namespace http
         Response(Response &&) = default;
         Response &operator=(Response &&) = default;
         ~Response() = default;
+
+        std::string response;
     };
 } // namespace http

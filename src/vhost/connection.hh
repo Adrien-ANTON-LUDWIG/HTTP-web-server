@@ -45,4 +45,6 @@ namespace http
          */
         std::string message = "";
     };
+
+    using shared_connection = std::shared_ptr<Connection>;
 } // namespace http

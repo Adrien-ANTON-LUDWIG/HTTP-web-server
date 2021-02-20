@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "request/response.hh"
 #include "request/types.hh"
 namespace http
 {
@@ -28,7 +29,7 @@ namespace http
 
     /**
      * \struct Request
-     * \brief Value object representing a request.
+     * \brief Value ob=ject representing a request.
      */
     struct Request
     {
@@ -71,7 +72,7 @@ namespace http
                 std::cerr << "Bad version";
 
             std::string line;
-            while (getline(ss, line))
+            while (getline(ss, line) && line != "")
             {
                 std::string name;
                 std::string value;
@@ -79,13 +80,18 @@ namespace http
                 {
                     auto pos = line.find(":");
                     name = line.substr(0, pos++);
+
                     while (isspace(line[pos]))
                         pos++;
                     value = line.substr(pos, line.size() - pos);
+                    if (name == "Content-Length")
+                        content_length = stoi(value);
                     headers.push_back(
                         std::pair<std::string, std::string>(name, value));
                 }
             }
+
+            body = ss.str().substr(ss.tellg());
         }
 
         void pretty_print()
@@ -102,7 +108,7 @@ namespace http
         std::string uri;
         std::vector<std::pair<std::string, std::string>> headers;
 
-        size_t content_length;
+        size_t content_length = 0;
         std::string body;
     };
 } // namespace http

@@ -17,4 +17,14 @@ namespace http
         return std::nullopt;
     }
 
+    bool EventWatcherRegistry::unregister_ew(EventWatcher *ew)
+    {
+        if (events_.find(ew) == events_.end())
+            return false;
+
+        events_.erase(ew);
+        loop_.unregister_watcher(ew);
+
+        return true;
+    }
 } // namespace http

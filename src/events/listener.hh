@@ -42,7 +42,8 @@ namespace http
             try
             {
                 auto client_socket = sock_->accept(nullptr, nullptr);
-                struct Connection connection(client_socket);
+                shared_connection connection =
+                    std::make_shared<Connection>(client_socket);
                 event_register.register_event<RecvHeadersEW>(connection);
                 std::cout << "Client connected !\n";
             }

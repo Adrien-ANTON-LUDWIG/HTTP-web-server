@@ -30,10 +30,11 @@ namespace http
             vhosts_.push_back(vhost);
         }
 
-        /*void dispatch(const RecvRequestEW &request)
+        void dispatch(const shared_connection connection,
+                      struct Request &request)
         {
-            vhosts_.response();
-        }*/
+            vhosts_[0]->respond(request, connection);
+        }
 
         iterator begin()
         {
