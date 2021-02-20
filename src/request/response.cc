@@ -10,8 +10,9 @@ namespace http
         /* FIXME */
     }
 
-    Response::Response(const Request &, const STATUS_CODE &)
+    Response::Response(const Request &req, const STATUS_CODE &code)
     {
-        /* FIXME */
+        (void)(req);
+        (void)(code);
     }
 } // namespace http

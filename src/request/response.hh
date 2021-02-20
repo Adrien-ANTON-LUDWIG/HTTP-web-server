@@ -25,6 +25,5 @@ namespace http
         Response(Response &&) = default;
         Response &operator=(Response &&) = default;
         ~Response() = default;
-        // FIXME: Add members to store the information relative to a response.
     };
 } // namespace http

@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 
 #include "events/events.hh"
-#include "events/recvrequest.hh"
+#include "events/recvheaders.hh"
 #include "events/register.hh"
 #include "socket/socket.hh"
 
@@ -42,7 +42,8 @@ namespace http
             try
             {
                 auto client_socket = sock_->accept(nullptr, nullptr);
-                event_register.register_event<RecvRequestEW>(client_socket);
+                struct Connection connection(client_socket);
+                event_register.register_event<RecvHeadersEW>(connection);
                 std::cout << "Client connected !\n";
             }
             catch (const std::exception &e)

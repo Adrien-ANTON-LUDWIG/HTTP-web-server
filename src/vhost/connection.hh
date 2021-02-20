@@ -22,18 +22,27 @@ namespace http
     struct Connection
     {
         Connection() = default;
+        Connection(const shared_socket &socket)
+            : sock_(socket)
+        {}
         Connection(const Connection &con) = default;
         Connection &operator=(const Connection &) = default;
         Connection(Connection &&) = default;
         Connection &operator=(Connection &&) = default;
         ~Connection() = default;
 
-        int nb_bytes_read;
-        int nb_to_read;
         /* FIXME: Add members to store the information relative to the
         ** connection.
         */
-        // RecvHeadersEW headers;
-        // RecvBodyEW body;
+
+        /**
+         * \brief Client socket
+         */
+        shared_socket sock_;
+
+        /**
+         * \brief Message of the client
+         */
+        std::string message = "";
     };
 } // namespace http

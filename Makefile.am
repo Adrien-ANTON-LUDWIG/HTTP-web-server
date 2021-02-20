@@ -56,6 +56,8 @@ SOURCES = \
           src/events/register.cc \
           src/events/register.hh \
           src/events/register.hxx \
+          src/events/recvheaders.hh \
+          src/events/recvbody.hh \
           src/misc/addrinfo/addrinfo-error.cc \
           src/misc/addrinfo/addrinfo-error.hh \
           src/misc/addrinfo/addrinfo-iterator.hh \
