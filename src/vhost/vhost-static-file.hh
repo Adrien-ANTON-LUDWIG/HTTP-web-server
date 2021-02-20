@@ -6,6 +6,7 @@
 #pragma once
 
 #include "config/config.hh"
+#include "events/sendresponse.hh"
 #include "request/request.hh"
 #include "request/response.hh"
 #include "vhost/connection.hh"
@@ -42,9 +43,12 @@ namespace http
          *
          * Note that these iterators will only be useful starting from SRPS.
          */
-        void respond(Request &, std::shared_ptr<Connection>) final
+        void respond(Request &request,
+                     std::shared_ptr<Connection> connection) final
         {
-            return;
+            struct Response response(request,
+                                     STATUS_CODE::OK); // FIXME status code
+            event_register.register_event<SendResponseEW>(connection, response);
         }
     };
 } // namespace http

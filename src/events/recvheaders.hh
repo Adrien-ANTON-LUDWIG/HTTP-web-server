@@ -10,9 +10,8 @@
 
 #include "events/events.hh"
 #include "events/recvbody.hh"
+#include "misc/define.hh"
 #include "vhost/dispatcher.hh"
-
-#define BUFFER_SIZE 512
 
 namespace http
 {
@@ -65,7 +64,7 @@ namespace http
 
     private:
         /**
-         * @brief
+         * @brief Structure connection
          *
          */
         shared_connection connection_;

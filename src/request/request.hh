@@ -62,6 +62,8 @@ namespace http
             if (ss.peek() != ' ')
                 std::cerr << "Bad request\n";
             ss >> uri;
+            if (uri[0] == '/')
+                uri.erase(uri.begin(), uri.begin() + 1);
             ss.peek();
             if (ss.peek() != ' ')
                 std::cerr << "Bad request\n";
@@ -90,8 +92,10 @@ namespace http
                         std::pair<std::string, std::string>(name, value));
                 }
             }
+            body = message.substr(message.find("\r\n\r\n") + 4);
 
-            body = ss.str().substr(ss.tellg());
+            if (body != "" && content_length == 0)
+                std::cerr << "\nUnexpected body\n";
         }
 
         void pretty_print()
@@ -102,6 +106,9 @@ namespace http
 
             for (auto h : headers)
                 std::cout << h.first << ": " << h.second << '\n';
+
+            if (body != "")
+                std::cout << '\n' << body << '\n';
         }
 
         Method method;

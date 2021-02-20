@@ -10,9 +10,8 @@
 
 #include "events/events.hh"
 #include "events/register.hh"
+#include "misc/define.hh"
 #include "vhost/dispatcher.hh"
-
-#define BUFFER_SIZE 512
 
 namespace http
 {
@@ -43,9 +42,9 @@ namespace http
             auto read_size = connection_->sock_->recv(buffer, BUFFER_SIZE);
             request_.body.append(buffer, buffer + read_size);
 
-            if (request_.content_length == request_.body.size())
+            if (request_.content_length <= request_.body.size())
             {
-                std::cout << request_.body;
+                std::cout << request_.body << std::endl;
                 dispatcher.dispatch(connection_, request_);
                 event_register.unregister_ew(this);
             }

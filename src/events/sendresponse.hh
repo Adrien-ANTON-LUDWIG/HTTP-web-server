@@ -6,6 +6,8 @@
 
 #include "events/events.hh"
 #include "events/register.hh"
+#include "misc/sys-wrapper.hh"
+#include "request/response.hh"
 #include "socket/socket.hh"
 
 namespace http
@@ -15,21 +17,24 @@ namespace http
     class SendResponseEW : public EventWatcher
     {
     public:
-        explicit SendResponseEW(shared_socket socket)
-            : EventWatcher(socket->fd_get()->fd_, EV_WRITE)
-        {
-            sock_ = socket;
-        }
+        explicit SendResponseEW(const shared_connection &connection,
+                                const Response &response)
+            : EventWatcher(connection->sock_->fd_get()->fd_, EV_WRITE)
+            , connection_(connection)
+            , response_(response)
+        {}
 
         void operator()() final
         {
             try
             {
                 char buffer[BUFFER_SIZE];
-                auto len = data_.copy(buffer, BUFFER_SIZE, 0);
-                sock_->send(buffer, len);
-                data_.erase(data_.begin(), data_.begin() + len);
-                if (!data_.size())
+                auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
+                connection_->sock_->send(buffer, len);
+                std::cout << std::string(buffer, len);
+                response_.response.erase(response_.response.begin(),
+                                         response_.response.begin() + len);
+                if (!response_.response.size())
                 {
                     std::cout << "Response sent\n";
                     event_register.unregister_ew(this);
@@ -44,7 +49,7 @@ namespace http
         }
 
     private:
-        shared_socket sock_;
-        std::string data_;
+        shared_connection connection_;
+        struct Response response_;
     };
 } // namespace http
