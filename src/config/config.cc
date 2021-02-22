@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "arpa/inet.h"
 #include "misc/json.hh"
 
 namespace http
@@ -12,7 +13,11 @@ namespace http
         try
         {
             std::ifstream file_in(path);
-
+            if (!file_in.is_open())
+            {
+                std::cerr << "Unknown file\n";
+                exit(1);
+            }
             struct ServerConfig s_conf;
             json j;
             file_in >> j;
@@ -25,8 +30,29 @@ namespace http
             for (auto v : vhosts)
             {
                 struct VHostConfig vhost;
+
                 vhost.ip = v["ip"];
-                vhost.port = v["port"];
+
+                unsigned char buf[sizeof(struct in6_addr)];
+                int version = vhost.ip.find('.') != std::string::npos;
+
+                int ip_status = inet_pton(version, vhost.ip.c_str(), buf);
+
+                if (ip_status <= 0)
+                {
+                    std::cerr << "Bad ip\n";
+                    exit(1);
+                }
+
+                int port = v["port"];
+
+                if (port < 0 || port > 65535)
+                {
+                    std::cerr << "Forbidden port\n";
+                    exit(1);
+                }
+
+                vhost.port = port;
                 vhost.server_name = v["server_name"];
                 vhost.root = v["root"];
 

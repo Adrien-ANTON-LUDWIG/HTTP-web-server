@@ -22,7 +22,7 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
     hint.family(AF_UNSPEC);
     hint.socktype(SOCK_STREAM);
 
-    auto addrinfo =
+    misc::AddrInfo addrinfo =
         misc::getaddrinfo(host.c_str(), std::to_string(port).c_str(), hint);
 
     http::DefaultSocket *sfd = new http::DefaultSocket();
