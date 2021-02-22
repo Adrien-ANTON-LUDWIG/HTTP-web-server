@@ -23,7 +23,7 @@ AM_CXXFLAGS = \
               $(NULL) \
               -g \
               -Og \
-              -D_DEBUG \
+              -D_DEBUG
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
