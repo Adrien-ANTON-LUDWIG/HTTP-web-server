@@ -46,6 +46,8 @@ namespace http
         void respond(Request &request,
                      std::shared_ptr<Connection> connection) final
         {
+            request.uri = conf_.root + request.uri;
+
             struct Response response(request,
                                      STATUS_CODE::OK); // FIXME status code
             event_register.register_event<SendResponseEW>(connection, response);

@@ -44,6 +44,11 @@ namespace http
          * \brief Message of the client
          */
         std::string message = "";
+
+        /**
+         * \brief Status code of the connection
+         */
+        STATUS_CODE code;
     };
 
     using shared_connection = std::shared_ptr<Connection>;

@@ -62,8 +62,6 @@ namespace http
             if (ss.peek() != ' ')
                 std::cerr << "Bad request\n";
             ss >> uri;
-            if (uri[0] == '/')
-                uri.erase(uri.begin(), uri.begin() + 1);
             ss.peek();
             if (ss.peek() != ' ')
                 std::cerr << "Bad request\n";
