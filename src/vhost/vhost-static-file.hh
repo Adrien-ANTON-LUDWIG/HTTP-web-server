@@ -48,8 +48,17 @@ namespace http
         {
             request.uri = conf_.root + request.uri;
 
-            struct Response response(request,
-                                     STATUS_CODE::OK); // FIXME status code
+            if (request.uri[request.uri.size() - 1] == '/')
+                request.uri.append(conf_.default_file);
+
+            if (request.status_code != STATUS_CODE::OK)
+            {
+                event_register.register_event<SendResponseEW>(
+                    connection, Response(request.status_code));
+                return;
+            }
+
+            struct Response response(request, request.status_code);
             event_register.register_event<SendResponseEW>(connection, response);
         }
     };

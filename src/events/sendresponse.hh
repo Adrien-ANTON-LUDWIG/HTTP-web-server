@@ -36,7 +36,6 @@ namespace http
                                          response_.response.begin() + len);
                 if (!response_.response.size())
                 {
-                    std::cout << "Response sent\n";
                     event_register.unregister_ew(this);
                 }
             }

@@ -47,8 +47,9 @@ namespace http
                 std::cout << connection_->message;
 
                 request_.parse_headers(connection_->message);
+#ifdef DEBUG
                 request_.pretty_print();
-
+#endif
                 if (request_.method == Method::POST
                     && request_.content_length != 0
                     && request_.body.size() != request_.content_length)

@@ -24,12 +24,10 @@ AM_CXXFLAGS = \
               -g \
               -Og \
               -D_DEBUG \
-              -fsanitize=address
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
              $(BOOST_LDFLAGS) \
-             -lasan \
              -lev \
              -lssl \
              -lcrypto \

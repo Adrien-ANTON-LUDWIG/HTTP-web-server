@@ -13,6 +13,9 @@
 
 #include "request/response.hh"
 #include "request/types.hh"
+
+#define NB_OF_METHODS 9
+
 namespace http
 {
     /**
@@ -24,6 +27,12 @@ namespace http
         GET,
         HEAD,
         POST,
+        PUT,
+        DELETE,
+        CONNECT,
+        OPTIONS,
+        TRACE,
+        PATCH,
         ERR
     };
 
@@ -42,14 +51,26 @@ namespace http
 
         void parse_method(const std::string &method_string)
         {
-            if (method_string == "GET")
-                method = Method::GET;
-            else if (method_string == "HEAD")
-                method = Method::HEAD;
-            else if (method_string == "POST")
-                method = Method::POST;
-            else
+            std::string methods[NB_OF_METHODS] = {
+                "GET",     "HEAD",    "POST",  "PUT",  "DELETE",
+                "CONNECT", "OPTIONS", "TRACE", "PATCH"
+            };
+
+            int i = 0;
+            for (; i < NB_OF_METHODS; i++)
+                if (method_string == methods[i])
+                {
+                    method = static_cast<Method>(i);
+                    break;
+                }
+
+            if (i == NB_OF_METHODS)
+            {
                 method = Method::ERR;
+                status_code = STATUS_CODE::BAD_REQUEST;
+            }
+            else if (method > Method::POST)
+                status_code = STATUS_CODE::METHOD_NOT_ALLOWED;
         }
 
         void parse_headers(const std::string &message)
@@ -58,19 +79,16 @@ namespace http
             std::string method_string;
             std::string http_version;
             ss >> method_string;
-            ss.peek();
-            if (ss.peek() != ' ')
-                std::cerr << "Bad request\n";
             ss >> uri;
-            ss.peek();
-            if (ss.peek() != ' ')
-                std::cerr << "Bad request\n";
+
+            if (uri[0] != '/')
+                status_code = STATUS_CODE::BAD_REQUEST;
+
             ss >> http_version;
 
             parse_method(method_string);
             if (http_version != "HTTP/1.1")
-                std::cerr << "Bad version";
-
+                status_code = STATUS_CODE::UPGRADE_REQUIRED;
             std::string line;
             while (getline(ss, line) && line != "")
             {
@@ -86,8 +104,16 @@ namespace http
                     value = line.substr(pos, line.size() - pos);
                     if (name == "Content-Length")
                         content_length = stoi(value);
-                    headers.push_back(
-                        std::pair<std::string, std::string>(name, value));
+                    if (name == "Host")
+                    {
+                        if (host == "")
+                            host = value;
+                        else
+                            status_code = STATUS_CODE::BAD_REQUEST;
+                    }
+                    else
+                        headers.push_back(
+                            std::pair<std::string, std::string>(name, value));
                 }
             }
             body = message.substr(message.find("\r\n\r\n") + 4);
@@ -98,7 +124,11 @@ namespace http
 
         void pretty_print()
         {
-            std::string methods[4] = { "GET", "HEAD", "POST", "ERROR" };
+            std::string methods[NB_OF_METHODS + 1] = {
+                "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
+                "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
+            };
+
             std::cout << methods[static_cast<int>(method)] << ' ' << uri << ' '
                       << "HTTP 1.1\n";
 
@@ -113,7 +143,14 @@ namespace http
         std::string uri;
         std::vector<std::pair<std::string, std::string>> headers;
 
+        std::string host;
+
         size_t content_length = 0;
         std::string body;
+
+        /**
+         * \brief Status code of the request
+         */
+        STATUS_CODE status_code = STATUS_CODE::OK;
     };
 } // namespace http
