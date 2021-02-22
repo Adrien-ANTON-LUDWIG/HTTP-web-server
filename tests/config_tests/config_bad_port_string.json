@@ -2,9 +2,9 @@
     "vhosts": [
         {
             "ip": "127.0.0.1",
-            "port": 8000,
+            "port": "carotte",
             "server_name": "localhost",
-            "root": "./tests/www/"
+            "root": "."
         }
     ]
 }

@@ -6,6 +6,7 @@
 #include "events/listener.hh"
 #include "events/register.hh"
 #include "misc/addrinfo/addrinfo.hh"
+#include "misc/readiness/readiness.hh"
 #include "socket/default-socket.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
@@ -50,7 +51,6 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
 
     http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
-    // return new http::ListenerEW(sock);
     return sock;
 }
 
@@ -61,13 +61,10 @@ static void start_server()
         auto lew = create_and_bind(x);
         http::event_register.register_event<http::ListenerEW>(lew);
     }
-    http::event_register.launch_loop();
 }
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Let's go !\n";
-
     if (argc == 1 || argc > 3 || (argc == 3 && strcmp(argv[1], "-t")))
     {
         std::cout << "Usage : ./spider [-t] <config_file>\n";
@@ -87,11 +84,14 @@ int main(int argc, char *argv[])
 
     for (auto v : config.vhosts)
         http::dispatcher.add_vhost(http::VHostFactory::Create(v));
-
+#ifdef DEBUG
     for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
-
+#endif
     start_server();
+
+    misc::announce_spider_readiness(argv[0]);
+    http::event_register.launch_loop();
 
     return 0;
 }

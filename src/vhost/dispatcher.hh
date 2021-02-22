@@ -30,6 +30,14 @@ namespace http
             vhosts_.push_back(vhost);
         }
 
+        void dispatch(const shared_connection connection,
+                      struct Request &request)
+        {
+            if (request.host == "")
+                request.status_code = STATUS_CODE::BAD_REQUEST;
+            vhosts_[0]->respond(request, connection);
+        }
+
         iterator begin()
         {
             return vhosts_.begin();

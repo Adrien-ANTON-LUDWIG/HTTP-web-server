@@ -21,3 +21,4 @@ configure.ac
 *.lai
 spider
 .vscode
+forbidden_file

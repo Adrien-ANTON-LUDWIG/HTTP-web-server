@@ -23,13 +23,11 @@ AM_CXXFLAGS = \
               $(NULL) \
               -g \
               -Og \
-              -D_DEBUG \
-              -fsanitize=address
+              -D_DEBUG
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
              $(BOOST_LDFLAGS) \
-             -lasan \
              -lev \
              -lssl \
              -lcrypto \
@@ -56,6 +54,9 @@ SOURCES = \
           src/events/register.cc \
           src/events/register.hh \
           src/events/register.hxx \
+          src/events/recvheaders.hh \
+          src/events/recvbody.hh \
+          src/events/sendresponse.hh \
           src/misc/addrinfo/addrinfo-error.cc \
           src/misc/addrinfo/addrinfo-error.hh \
           src/misc/addrinfo/addrinfo-iterator.hh \

@@ -22,6 +22,9 @@ namespace http
     struct Connection
     {
         Connection() = default;
+        Connection(const shared_socket &socket)
+            : sock_(socket)
+        {}
         Connection(const Connection &con) = default;
         Connection &operator=(const Connection &) = default;
         Connection(Connection &&) = default;
@@ -31,5 +34,17 @@ namespace http
         /* FIXME: Add members to store the information relative to the
         ** connection.
         */
+
+        /**
+         * \brief Client socket
+         */
+        shared_socket sock_;
+
+        /**
+         * \brief Message of the client
+         */
+        std::string message = "";
     };
+
+    using shared_connection = std::shared_ptr<Connection>;
 } // namespace http
