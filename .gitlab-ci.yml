@@ -29,7 +29,7 @@ Stress Test:
     tags:
         - default
     script:
-        - ./autogen
+        - ./autogen.sh
         - ./configure
         - make
         - ./spider tests/config_tests/config_file.json &
