@@ -42,13 +42,9 @@ namespace http
         if (!file.is_open())
         {
             if (std::filesystem::exists(req.uri))
-            {
                 realcode = STATUS_CODE::FORBIDDEN;
-            }
             else
-            {
                 realcode = STATUS_CODE::NOT_FOUND;
-            }
         }
         ssize_t r = 0;
         while ((r = file.readsome(buffer, BUFFER_SIZE)) > 0)

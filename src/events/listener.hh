@@ -45,7 +45,9 @@ namespace http
                 shared_connection connection =
                     std::make_shared<Connection>(client_socket);
                 event_register.register_event<RecvHeadersEW>(connection);
+#ifdef _DEBUG
                 std::cout << "Client connected !\n";
+#endif
             }
             catch (const std::exception &e)
             {

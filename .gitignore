@@ -22,3 +22,4 @@ configure.ac
 spider
 .vscode
 forbidden_file
+tests/env

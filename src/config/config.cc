@@ -33,6 +33,7 @@ namespace http
 
                 vhost.ip = v["ip"];
 
+                /*
                 unsigned char buf[sizeof(struct in6_addr)];
                 int version = vhost.ip.find('.') != std::string::npos;
 
@@ -43,6 +44,7 @@ namespace http
                     std::cerr << "Bad ip\n";
                     exit(1);
                 }
+                */
 
                 int port = v["port"];
 

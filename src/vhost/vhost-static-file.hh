@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <filesystem>
+
 #include "config/config.hh"
 #include "events/sendresponse.hh"
 #include "request/request.hh"
@@ -48,8 +50,8 @@ namespace http
         {
             request.uri = conf_.root + request.uri;
 
-            if (request.uri[request.uri.size() - 1] == '/')
-                request.uri.append(conf_.default_file);
+            if (std::filesystem::is_directory(request.uri))
+                request.uri += conf_.default_file;
 
             if (request.status_code != STATUS_CODE::OK)
             {

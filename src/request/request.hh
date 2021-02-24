@@ -124,11 +124,11 @@ namespace http
 
         void pretty_print()
         {
+#ifdef _DEBUG
             std::string methods[NB_OF_METHODS + 1] = {
                 "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
                 "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
             };
-
             std::cout << methods[static_cast<int>(method)] << ' ' << uri << ' '
                       << "HTTP 1.1\n";
 
@@ -137,6 +137,7 @@ namespace http
 
             if (body != "")
                 std::cout << '\n' << body << '\n';
+#endif
         }
 
         Method method;

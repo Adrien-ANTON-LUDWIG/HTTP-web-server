@@ -31,7 +31,11 @@ namespace http
                 char buffer[BUFFER_SIZE];
                 auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
                 connection_->sock_->send(buffer, len);
+
+#ifdef _DEBUG
                 std::cout << std::string(buffer, len);
+#endif
+
                 response_.response.erase(response_.response.begin(),
                                          response_.response.begin() + len);
                 if (!response_.response.size())
@@ -43,6 +47,7 @@ namespace http
             {
                 std::cerr << "Could not send the data to the client:\n";
                 std::cerr << e.what();
+                event_register.unregister_ew(this);
                 return;
             }
         }

@@ -44,15 +44,15 @@ namespace http
 
             if (connection_->message.find(carriage) != std::string::npos)
             {
+#ifdef _DEBUG
                 std::cout << connection_->message;
-
-                request_.parse_headers(connection_->message);
-#ifdef DEBUG
-                request_.pretty_print();
 #endif
+                request_.parse_headers(connection_->message);
+
+                request_.pretty_print();
                 if (request_.method == Method::POST
                     && request_.content_length != 0
-                    && request_.body.size() != request_.content_length)
+                    && request_.body.size() < request_.content_length)
                     event_register.register_event<RecvBodyEW>(connection_,
                                                               request_);
                 else

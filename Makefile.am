@@ -108,11 +108,15 @@ libspider_la_SOURCES = \
                        $(NULL)
 
 if USING_CRITERION
-# check_PROGRAMS = test1
-# TESTS = $(check_PROGRAMS)
+check_PROGRAMS = \
+                 testsuite.sh
+TESTS = $(check_PROGRAMS)
 
 # test1_SOURCES = tests/unit/test1.cc
 # test1_CXXFLAGS = $(AM_CXXFLAGS) $(CRITERION_CFLAGS)
 # test1_CPPFLAGS = $(AM_CPPFLAGS)
 # test1_LDFLAGS = $(AM_LDFLAGS) $(CRITERION_LIBS)
 endif
+
+#aubergine_PROGRAMS = spider
+
