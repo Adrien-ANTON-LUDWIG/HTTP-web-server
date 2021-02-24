@@ -7,9 +7,7 @@ AM_MAKEFLAGS = --no-print-directory
 AM_CPPFLAGS = \
               -include $(top_builddir)/config.h \
               -I${top_srcdir}/src \
-              -I${top_srcdir}/lib \
-              -g \
-              -Og
+              -I${top_srcdir}/lib
 
 
 AM_CXXFLAGS = \
@@ -20,10 +18,12 @@ AM_CXXFLAGS = \
               -Werror=missing-field-initializers \
               -Werror=overloaded-virtual \
               -Wno-inline \
-              $(NULL) \
-              -g \
-              -Og \
-              -D_DEBUG
+              $(NULL)
+if DEBUG
+AM_CXXFLAGS += -D_DEBUG \
+               -g \
+               -Og
+endif
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
