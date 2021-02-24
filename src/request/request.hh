@@ -87,8 +87,23 @@ namespace http
             ss >> http_version;
 
             parse_method(method_string);
-            if (http_version != "HTTP/1.1")
-                status_code = STATUS_CODE::UPGRADE_REQUIRED;
+            try
+            {
+                if (http_version.find("/") == std::string::npos
+                    || http_version.substr(0, http_version.find("/")) != "HTTP")
+                    status_code = STATUS_CODE::BAD_REQUEST;
+                else if ((std::stof(http_version
+                                        .substr(http_version.find("/") + 1,
+                                                http_version.size() - 1)
+                                        .c_str()))
+                         < 1.0)
+                    status_code = STATUS_CODE::BAD_REQUEST;
+            }
+            catch (const std::exception &e)
+            {
+                status_code = STATUS_CODE::BAD_REQUEST;
+            }
+
             std::string line;
             while (getline(ss, line) && line != "")
             {

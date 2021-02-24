@@ -66,6 +66,7 @@ namespace http
         size_t time_size = strftime(datebuffer, BUFFER_SIZE,
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
         response += "Date: " + std::string(datebuffer, time_size);
+
         response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
         response += "Connection: close\r\n";
         response += "\r\n";

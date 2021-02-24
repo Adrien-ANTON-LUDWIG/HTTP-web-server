@@ -106,17 +106,15 @@ spider_CXXFLAGS = $(AM_CXXFLAGS)
 libspider_la_SOURCES = \
                        $(SOURCES) \
                        $(NULL)
-
+AUTOMAKE_OPTIONS = serial-tests
 if USING_CRITERION
-check_PROGRAMS = \
-                 testsuite.sh
-TESTS = $(check_PROGRAMS)
+TEST_EXTENSIONS = .sh
+TESTS = tests/testsuite/tests.sh
+SH_LOG_COMPILER = sh
+EXTRA_DIST += tests/testsuite/tests.sh
 
 # test1_SOURCES = tests/unit/test1.cc
 # test1_CXXFLAGS = $(AM_CXXFLAGS) $(CRITERION_CFLAGS)
 # test1_CPPFLAGS = $(AM_CPPFLAGS)
 # test1_LDFLAGS = $(AM_LDFLAGS) $(CRITERION_LIBS)
 endif
-
-#aubergine_PROGRAMS = spider
-

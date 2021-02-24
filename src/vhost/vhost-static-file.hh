@@ -51,7 +51,18 @@ namespace http
             request.uri = conf_.root + request.uri;
 
             if (std::filesystem::is_directory(request.uri))
+            {
+                if (request.uri[request.uri.size() - 1] != '/')
+                    request.uri += "/";
                 request.uri += conf_.default_file;
+            }
+
+            if (request.body.size() != request.content_length)
+            {
+                request.status_code = STATUS_CODE::BAD_REQUEST;
+                request.content_length = 0;
+                request.body.erase();
+            }
 
             if (request.status_code != STATUS_CODE::OK)
             {

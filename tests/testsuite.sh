@@ -1,6 +1,10 @@
 #!/bin/sh
 
-python -m venv env
-source env/bin/activate
-python -m pip install -r requirements.txt
-python testsuite.py
+if ! [ -d "env" ];
+then
+    python -m venv env
+    source env/bin/activate
+    python -m pip install -r tests/requirements.txt
+fi
+
+python tests/testsuite.py

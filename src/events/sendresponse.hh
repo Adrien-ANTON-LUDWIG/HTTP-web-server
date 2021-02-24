@@ -33,7 +33,7 @@ namespace http
                 connection_->sock_->send(buffer, len);
 
 #ifdef _DEBUG
-                std::cout << std::string(buffer, len);
+                std::cout << std::string(buffer, len) << '\n';
 #endif
 
                 response_.response.erase(response_.response.begin(),
