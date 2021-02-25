@@ -31,6 +31,7 @@ namespace http
             struct sockaddr_in sin;
             socklen_t len = sizeof(sin);
             getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
+            ip_ = inet_ntoa(sin.sin_addr);
             port_ = ntohs(sin.sin_port);
         }
 
@@ -43,7 +44,7 @@ namespace http
             {
                 auto client_socket = sock_->accept(nullptr, nullptr);
                 shared_connection connection =
-                    std::make_shared<Connection>(client_socket);
+                    std::make_shared<Connection>(client_socket, ip_, port_);
                 event_register.register_event<RecvHeadersEW>(connection);
 #ifdef _DEBUG
                 std::cout << "Client connected !\n";
@@ -62,6 +63,13 @@ namespace http
          * \brief Listener socket.
          */
         shared_socket sock_;
+
+        /**
+         * @brief Ip of
+         *
+         */
+        std::string ip_;
+
         /**
          * \brief Port on which the socket is listening.
          */

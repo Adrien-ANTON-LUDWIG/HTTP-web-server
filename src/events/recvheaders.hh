@@ -27,7 +27,7 @@ namespace http
          *
          */
         explicit RecvHeadersEW(const shared_connection &connection)
-            : EventWatcher(connection->sock_->fd_get()->fd_, EV_READ)
+            : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
             , connection_(connection)
             , request_()
         {}
@@ -38,7 +38,7 @@ namespace http
         void operator()() final
         {
             char buffer[BUFFER_SIZE];
-            auto read_size = connection_->sock_->recv(buffer, BUFFER_SIZE);
+            auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
             connection_->message.append(buffer, buffer + read_size);
             std::string carriage = "\r\n\r\n";
 
@@ -47,7 +47,7 @@ namespace http
 #ifdef _DEBUG
                 std::cout << connection_->message;
 #endif
-                request_.parse_headers(connection_->message);
+                request_.parse_request(connection_->message);
 
                 request_.pretty_print();
                 if (request_.method == Method::POST

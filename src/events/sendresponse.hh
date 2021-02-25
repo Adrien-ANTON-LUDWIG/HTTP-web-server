@@ -19,7 +19,7 @@ namespace http
     public:
         explicit SendResponseEW(const shared_connection &connection,
                                 const Response &response)
-            : EventWatcher(connection->sock_->fd_get()->fd_, EV_WRITE)
+            : EventWatcher(connection->sock->fd_get()->fd_, EV_WRITE)
             , connection_(connection)
             , response_(response)
         {}
@@ -30,7 +30,7 @@ namespace http
             {
                 char buffer[BUFFER_SIZE];
                 auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
-                connection_->sock_->send(buffer, len);
+                connection_->sock->send(buffer, len);
 
 #ifdef _DEBUG
                 std::cout << std::string(buffer, len) << '\n';

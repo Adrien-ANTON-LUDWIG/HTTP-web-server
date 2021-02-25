@@ -49,6 +49,34 @@ namespace http
         Request &operator=(Request &&) = default;
         ~Request() = default;
 
+        void build_uri()
+        {
+            auto prefix_pos = uri.find(':');
+            if (prefix_pos != std::string::npos)
+            {
+                std::string prefix = uri.substr(0, prefix_pos);
+                if (prefix == "http")
+                {
+                    uri.erase(0, prefix_pos + 3);
+                    auto authority = uri.find('/');
+                    host = uri.substr(0, authority);
+                    uri.erase(0, authority);
+                }
+            }
+
+            auto query = uri.find('?');
+            if (query != std::string::npos)
+            {
+                uri.erase(query, uri.length());
+            }
+
+            auto fragment = uri.find('#');
+            if (fragment != std::string::npos)
+            {
+                uri.erase(fragment, uri.length());
+            }
+        }
+
         void parse_method(const std::string &method_string)
         {
             std::string methods[NB_OF_METHODS] = {
@@ -73,42 +101,15 @@ namespace http
                 status_code = STATUS_CODE::METHOD_NOT_ALLOWED;
         }
 
-        void parse_headers(const std::string &message)
+        void parse_headers(std::stringstream ss)
         {
-            std::stringstream ss(message);
-            std::string method_string;
-            std::string http_version;
-            ss >> method_string;
-            ss >> uri;
-
-            if (uri[0] != '/')
-                status_code = STATUS_CODE::BAD_REQUEST;
-
-            ss >> http_version;
-
-            parse_method(method_string);
-            try
-            {
-                if (http_version.find("/") == std::string::npos
-                    || http_version.substr(0, http_version.find("/")) != "HTTP")
-                    status_code = STATUS_CODE::BAD_REQUEST;
-                else if ((std::stof(http_version
-                                        .substr(http_version.find("/") + 1,
-                                                http_version.size() - 1)
-                                        .c_str()))
-                         < 1.0)
-                    status_code = STATUS_CODE::BAD_REQUEST;
-            }
-            catch (const std::exception &e)
-            {
-                status_code = STATUS_CODE::BAD_REQUEST;
-            }
-
             std::string line;
             while (getline(ss, line) && line != "")
             {
                 std::string name;
                 std::string value;
+                if (line[line.size() - 1] == '\r')
+                    line.erase(line.size() - 1);
                 if (line.find(":") != std::string::npos)
                 {
                     auto pos = line.find(":");
@@ -131,10 +132,43 @@ namespace http
                             std::pair<std::string, std::string>(name, value));
                 }
             }
-            body = message.substr(message.find("\r\n\r\n") + 4);
+        }
 
+        void parse_request(const std::string &message)
+        {
+            std::stringstream ss(message);
+            std::string method_string;
+            std::string http_version;
+            ss >> method_string;
+            ss >> uri;
+            ss >> http_version;
+
+            parse_method(method_string);
+            try
+            {
+                if (http_version.find("/") == std::string::npos
+                    || http_version.substr(0, http_version.find("/")) != "HTTP")
+                    status_code = STATUS_CODE::BAD_REQUEST;
+                else if ((std::stof(http_version
+                                        .substr(http_version.find("/") + 1,
+                                                http_version.size() - 1)
+                                        .c_str()))
+                         < 1.0)
+                    status_code = STATUS_CODE::BAD_REQUEST;
+            }
+            catch (const std::exception &e)
+            {
+                status_code = STATUS_CODE::BAD_REQUEST;
+            }
+
+            parse_headers(std::move(ss));
+            body = message.substr(message.find("\r\n\r\n") + 4);
             if (body != "" && content_length == 0)
                 std::cerr << "\nUnexpected body\n";
+
+            build_uri();
+            if (uri[0] != '/')
+                status_code = STATUS_CODE::BAD_REQUEST;
         }
 
         void pretty_print()
