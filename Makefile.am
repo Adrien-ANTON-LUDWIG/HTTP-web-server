@@ -7,9 +7,7 @@ AM_MAKEFLAGS = --no-print-directory
 AM_CPPFLAGS = \
               -include $(top_builddir)/config.h \
               -I${top_srcdir}/src \
-              -I${top_srcdir}/lib \
-              -g \
-              -Og
+              -I${top_srcdir}/lib
 
 
 AM_CXXFLAGS = \
@@ -20,10 +18,12 @@ AM_CXXFLAGS = \
               -Werror=missing-field-initializers \
               -Werror=overloaded-virtual \
               -Wno-inline \
-              $(NULL) \
-              -g \
-              -Og \
-              -D_DEBUG
+              $(NULL)
+if DEBUG
+AM_CXXFLAGS += -D_DEBUG \
+               -g \
+               -Og
+endif
 
 AM_LDFLAGS = \
              $(WARN_LDFLAGS) \
@@ -106,10 +106,12 @@ spider_CXXFLAGS = $(AM_CXXFLAGS)
 libspider_la_SOURCES = \
                        $(SOURCES) \
                        $(NULL)
-
+AUTOMAKE_OPTIONS = serial-tests
 if USING_CRITERION
-# check_PROGRAMS = test1
-# TESTS = $(check_PROGRAMS)
+TEST_EXTENSIONS = .sh
+TESTS = tests/testsuite/tests.sh
+SH_LOG_COMPILER = sh
+EXTRA_DIST += tests/testsuite/tests.sh
 
 # test1_SOURCES = tests/unit/test1.cc
 # test1_CXXFLAGS = $(AM_CXXFLAGS) $(CRITERION_CFLAGS)

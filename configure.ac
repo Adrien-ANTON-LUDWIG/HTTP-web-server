@@ -22,6 +22,16 @@ AM_COND_IF([USING_CRITERION], [
                            AC_SUBST([CRITERION_LIBS])
 ])
 
+AC_ARG_ENABLE([debug],
+[  --enable-debug    Turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+
+
 AM_PROG_AR
 AX_CXX_COMPILE_STDCXX_17([noext], [mandatory])
 

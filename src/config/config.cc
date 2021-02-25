@@ -1,5 +1,6 @@
 #include "config.hh"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -33,6 +34,7 @@ namespace http
 
                 vhost.ip = v["ip"];
 
+                /*
                 unsigned char buf[sizeof(struct in6_addr)];
                 int version = vhost.ip.find('.') != std::string::npos;
 
@@ -43,6 +45,7 @@ namespace http
                     std::cerr << "Bad ip\n";
                     exit(1);
                 }
+                */
 
                 int port = v["port"];
 
@@ -55,6 +58,14 @@ namespace http
                 vhost.port = port;
                 vhost.server_name = v["server_name"];
                 vhost.root = v["root"];
+
+                if (!std::filesystem::is_directory(vhost.root))
+                {
+                    std::cerr << "Root is not a directory\n";
+                    exit(1);
+                }
+                else if (vhost.root[vhost.root.size() - 1] != '/')
+                    vhost.root += "/";
 
                 if (v.find("default_file") != v.end())
                     vhost.default_file = v["default_file"];

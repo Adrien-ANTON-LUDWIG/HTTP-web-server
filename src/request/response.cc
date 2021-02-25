@@ -42,13 +42,9 @@ namespace http
         if (!file.is_open())
         {
             if (std::filesystem::exists(req.uri))
-            {
                 realcode = STATUS_CODE::FORBIDDEN;
-            }
             else
-            {
                 realcode = STATUS_CODE::NOT_FOUND;
-            }
         }
         ssize_t r = 0;
         while ((r = file.readsome(buffer, BUFFER_SIZE)) > 0)
@@ -70,6 +66,7 @@ namespace http
         size_t time_size = strftime(datebuffer, BUFFER_SIZE,
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
         response += "Date: " + std::string(datebuffer, time_size);
+
         response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
         response += "Connection: close\r\n";
         response += "\r\n";

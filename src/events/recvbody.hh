@@ -28,7 +28,7 @@ namespace http
          */
         explicit RecvBodyEW(shared_connection &connection,
                             const struct Request &request)
-            : EventWatcher(connection->sock_->fd_get()->fd_, EV_READ)
+            : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
             , connection_(connection)
             , request_(request)
         {}
@@ -39,12 +39,14 @@ namespace http
         void operator()() final
         {
             char buffer[BUFFER_SIZE];
-            auto read_size = connection_->sock_->recv(buffer, BUFFER_SIZE);
+            auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
             request_.body.append(buffer, buffer + read_size);
 
             if (request_.content_length <= request_.body.size())
             {
+#ifdef _DEBUG
                 std::cout << request_.body << std::endl;
+#endif
                 dispatcher.dispatch(connection_, request_);
                 event_register.unregister_ew(this);
             }

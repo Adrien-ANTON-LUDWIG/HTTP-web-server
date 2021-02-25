@@ -22,29 +22,35 @@ namespace http
     struct Connection
     {
         Connection() = default;
-        Connection(const shared_socket &socket)
-            : sock_(socket)
+        Connection(const shared_socket &socket, const std::string &ip,
+                   const uint &port)
+            : sock(socket)
+            , listener_ip(ip)
+            , listener_port(port)
         {}
+
         Connection(const Connection &con) = default;
         Connection &operator=(const Connection &) = default;
         Connection(Connection &&) = default;
         Connection &operator=(Connection &&) = default;
         ~Connection() = default;
 
-        /* FIXME: Add members to store the information relative to the
-        ** connection.
-        */
-
         /**
          * \brief Client socket
          */
-        shared_socket sock_;
+        shared_socket sock;
+
+        /**
+         * @brief Listener information to check while dispatching.
+         *
+         */
+        std::string listener_ip;
+        uint listener_port;
 
         /**
          * \brief Message of the client
          */
         std::string message = "";
     };
-
     using shared_connection = std::shared_ptr<Connection>;
 } // namespace http
