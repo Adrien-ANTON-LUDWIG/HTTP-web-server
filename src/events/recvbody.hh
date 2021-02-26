@@ -50,6 +50,11 @@ namespace http
                 dispatcher.dispatch(connection_, request_);
                 event_register.unregister_ew(this);
             }
+            else if (read_size <= 0)
+            {
+                event_register.unregister_ew(this);
+                std::cerr << "Connection closed (receive)\n";
+            }
         }
 
     private:
