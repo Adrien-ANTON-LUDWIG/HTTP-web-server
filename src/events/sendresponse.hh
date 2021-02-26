@@ -34,6 +34,7 @@ namespace http
             }
             catch (const std::exception &e)
             {
+                std::cerr << "Exception while checking if fd is open\n";
                 return false;
             }
             return true;
