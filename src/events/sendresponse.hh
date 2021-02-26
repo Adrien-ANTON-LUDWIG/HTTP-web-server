@@ -24,28 +24,10 @@ namespace http
             , response_(response)
         {}
 
-        bool is_open(const shared_socket &s)
-        {
-            try
-            {
-                char buff;
-                if (recv(s->fd_get()->fd_, &buff, 1, MSG_PEEK) == -1)
-                    return false;
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << "Exception while checking if fd is open\n";
-                return false;
-            }
-            return true;
-        }
-
         void operator()() final
         {
             try
             {
-                if (!is_open(connection_->sock))
-                    throw std::ifstream::failure("Socket has been closed");
                 if (!sending_body)
                 {
                     char buffer[BUFFER_SIZE];
@@ -80,7 +62,7 @@ namespace http
             catch (const std::exception &e)
             {
                 std::cerr << "Could not send the data to the client:\n";
-                std::cerr << e.what();
+                std::cerr << e.what() << std::endl;
                 event_register.unregister_ew(this);
                 return;
             }

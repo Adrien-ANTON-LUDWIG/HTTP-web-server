@@ -29,7 +29,7 @@ namespace http
     {
         try
         {
-            return sys::send(*fd_, buf, buf_len, 0);
+            return sys::send(*fd_, buf, buf_len, MSG_NOSIGNAL);
         }
         catch (const std::exception &e)
         {
