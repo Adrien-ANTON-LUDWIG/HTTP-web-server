@@ -50,12 +50,12 @@ namespace http
                     char buffer[BUFFER_SIZE];
                     auto len =
                         response_.file_stream.readsome(buffer, BUFFER_SIZE);
-                    if (len <= 0)
+                    auto sent = connection_->sock->send(buffer, len);
+                    if (sent <= 0)
                     {
                         event_register.unregister_ew(this);
                         return;
                     }
-                    auto sent = connection_->sock->send(buffer, len);
                     response_.file_stream.seekg(sent - len, std::ios_base::cur);
                 }
             }
