@@ -64,8 +64,8 @@ namespace http
                     std::cerr << "Root is not a directory\n";
                     exit(1);
                 }
-                else if (vhost.root[vhost.root.size() - 1] != '/')
-                    vhost.root += "/";
+                else if (vhost.root[vhost.root.size() - 1] == '/')
+                    vhost.root.pop_back();
 
                 if (v.find("default_file") != v.end())
                     vhost.default_file = v["default_file"];

@@ -12,7 +12,7 @@
 
 namespace http
 {
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 4096
 
     class SendResponseEW : public EventWatcher
     {
@@ -28,19 +28,35 @@ namespace http
         {
             try
             {
-                char buffer[BUFFER_SIZE];
-                auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
-                connection_->sock->send(buffer, len);
-
+                if (!sending_body)
+                {
+                    char buffer[BUFFER_SIZE];
+                    auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
+                    connection_->sock->send(buffer, len);
+                    response_.response.erase(response_.response.begin(),
+                                             response_.response.begin() + len);
 #ifdef _DEBUG
-                std::cout << std::string(buffer, len) << '\n';
+                    std::cout << std::string(buffer, len) << '\n';
 #endif
-
-                response_.response.erase(response_.response.begin(),
-                                         response_.response.begin() + len);
+                }
                 if (!response_.response.size())
                 {
-                    event_register.unregister_ew(this);
+                    sending_body = true;
+                    if (!response_.file_stream.is_open())
+                    {
+                        event_register.unregister_ew(this);
+                        return;
+                    }
+                    char buffer[BUFFER_SIZE];
+                    auto len =
+                        response_.file_stream.readsome(buffer, BUFFER_SIZE);
+                    if (len <= 0)
+                    {
+                        event_register.unregister_ew(this);
+                        return;
+                    }
+                    auto sent = connection_->sock->send(buffer, len);
+                    response_.file_stream.seekg(sent - len, std::ios_base::cur);
                 }
             }
             catch (const std::exception &e)
@@ -55,5 +71,6 @@ namespace http
     private:
         shared_connection connection_;
         struct Response response_;
+        bool sending_body = false;
     };
 } // namespace http

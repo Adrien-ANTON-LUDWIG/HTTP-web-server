@@ -32,24 +32,19 @@ namespace http
 
     Response::Response(const Request &req, const STATUS_CODE &code)
     {
-        char buffer[BUFFER_SIZE];
         auto realcode = code;
 
-        std::ifstream file;
         std::string body;
 
-        file.open(req.uri);
-        if (!file.is_open())
+        file_stream.open(req.uri);
+        file_path = req.uri;
+        if (!file_stream.is_open())
         {
             if (std::filesystem::exists(req.uri))
                 realcode = STATUS_CODE::FORBIDDEN;
             else
                 realcode = STATUS_CODE::NOT_FOUND;
         }
-        ssize_t r = 0;
-        while ((r = file.readsome(buffer, BUFFER_SIZE)) > 0)
-            body += std::string(buffer, r);
-        file.close();
         if (req.method == Method::HEAD)
             body = "";
 
@@ -67,9 +62,16 @@ namespace http
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
         response += "Date: " + std::string(datebuffer, time_size);
 
-        response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
+        auto file_size = 0;
+        try
+        {
+            file_size = std::filesystem::file_size(req.uri);
+        }
+        catch (const std::exception &)
+        {}
+
+        response += "Content-Length: " + std::to_string(file_size) + "\r\n";
         response += "Connection: close\r\n";
         response += "\r\n";
-        response += body;
     }
 } // namespace http
