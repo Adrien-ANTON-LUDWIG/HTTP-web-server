@@ -32,7 +32,8 @@ namespace http
                 {
                     char buffer[BUFFER_SIZE];
                     auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
-                    connection_->sock->send(buffer, len);
+                    if (connection_->sock->send(buffer, len) <= 0)
+                        throw std::ifstream::failure("Connection closed");
                     response_.response.erase(response_.response.begin(),
                                              response_.response.begin() + len);
 #ifdef _DEBUG
@@ -52,10 +53,7 @@ namespace http
                         response_.file_stream.readsome(buffer, BUFFER_SIZE);
                     auto sent = connection_->sock->send(buffer, len);
                     if (sent <= 0)
-                    {
-                        event_register.unregister_ew(this);
-                        return;
-                    }
+                        throw std::ifstream::failure("Connection closed");
                     response_.file_stream.seekg(sent - len, std::ios_base::cur);
                 }
             }
