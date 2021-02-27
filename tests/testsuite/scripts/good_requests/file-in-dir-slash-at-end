@@ -1,4 +1,4 @@
-GET /download HTTP/1.1
+GET /download/ HTTP/1.1
 Host: localhost
 
 ---

@@ -36,8 +36,10 @@ namespace http
         }
         catch (const std::exception &e)
         {
+#ifdef _DEBUG
             std::cerr << "Could not send the data to the client:\n";
             std::cerr << e.what() << std::endl;
+#endif
             event_register.unregister_ew(this);
         }
     }
