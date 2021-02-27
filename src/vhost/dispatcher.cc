@@ -13,7 +13,6 @@ namespace http
         std::string host = request.host;
         if (host[0] == '[')
         {
-            return;
             host.erase(host.begin());
             host.erase(host.find(']'));
         }
