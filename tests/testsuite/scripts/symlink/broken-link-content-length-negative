@@ -1,0 +1,6 @@
+GET /symlink_to_nothing HTTP/1.1
+Host: localhost
+Content-Length: -5
+
+---
+400

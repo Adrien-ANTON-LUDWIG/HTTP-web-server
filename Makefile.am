@@ -57,6 +57,7 @@ SOURCES = \
           src/events/recvheaders.hh \
           src/events/recvbody.hh \
           src/events/sendresponse.hh \
+          src/events/sendresponse.cc \
           src/misc/addrinfo/addrinfo-error.cc \
           src/misc/addrinfo/addrinfo-error.hh \
           src/misc/addrinfo/addrinfo-iterator.hh \
@@ -78,6 +79,7 @@ SOURCES = \
 	  src/misc/readiness/readiness.hh \
           src/request/error.cc \
           src/request/error.hh \
+          src/request/request.cc \
           src/request/request.hh \
           src/request/response.cc \
           src/request/response.hh \
@@ -87,6 +89,7 @@ SOURCES = \
           src/socket/socket.hh \
           src/socket/ssl-socket.hh \
           src/vhost/connection.hh \
+          src/vhost/dispatcher.cc \
           src/vhost/dispatcher.hh \
           src/vhost/vhost-factory.hh \
           src/vhost/vhost-static-file.hh \

@@ -1,0 +1,5 @@
+GET /download/file HTTP/1.1
+Host: localhost
+
+---
+200

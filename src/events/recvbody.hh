@@ -41,14 +41,20 @@ namespace http
             char buffer[BUFFER_SIZE];
             auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
             request_.body.append(buffer, buffer + read_size);
+            request_.current_length += read_size;
 
-            if (request_.content_length <= request_.body.size())
+            if (request_.content_length <= request_.current_length)
             {
 #ifdef _DEBUG
                 std::cout << request_.body << std::endl;
 #endif
                 dispatcher.dispatch(connection_, request_);
                 event_register.unregister_ew(this);
+            }
+            else if (read_size <= 0)
+            {
+                event_register.unregister_ew(this);
+                std::cerr << "Connection closed (receive)\n";
             }
         }
 

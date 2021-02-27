@@ -45,31 +45,47 @@ namespace http
          *
          * Note that these iterators will only be useful starting from SRPS.
          */
+
+        bool check_err_response(Request &request,
+                                std::shared_ptr<Connection> connection)
+        {
+            if (!request.is_good())
+            {
+                event_register.register_event<SendResponseEW>(
+                    connection, Response(request.status_code));
+                return true;
+            }
+            return false;
+        }
+
         void respond(Request &request,
                      std::shared_ptr<Connection> connection) final
         {
+            if (check_err_response(request, connection))
+                return;
+
             request.uri = conf_.root + request.uri;
 
-            if (std::filesystem::is_directory(request.uri))
+            try
             {
-                if (request.uri[request.uri.size() - 1] != '/')
-                    request.uri += "/";
-                request.uri += conf_.default_file;
+                if (std::filesystem::is_directory(request.uri))
+                {
+                    if (request.uri[request.uri.size() - 1] != '/')
+                        request.uri += "/";
+                    request.uri += conf_.default_file;
+                }
+                else if (request.uri[request.uri.size() - 1] == '/')
+                    request.uri.erase(request.uri.end() - 1);
             }
-
-            if (request.body.size() != request.content_length)
+            catch (const std::exception &e)
             {
-                request.status_code = STATUS_CODE::BAD_REQUEST;
+                request.status_code = STATUS_CODE::FORBIDDEN;
                 request.content_length = 0;
                 request.body.erase();
             }
 
-            if (request.status_code != STATUS_CODE::OK)
-            {
-                event_register.register_event<SendResponseEW>(
-                    connection, Response(request.status_code));
+            if (check_err_response(request, connection))
                 return;
-            }
 
             struct Response response(request, request.status_code);
             event_register.register_event<SendResponseEW>(connection, response);

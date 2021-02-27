@@ -34,19 +34,6 @@ namespace http
 
                 vhost.ip = v["ip"];
 
-                /*
-                unsigned char buf[sizeof(struct in6_addr)];
-                int version = vhost.ip.find('.') != std::string::npos;
-
-                int ip_status = inet_pton(version, vhost.ip.c_str(), buf);
-
-                if (ip_status <= 0)
-                {
-                    std::cerr << "Bad ip\n";
-                    exit(1);
-                }
-                */
-
                 int port = v["port"];
 
                 if (port < 0 || port > 65535)

@@ -12,7 +12,7 @@
 
 namespace http
 {
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 40960000
 
     class SendResponseEW : public EventWatcher
     {
@@ -24,49 +24,7 @@ namespace http
             , response_(response)
         {}
 
-        void operator()() final
-        {
-            try
-            {
-                if (!sending_body)
-                {
-                    char buffer[BUFFER_SIZE];
-                    auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
-                    connection_->sock->send(buffer, len);
-                    response_.response.erase(response_.response.begin(),
-                                             response_.response.begin() + len);
-#ifdef _DEBUG
-                    std::cout << std::string(buffer, len) << '\n';
-#endif
-                }
-                if (!response_.response.size())
-                {
-                    sending_body = true;
-                    if (!response_.file_stream.is_open())
-                    {
-                        event_register.unregister_ew(this);
-                        return;
-                    }
-                    char buffer[BUFFER_SIZE];
-                    auto len =
-                        response_.file_stream.readsome(buffer, BUFFER_SIZE);
-                    if (len <= 0)
-                    {
-                        event_register.unregister_ew(this);
-                        return;
-                    }
-                    auto sent = connection_->sock->send(buffer, len);
-                    response_.file_stream.seekg(sent - len, std::ios_base::cur);
-                }
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << "Could not send the data to the client:\n";
-                std::cerr << e.what();
-                event_register.unregister_ew(this);
-                return;
-            }
-        }
+        void operator()() final;
 
     private:
         shared_connection connection_;
