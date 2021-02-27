@@ -104,6 +104,7 @@ namespace http
         void parse_headers(std::stringstream ss)
         {
             std::string line;
+            bool cl = false;
             while (getline(ss, line) && line != "")
             {
                 std::string name;
@@ -119,11 +120,33 @@ namespace http
                         pos++;
                     value = line.substr(pos, line.size() - pos);
                     if (name == "Content-Length")
-                        content_length = stoi(value);
+                    {
+                        if (cl)
+                        {
+                            status_code = STATUS_CODE::BAD_REQUEST;
+                            content_length = 0;
+                        }
+                        else
+                        {
+                            cl = true;
+                            long long len = stoll(value);
+                            if (len < 0)
+                            {
+                                status_code = STATUS_CODE::BAD_REQUEST;
+                                content_length = 0;
+                            }
+                            else
+                                content_length = len;
+                        }
+                    }
                     if (name == "Host")
                     {
                         if (host == "")
+                        {
+                            while (value[value.size() - 1] == ' ')
+                                value.pop_back();
                             host = value;
+                        }
                         else
                             status_code = STATUS_CODE::BAD_REQUEST;
                     }
@@ -149,12 +172,14 @@ namespace http
                 if (http_version.find("/") == std::string::npos
                     || http_version.substr(0, http_version.find("/")) != "HTTP")
                     status_code = STATUS_CODE::BAD_REQUEST;
-                else if ((std::stof(http_version
-                                        .substr(http_version.find("/") + 1,
-                                                http_version.size() - 1)
-                                        .c_str()))
-                         < 1.0)
+                std::string version = http_version
+                                          .substr(http_version.find("/") + 1,
+                                                  http_version.size() - 1)
+                                          .c_str();
+                if (version.size() != 3)
                     status_code = STATUS_CODE::BAD_REQUEST;
+                else if (std::stof(version) < 1.1)
+                    status_code = STATUS_CODE::UPGRADE_REQUIRED;
             }
             catch (const std::exception &e)
             {
@@ -196,6 +221,7 @@ namespace http
         std::string host;
 
         size_t content_length = 0;
+        size_t current_length = 0;
         std::string body;
 
         /**

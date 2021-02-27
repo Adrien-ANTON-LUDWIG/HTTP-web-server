@@ -1,0 +1,10 @@
+{
+    "vhosts": [
+        {
+            "ip": "ip6-localhost",
+            "port": 8000,
+            "server_name": "localhost",
+            "root": "./tests/www/"
+        }
+    ]
+}

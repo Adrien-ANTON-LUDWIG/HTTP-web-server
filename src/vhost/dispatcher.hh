@@ -39,11 +39,20 @@ namespace http
                 || connection->listener_port != v_conf.port)
                 request.status_code = STATUS_CODE::BAD_REQUEST;
 
+            std::string host = request.host;
+            if (host[0] == '[')
+            {
+                host.erase(host.begin());
+                host.erase(host.find(']'));
+            }
+
+            if (request.host != connection->listener_ip
+                || request.host != v_conf.server_name)
+                return vhosts_[0]->respond(request, connection);
+
             auto index = request.host.find_last_of(':');
 
-            if (index != std::string::npos
-                && request.host != connection->listener_ip
-                && request.host != v_conf.server_name)
+            if (index != std::string::npos)
             {
                 std::string host_or_ip(request.host.begin(),
                                        request.host.begin() + index);
@@ -55,9 +64,6 @@ namespace http
                      || port != std::to_string(connection->listener_port)))
                     request.status_code = STATUS_CODE::BAD_REQUEST;
             }
-            else if (request.host != connection->listener_ip
-                     && request.host != v_conf.server_name)
-                request.status_code = STATUS_CODE::BAD_REQUEST;
 
             // FIXME Renvoyer vers le vhost le moins chargé
 
