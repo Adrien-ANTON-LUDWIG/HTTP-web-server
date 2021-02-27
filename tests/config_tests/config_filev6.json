@@ -1,8 +1,8 @@
 {
     "vhosts": [
         {
-            "ip": "ip6-localhost",
-            "port": 8000,
+            "ip": "::1",
+            "port": 8001,
             "server_name": "localhost",
             "root": "./tests/www/"
         }
