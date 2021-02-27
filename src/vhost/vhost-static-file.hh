@@ -74,6 +74,8 @@ namespace http
                         request.uri += "/";
                     request.uri += conf_.default_file;
                 }
+                else if (request.uri[request.uri.size() - 1] == '/')
+                    request.uri.erase(request.uri.end() - 1);
             }
             catch (const std::exception &e)
             {

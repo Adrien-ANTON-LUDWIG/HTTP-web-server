@@ -12,7 +12,7 @@
 
 namespace http
 {
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 40960000
 
     class SendResponseEW : public EventWatcher
     {
