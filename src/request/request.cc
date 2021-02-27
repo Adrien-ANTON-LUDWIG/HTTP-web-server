@@ -4,6 +4,13 @@ namespace http
 {
     void Request::build_uri()
     {
+        auto pointpoint = uri.find("/..");
+        if (pointpoint != std::string::npos)
+        {
+            status_code = STATUS_CODE::BAD_REQUEST;
+            return;
+        }
+
         auto prefix_pos = uri.find(':');
         if (prefix_pos != std::string::npos)
         {
@@ -32,9 +39,11 @@ namespace http
 
     void Request::parse_method(const std::string &method_string)
     {
-        std::string methods[NB_OF_METHODS] = { "GET",     "HEAD",   "POST",
+        /*std::string methods[NB_OF_METHODS] = { "GET",     "HEAD",   "POST",
                                                "PUT",     "DELETE", "CONNECT",
-                                               "OPTIONS", "TRACE",  "PATCH" };
+                                               "OPTIONS", "TRACE",  "PATCH" };*/
+
+        std::string methods[NB_OF_METHODS] = { "GET", "HEAD", "POST" };
 
         int i = 0;
         for (; i < NB_OF_METHODS; i++)
@@ -47,10 +56,8 @@ namespace http
         if (i == NB_OF_METHODS)
         {
             method = Method::ERR;
-            status_code = STATUS_CODE::BAD_REQUEST;
-        }
-        else if (method > Method::POST)
             status_code = STATUS_CODE::METHOD_NOT_ALLOWED;
+        }
     }
 
     void Request::check_content_length(std::string &value)

@@ -24,7 +24,6 @@ namespace http
             host.erase(host.find(']'));
         }
 
-        std::cerr << "Status 1 : " << request.status_code << '\n';
         if (request.host == connection->listener_ip
             || request.host == v_conf.server_name)
             return;
@@ -45,8 +44,6 @@ namespace http
               && host_or_ip != connection->listener_ip)
              || port != std::to_string(connection->listener_port)))
             request.status_code = STATUS_CODE::BAD_REQUEST;
-
-        std::cerr << "Status 2 : " << request.status_code << '\n';
     }
 
     void Dispatcher::dispatch(const shared_connection &connection,
@@ -54,7 +51,6 @@ namespace http
     {
         auto v_conf = vhosts_[0]->conf_get();
         check_host(connection, request, v_conf);
-        std::cerr << "Status dispatch: " << request.status_code << std::endl;
 
         // FIXME Renvoyer vers le vhost le moins chargé
 
