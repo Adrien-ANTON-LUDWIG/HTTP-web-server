@@ -26,7 +26,8 @@ namespace http
         Response(const Response &resp)
         {
             response = resp.response;
-            file_stream = std::ifstream(resp.file_path);
+            if (resp.file_stream.is_open())
+                file_stream = std::ifstream(resp.file_path);
             file_path = resp.file_path;
         }
         Response &operator=(const Response &) = default;

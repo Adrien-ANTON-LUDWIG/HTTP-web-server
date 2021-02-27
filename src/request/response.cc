@@ -69,6 +69,8 @@ namespace http
         }
         catch (const std::exception &)
         {}
+        if (req.method == Method::HEAD)
+            file_stream.close();
 
         response += "Content-Length: " + std::to_string(file_size) + "\r\n";
         response += "Connection: close\r\n";
