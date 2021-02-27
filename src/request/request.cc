@@ -4,12 +4,11 @@ namespace http
 {
     void Request::build_uri()
     {
-        auto pointpoint = uri.find("/..");
-        if (pointpoint != std::string::npos)
-        {
-            status_code = STATUS_CODE::BAD_REQUEST;
-            return;
-        }
+        size_t pos = 0;
+        while ((pos = uri.find("/..")) != std::string::npos)
+            uri.erase(pos, 3);
+        if (uri.size() == 0 || uri[0] != '/')
+            uri = "/" + uri;
 
         auto prefix_pos = uri.find(':');
         if (prefix_pos != std::string::npos)
