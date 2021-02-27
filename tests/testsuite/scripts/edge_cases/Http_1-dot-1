@@ -1,0 +1,5 @@
+GET / HTTP/1-dot-1
+Host: localhost
+
+---
+400
