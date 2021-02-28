@@ -33,16 +33,14 @@ namespace http
             getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
             if (sin.sin_family == AF_INET)
             {
-                struct sockaddr_in *s = (struct sockaddr_in *)&sin;
                 char ipv4addr[INET_ADDRSTRLEN];
-                inet_ntop(AF_INET, &s->sin_family, ipv4addr, sizeof(ipv4addr));
+                inet_ntop(AF_INET, &sin.sin_addr, ipv4addr, sizeof(ipv4addr));
                 ip_ = std::string(ipv4addr);
             }
             else
             {
-                struct sockaddr_in *s = (struct sockaddr_in *)&sin;
                 char ipv6addr[INET6_ADDRSTRLEN];
-                inet_ntop(AF_INET6, &s->sin_family, ipv6addr, sizeof(ipv6addr));
+                inet_ntop(AF_INET6, &sin.sin_addr, ipv6addr, sizeof(ipv6addr));
                 ip_ = std::string(ipv6addr);
             }
             port_ = ntohs(sin.sin_port);
