@@ -10,18 +10,19 @@ namespace http
     static void check_host(const shared_connection &connection,
                            struct Request &request, const VHostConfig v_conf)
     {
+        if (request.host == "" || connection->listener_ip != v_conf.ip
+            || connection->listener_port != v_conf.port)
+        {
+            request.status_code = STATUS_CODE::BAD_REQUEST;
+            return;
+        }
+
         std::string host = request.host;
         if (host[0] == '[')
         {
             return;
             host.erase(host.begin());
             host.erase(host.find(']'));
-        }
-        if (request.host == "" || connection->listener_ip != v_conf.ip
-            || connection->listener_port != v_conf.port)
-        {
-            request.status_code = STATUS_CODE::BAD_REQUEST;
-            return;
         }
 
         if (request.host == connection->listener_ip
