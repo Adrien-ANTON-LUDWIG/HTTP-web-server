@@ -36,6 +36,7 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
             sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
 #endif
             sfd->bind(rp.ai_addr, rp.ai_addrlen);
+            sfd->set_hostname(host.c_str());
             break;
         }
         catch (const std::exception &)

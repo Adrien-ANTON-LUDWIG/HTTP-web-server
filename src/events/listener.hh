@@ -31,7 +31,7 @@ namespace http
             struct sockaddr_in sin;
             socklen_t len = sizeof(sin);
             getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
-            ip_ = inet_ntoa(sin.sin_addr);
+            ip_ = socket->get_hostname();
             port_ = ntohs(sin.sin_port);
         }
 
