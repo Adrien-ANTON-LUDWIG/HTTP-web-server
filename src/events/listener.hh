@@ -31,7 +31,7 @@ namespace http
             struct sockaddr_in sin;
             socklen_t len = sizeof(sin);
             getsockname(socket->fd_get()->fd_, (struct sockaddr *)&sin, &len);
-            if (sin.sin_family == AF_INET)
+            if (!sock_->is_ipv6())
             {
                 char ipv4addr[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, &sin.sin_addr, ipv4addr, sizeof(ipv4addr));
