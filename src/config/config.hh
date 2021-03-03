@@ -34,6 +34,11 @@ namespace http
         std::string server_name;
         std::string root;
         std::string default_file = "index.html";
+        std::string ssl_cert;
+        std::string ssl_key;
+        std::string auth_basic;
+        // std::vector<std::string> auth_basic_users;
+        bool default_vhost = false;
     };
 
     /**

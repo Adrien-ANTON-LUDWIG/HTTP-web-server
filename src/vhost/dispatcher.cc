@@ -7,15 +7,14 @@ namespace http
         vhosts_.push_back(vhost);
     }
 
-    static void check_host(const shared_connection &connection,
+    static bool check_host(const shared_connection &connection,
                            struct Request &request, const VHostConfig v_conf)
     {
         std::string host = request.host;
         if (host == "" || connection->listener_ip != v_conf.ip
             || connection->listener_port != v_conf.port)
         {
-            request.status_code = STATUS_CODE::BAD_REQUEST;
-            return;
+            return false;
         }
 
         if (host[0] == '[')
@@ -25,15 +24,12 @@ namespace http
         }
 
         if (host == connection->listener_ip || host == v_conf.server_name)
-            return;
+            return true;
 
         auto index = host.find_last_of(':');
 
         if (index == std::string::npos)
-        {
-            request.status_code = STATUS_CODE::BAD_REQUEST;
-            return;
-        }
+            return false;
 
         std::string host_or_ip(host.begin(), host.begin() + index);
         std::string port(host.begin() + index + 1, host.end());
@@ -41,17 +37,28 @@ namespace http
         if (((host_or_ip != v_conf.server_name
               && host_or_ip != connection->listener_ip)
              || port != std::to_string(connection->listener_port)))
-            request.status_code = STATUS_CODE::BAD_REQUEST;
+            return false;
+        return true;
     }
 
     void Dispatcher::dispatch(const shared_connection &connection,
                               struct Request &request)
     {
-        auto v_conf = vhosts_[0]->conf_get();
-        check_host(connection, request, v_conf);
-
-        // FIXME Renvoyer vers le vhost le moins chargé
-
-        vhosts_[0]->respond(request, connection);
+        shared_vhost vhost = nullptr;
+        for (auto v : vhosts_)
+        {
+            if (check_host(connection, request, v->conf_get()))
+            {
+                vhost = v;
+                break;
+            }
+        }
+        if (vhost == nullptr)
+        {
+            request.status_code = STATUS_CODE::BAD_REQUEST;
+            vhosts_[0]->respond(request, connection);
+        }
+        else
+            vhost->respond(request, connection);
     }
 } // namespace http

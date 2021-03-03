@@ -4,19 +4,19 @@
             "ip": "127.0.0.1",
             "port": 8000,
             "server_name": "localhost",
-            "root": "."
+            "root": "./tests/www"
         },
         {
-            "ip": "127.0.0.2",
-            "port": 8000,
+            "ip": "127.0.0.1",
+            "port": 8001,
             "server_name": "localhost2",
-            "root": "."
+            "root": "./tests/www"
         },
         {
-            "ip": "127.0.0.3",
-            "port": 8000,
+            "ip": "127.0.0.1",
+            "port": 8002,
             "server_name": "localhost3",
-            "root": "."
+            "root": "./tests/www"
         }
     ]
 }
