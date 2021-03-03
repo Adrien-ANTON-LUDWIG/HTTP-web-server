@@ -36,7 +36,6 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
             sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
 #endif
             sfd->bind(rp.ai_addr, rp.ai_addrlen);
-            sfd->set_hostname(host.c_str());
             break;
         }
         catch (const std::exception &)
@@ -49,6 +48,7 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
         std::cerr << "Could not bind to any interface\n";
         exit(0);
     }
+    sfd->set_hostname(host.c_str());
 
     http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
