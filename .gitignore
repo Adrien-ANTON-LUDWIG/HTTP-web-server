@@ -9,6 +9,7 @@ m4
 *.log
 stamp-h1
 libtool
+*.pem
 config.status
 Makefile
 configure.ac
