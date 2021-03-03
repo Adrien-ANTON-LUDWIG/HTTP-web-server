@@ -4,12 +4,6 @@ namespace http
 {
     void Request::build_uri()
     {
-        size_t pos = 0;
-        while ((pos = uri.find("/..")) != std::string::npos)
-            uri.erase(pos, 3);
-        if (uri.size() == 0 || uri[0] != '/')
-            uri = "/" + uri;
-
         auto prefix_pos = uri.find(':');
         if (prefix_pos != std::string::npos)
         {
@@ -21,6 +15,14 @@ namespace http
                 host = uri.substr(0, authority);
                 uri.erase(0, authority);
             }
+        }
+
+        size_t pos = 0;
+        while ((pos = uri.find("/..")) != std::string::npos)
+        {
+            uri.erase(pos, 3);
+            if (uri.size() == 0 || uri[0] != '/')
+                uri = "/" + uri;
         }
 
         auto query = uri.find('?');
@@ -152,7 +154,7 @@ namespace http
         parse_headers(std::move(ss));
         body = message.substr(message.find("\r\n\r\n") + 4);
         if (body != "" && content_length == 0)
-            std::cerr << "\nUnexpected body\n";
+            status_code = STATUS_CODE::BAD_REQUEST;
 
         build_uri();
         if (uri[0] != '/')
@@ -172,7 +174,7 @@ namespace http
             "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
         };
         std::cout << methods[static_cast<int>(method)] << ' ' << uri << ' '
-                  << "HTTP 1.1\n";
+                  << "HTTP/1.1\n";
 
         for (auto h : headers)
             std::cout << h.first << ": " << h.second << '\n';
