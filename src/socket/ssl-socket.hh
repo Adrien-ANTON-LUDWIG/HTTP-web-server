@@ -41,8 +41,8 @@ namespace http
          */
         SSLSocket(const misc::shared_fd &fd, SSL_CTX *ssl_ctx)
         {
-            (void) fd;
-            (void) ssl_ctx;
+            (void)fd;
+            (void)ssl_ctx;
         }
         SSLSocket() = default;
         SSLSocket(const SSLSocket &) = delete;

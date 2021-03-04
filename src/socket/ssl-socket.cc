@@ -11,7 +11,7 @@ namespace http
         : Socket{ std::make_shared<misc::FileDescriptor>(
             sys::socket(domain, type, protocol)) }
     {
-        (void) ssl_ctx;
+        (void)ssl_ctx;
     }
 
     ssize_t SSLSocket::recv(void *dst, size_t len)
@@ -40,8 +40,7 @@ namespace http
         }
     }
 
-    ssize_t SSLSocket::sendfile(misc::shared_fd &fd, off_t &offset,
-                                    size_t len)
+    ssize_t SSLSocket::sendfile(misc::shared_fd &fd, off_t &offset, size_t len)
     {
         try
         {
