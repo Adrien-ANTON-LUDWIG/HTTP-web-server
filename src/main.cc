@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <memory>
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
@@ -8,6 +9,7 @@
 #include "misc/addrinfo/addrinfo.hh"
 #include "misc/readiness/readiness.hh"
 #include "socket/default-socket.hh"
+#include "socket/ssl-socket.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-factory.hh"
 
@@ -25,13 +27,18 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
     misc::AddrInfo addrinfo =
         misc::getaddrinfo(host.c_str(), std::to_string(port).c_str(), hint);
 
-    http::DefaultSocket *sfd = new http::DefaultSocket();
+    http::Socket *sfd = (http::Socket *)(new http::DefaultSocket());
     for (auto rp : addrinfo)
     {
         try
         {
-            *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
-                                       rp.ai_protocol);
+            if (!x->conf_get().ssl_cert.empty()
+                && !x->conf_get().ssl_key.empty())
+                *sfd = http::SSLSocket(rp.ai_family, rp.ai_socktype,
+                                       rp.ai_protocol, x->ctx_get().get());
+            else
+                *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
+                                           rp.ai_protocol);
 #ifdef _DEBUG
             sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
 #endif
@@ -64,6 +71,12 @@ static void start_server()
     }
 }
 
+static void init_ssl()
+{
+    OpenSSL_add_ssl_algorithms();
+    SSL_load_error_strings();
+}
+
 int main(int argc, char *argv[])
 {
     if (argc == 1 || argc > 3 || (argc == 3 && strcmp(argv[1], "-t")))
@@ -82,9 +95,23 @@ int main(int argc, char *argv[])
     std::string path(argv[1]);
 
     auto config = http::parse_configuration(path);
-
+    bool ssl_loaded = false;
     for (auto v : config.vhosts)
-        http::dispatcher.add_vhost(http::VHostFactory::Create(v));
+    {
+        auto vhost = http::VHostFactory::Create(v);
+        if (!v.ssl_cert.empty() && !v.ssl_key.empty())
+        {
+            if (!ssl_loaded)
+            {
+                init_ssl();
+                ssl_loaded = true;
+            }
+            auto ssl_ctx = SSL_CTX_new(TLS_method());
+            vhost->ctx_get().reset(ssl_ctx);
+        }
+        http::dispatcher.add_vhost(vhost);
+    }
+
 #ifdef _DEBUG
     for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';

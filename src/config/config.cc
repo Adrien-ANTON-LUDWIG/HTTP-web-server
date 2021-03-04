@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include "misc/openssl/ssl.hh"
 
 #include "arpa/inet.h"
 #include "misc/json.hh"

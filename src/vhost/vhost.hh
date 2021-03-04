@@ -51,6 +51,11 @@ namespace http
             return conf_;
         }
 
+        inline std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) *> &ctx_get()
+        {
+            return ssl_ctx_;
+        }  
+
     protected:
         /**
          *  \brief VHost configuration.
