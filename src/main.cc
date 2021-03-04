@@ -7,6 +7,7 @@
 #include "events/listener.hh"
 #include "events/register.hh"
 #include "misc/addrinfo/addrinfo.hh"
+#include "misc/openssl/ssl.hh"
 #include "misc/readiness/readiness.hh"
 #include "socket/default-socket.hh"
 #include "socket/ssl-socket.hh"
@@ -40,7 +41,7 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
                 *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
                                            rp.ai_protocol);
 #ifdef _DEBUG
-            sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
+            sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 1);
 #endif
             sfd->bind(rp.ai_addr, rp.ai_addrlen);
             break;
@@ -106,8 +107,28 @@ int main(int argc, char *argv[])
                 init_ssl();
                 ssl_loaded = true;
             }
-            auto ssl_ctx = SSL_CTX_new(TLS_method());
-            vhost->ctx_get().reset(ssl_ctx);
+            try
+            {
+                SSL_CTX *ssl_ctx = SSL_CTX_new(TLS_method());
+                ssl::ctx_use_certificate_file("Error while getting certificate",
+                                              ssl_ctx, v.ssl_cert.c_str(),
+                                              SSL_FILETYPE_PEM);
+
+                ssl::ctx_use_PrivateKey_file("Error while getting private key",
+                                             ssl_ctx, v.ssl_key.c_str(),
+                                             SSL_FILETYPE_PEM);
+                vhost->ctx_get().reset(ssl_ctx);
+                auto x509_cert = SSL_CTX_get0_certificate(ssl_ctx);
+                ssl::x509_check_host("Certificate is not valid", x509_cert,
+                                     v.server_name.c_str(),
+                                     v.server_name.size(), 0, nullptr);
+                ssl::ctx_check_private_key("Private key is invalid", ssl_ctx);
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+                exit(1);
+            }
         }
         http::dispatcher.add_vhost(vhost);
     }

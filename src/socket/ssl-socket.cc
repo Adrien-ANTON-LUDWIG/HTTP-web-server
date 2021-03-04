@@ -109,6 +109,7 @@ namespace http
         misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
         shared_socket ptr = std::make_shared<SSLSocket>(fd_ptr, nullptr);
+
         sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
         return ptr;
     }
