@@ -1,11 +1,13 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <openssl/ssl.h>
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "events/listener.hh"
 #include "events/register.hh"
+#include "events/sni.hh"
 #include "misc/addrinfo/addrinfo.hh"
 #include "misc/openssl/ssl.hh"
 #include "misc/readiness/readiness.hh"
@@ -28,26 +30,31 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
     misc::AddrInfo addrinfo =
         misc::getaddrinfo(host.c_str(), std::to_string(port).c_str(), hint);
 
-    http::Socket *sfd = (http::Socket *)(new http::DefaultSocket());
+    http::Socket *sfd = nullptr;
     for (auto rp : addrinfo)
     {
         try
         {
             if (!x->conf_get().ssl_cert.empty()
                 && !x->conf_get().ssl_key.empty())
-                *sfd = http::SSLSocket(rp.ai_family, rp.ai_socktype,
-                                       rp.ai_protocol, x->ctx_get().get());
+            {
+                std::cout << "SSLSocket created !\n";
+                sfd = new http::SSLSocket(rp.ai_family, rp.ai_socktype,
+                                          rp.ai_protocol, x->ctx_get().get());
+            }
             else
-                *sfd = http::DefaultSocket(rp.ai_family, rp.ai_socktype,
-                                           rp.ai_protocol);
-#ifdef _DEBUG
+            {
+                std::cout << "DefaultSocket created !\n";
+                sfd = new http::DefaultSocket(rp.ai_family, rp.ai_socktype,
+                                              rp.ai_protocol);
+            }
             sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 1);
-#endif
             sfd->bind(rp.ai_addr, rp.ai_addrlen);
             break;
         }
         catch (const std::exception &)
         {
+            delete sfd;
             continue;
         }
     }
@@ -123,6 +130,12 @@ int main(int argc, char *argv[])
                                      v.server_name.c_str(),
                                      v.server_name.size(), 0, nullptr);
                 ssl::ctx_check_private_key("Private key is invalid", ssl_ctx);
+
+                void *args[] = { &config, ssl_ctx };
+
+                SSL_CTX_set_tlsext_servername_arg(ssl_ctx,
+                                                  static_cast<void *>(args));
+                SSL_CTX_set_tlsext_servername_callback(ssl_ctx, sni_callback);
             }
             catch (const std::exception &e)
             {
@@ -131,6 +144,12 @@ int main(int argc, char *argv[])
             }
         }
         http::dispatcher.add_vhost(vhost);
+    }
+
+    for (auto v : http::dispatcher)
+    {
+        auto var_to_see = v->ctx_get().get();
+        (void)var_to_see;
     }
 
 #ifdef _DEBUG

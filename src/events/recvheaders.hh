@@ -39,6 +39,13 @@ namespace http
         {
             char buffer[BUFFER_SIZE];
             auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
+
+            if (read_size == -1)
+            {
+                event_register.unregister_ew(this);
+                return;
+            }
+
             connection_->message.append(buffer, buffer + read_size);
             std::string carriage = "\r\n\r\n";
 

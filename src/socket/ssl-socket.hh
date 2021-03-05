@@ -39,11 +39,8 @@ namespace http
          * \param fd Socket created via accept()
          * \param ssl_ctx VHost's SSL_CTX retrieved from the listening socket
          */
-        SSLSocket(const misc::shared_fd &fd, SSL_CTX *ssl_ctx)
-        {
-            (void)fd;
-            (void)ssl_ctx;
-        }
+        SSLSocket(const misc::shared_fd &fd, SSL_CTX *ssl_ctx);
+
         SSLSocket() = default;
         SSLSocket(const SSLSocket &) = delete;
         SSLSocket &operator=(const SSLSocket &) = delete;

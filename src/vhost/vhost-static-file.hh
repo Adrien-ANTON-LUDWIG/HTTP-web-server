@@ -6,6 +6,7 @@
 #pragma once
 
 #include <filesystem>
+#include <memory>
 
 #include "config/config.hh"
 #include "events/sendresponse.hh"
@@ -38,6 +39,9 @@ namespace http
 
     public:
         /**
+         @brief
+         *
+         *
          * \brief Send response.
          *
          * \param req Request.

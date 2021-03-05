@@ -1,8 +1,10 @@
 #include "socket/ssl-socket.hh"
 
 #include <iostream>
+#include <openssl/ssl.h>
 
 #include "misc/fd.hh"
+#include "misc/openssl/ssl.hh"
 #include "misc/socket.hh"
 
 namespace http
@@ -11,14 +13,20 @@ namespace http
         : Socket{ std::make_shared<misc::FileDescriptor>(
             sys::socket(domain, type, protocol)) }
     {
-        (void)ssl_ctx;
+        ssl_.reset(SSL_new(ssl_ctx));
+    }
+
+    SSLSocket::SSLSocket(const misc::shared_fd &fd, SSL_CTX *ssl_ctx)
+        : Socket(fd)
+    {
+        ssl_.reset(SSL_new(ssl_ctx));
     }
 
     ssize_t SSLSocket::recv(void *dst, size_t len)
     {
         try
         {
-            return sys::recv(*fd_, dst, len, 0);
+            return ssl::read(ssl_.get(), dst, len);
         }
         catch (const std::exception &e)
         {
@@ -31,7 +39,7 @@ namespace http
     {
         try
         {
-            return sys::send(*fd_, buf, buf_len, MSG_NOSIGNAL);
+            return ssl::write(ssl_.get(), buf, buf_len);
         }
         catch (const std::exception &e)
         {
@@ -40,17 +48,9 @@ namespace http
         }
     }
 
-    ssize_t SSLSocket::sendfile(misc::shared_fd &fd, off_t &offset, size_t len)
+    ssize_t SSLSocket::sendfile(misc::shared_fd &, off_t &, size_t)
     {
-        try
-        {
-            return sys::sendfile(*fd_, *fd, &offset, len);
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "Sendfile Failed : " << e.what() << '\n';
-            return -1;
-        }
+        return -1;
     }
 
     void SSLSocket::bind(const sockaddr *addr, socklen_t len)
@@ -108,7 +108,11 @@ namespace http
     {
         misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
-        shared_socket ptr = std::make_shared<SSLSocket>(fd_ptr, nullptr);
+        shared_socket ptr =
+            std::make_shared<SSLSocket>(fd_ptr, SSL_get_SSL_CTX(ssl_.get()));
+
+        SSL_set_fd(ssl_.get(), fd_ptr->fd_);
+        ssl::accept(ssl_.get());
 
         sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
         return ptr;
