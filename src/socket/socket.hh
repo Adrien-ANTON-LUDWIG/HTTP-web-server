@@ -95,11 +95,23 @@ namespace http
             ipv6_ = ipv6;
         }
 
+        std::string get_hostname()
+        {
+            return hostname_;
+        }
+
+        void set_hostname(std::string name)
+        {
+            hostname_ = name;
+        }
+
     protected:
         /**
          * \brief File descriptor of the socket.
          */
         misc::shared_fd fd_;
+
+        std::string hostname_;
         /**
          * Either ipv4 or ipv6.
          */

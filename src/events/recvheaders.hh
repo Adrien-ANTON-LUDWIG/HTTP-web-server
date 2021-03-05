@@ -61,6 +61,10 @@ namespace http
                 event_register.unregister_ew(this);
                 connection_->message.erase();
             }
+            else if (read_size <= 0)
+            {
+                event_register.unregister_ew(this);
+            }
         }
 
     private:

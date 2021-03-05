@@ -11,25 +11,23 @@ namespace http
                            struct Request &request, const VHostConfig v_conf)
     {
         std::string host = request.host;
-        if (host[0] == '[')
-        {
-            return;
-            host.erase(host.begin());
-            host.erase(host.find(']'));
-        }
-
-        if (request.host == "" || connection->listener_ip != v_conf.ip
+        if (host == "" || connection->listener_ip != v_conf.ip
             || connection->listener_port != v_conf.port)
         {
             request.status_code = STATUS_CODE::BAD_REQUEST;
             return;
         }
 
-        if (request.host == connection->listener_ip
-            || request.host == v_conf.server_name)
+        if (host[0] == '[')
+        {
+            host.erase(host.begin());
+            host.erase(host.find(']'));
+        }
+
+        if (host == connection->listener_ip || host == v_conf.server_name)
             return;
 
-        auto index = request.host.find_last_of(':');
+        auto index = host.find_last_of(':');
 
         if (index == std::string::npos)
         {
@@ -37,9 +35,8 @@ namespace http
             return;
         }
 
-        std::string host_or_ip(request.host.begin(),
-                               request.host.begin() + index);
-        std::string port(request.host.begin() + index + 1, request.host.end());
+        std::string host_or_ip(host.begin(), host.begin() + index);
+        std::string port(host.begin() + index + 1, host.end());
 
         if (((host_or_ip != v_conf.server_name
               && host_or_ip != connection->listener_ip)

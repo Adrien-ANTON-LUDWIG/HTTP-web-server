@@ -48,6 +48,7 @@ static http::shared_socket create_and_bind(http::shared_vhost x)
         std::cerr << "Could not bind to any interface\n";
         exit(0);
     }
+    sfd->set_hostname(host.c_str());
 
     http::shared_socket sock = std::shared_ptr<http::Socket>(sfd);
     sock.get()->listen(5);
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 
     for (auto v : config.vhosts)
         http::dispatcher.add_vhost(http::VHostFactory::Create(v));
-#ifdef DEBUG
+#ifdef _DEBUG
     for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 #endif
