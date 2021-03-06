@@ -61,4 +61,15 @@ namespace http
         else
             vhost->respond(request, connection);
     }
+
+    void Dispatcher::set_default_vhost(const shared_vhost &default_vhost)
+    {
+        default_vhost_ = default_vhost;
+    }
+
+    shared_vhost Dispatcher::get_default_vhost()
+    {
+        return default_vhost_;
+    }
+
 } // namespace http

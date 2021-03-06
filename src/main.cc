@@ -140,6 +140,10 @@ int main(int argc, char *argv[])
                 exit(1);
             }
         }
+
+        if (vhost->conf_get().default_vhost)
+            http::dispatcher.set_default_vhost(vhost);
+
         http::dispatcher.add_vhost(vhost);
     }
 

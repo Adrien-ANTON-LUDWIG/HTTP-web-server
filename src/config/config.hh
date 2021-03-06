@@ -38,7 +38,7 @@ namespace http
         std::string ssl_cert;
         std::string ssl_key;
         std::string auth_basic;
-        // std::vector<std::string> auth_basic_users;
+        std::vector<std::string> auth_basic_users;
 
         // SSL_CTX *ssl_ctx;
 

@@ -7,6 +7,7 @@
 #include "arpa/inet.h"
 #include "misc/json.hh"
 #include "misc/openssl/ssl.hh"
+#include "vhost/dispatcher.hh"
 
 namespace http
 {
@@ -59,7 +60,12 @@ namespace http
                 exit(1);
             }
             vhost.auth_basic = v["auth_basic"];
-            // vhost.auth_basic_users = v["auth_basic_users"];
+            auto c = v["auth_basic_users"];
+            for (auto e : c)
+            {
+                vhost.auth_basic_users.push_back(e);
+                std::cout << e << '\n';
+            }
         }
     }
 
@@ -98,6 +104,17 @@ namespace http
                     }
                     default_vhost_find = true;
                     vhost.default_vhost = true;
+                }
+
+                for (auto c : s_conf.vhosts)
+                {
+                    if (c.ip == vhost.ip && c.port == vhost.port
+                        && c.server_name == vhost.server_name)
+                    {
+                        std::cerr << "There is already a vhost with the same "
+                                     "configuration\n";
+                        exit(1);
+                    }
                 }
 
                 s_conf.vhosts.push_back(vhost);

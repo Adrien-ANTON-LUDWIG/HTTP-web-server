@@ -2,19 +2,19 @@
     "vhosts": [
         {
             "ip": "127.0.0.1",
+            "port": 8001,
+            "server_name": "localhost",
+            "root": "./tests/www",
+            "default_file": "index.html",
+            "default_vhost": true
+        },
+        {
+            "ip": "127.0.0.1",
             "port": 8000,
             "root": "./tests/www",
             "server_name": "localhost",
             "ssl_cert": "tests/certs/localhost.pem",
             "ssl_key": "tests/certs/localhost-key.pem"
-        },
-        {
-            "ip": "127.0.0.2",
-            "port": 8000,
-            "server_name": "localhost",
-            "root": "./tests/www",
-            "default_file": "index.html",
-            "default_vhost": true
         }
-    ]
+   ]
 }

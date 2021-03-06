@@ -50,11 +50,15 @@ namespace http
             return vhosts_.cend();
         }
 
+        void set_default_vhost(const shared_vhost &default_vhost);
+        shared_vhost get_default_vhost();
+
     private:
         /* FIXME: Add members to store the information relative to the
         ** Dispatcher.
         */
         std::vector<shared_vhost> vhosts_;
+        shared_vhost default_vhost_;
     };
 
     /**

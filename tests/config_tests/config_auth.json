@@ -3,8 +3,8 @@
         {
             "ip": "0.0.0.0",
             "port": 8080,
-            "server_name": "sub.localhost",
-            "root": "./tests/www/sub.localhost/",
+            "server_name": "localhost",
+            "root": "./tests/www/",
             "default_file": "index.html",
             "auth_basic": "Please log in to sub.localhost!",
             "auth_basic_users": [
