@@ -6,7 +6,7 @@ namespace http
     {
         try
         {
-            if (!sending_body)
+            if (response_.response.size())
             {
                 char buffer[BUFFER_SIZE];
                 auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
@@ -18,9 +18,8 @@ namespace http
                 std::cout << std::string(buffer, len) << '\n';
 #endif
             }
-            if (!response_.response.size())
+            else
             {
-                sending_body = true;
                 if (!response_.file_stream.is_open())
                 {
                     event_register.unregister_ew(this);
@@ -28,6 +27,11 @@ namespace http
                 }
                 char buffer[BUFFER_SIZE];
                 auto len = response_.file_stream.readsome(buffer, BUFFER_SIZE);
+                if (len <= 0)
+                {
+                    event_register.unregister_ew(this);
+                    return;
+                }
                 auto sent = connection_->sock->send(buffer, len);
                 if (sent <= 0)
                     throw std::ifstream::failure("Connection closed (body)");

@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
     auto config = http::parse_configuration(path);
     bool ssl_loaded = false;
-    for (auto v : config.vhosts)
+    for (auto &v : config.vhosts)
     {
         auto vhost = http::VHostFactory::Create(v);
         if (!v.ssl_cert.empty() && !v.ssl_key.empty())
@@ -131,10 +131,7 @@ int main(int argc, char *argv[])
                                      v.server_name.size(), 0, nullptr);
                 ssl::ctx_check_private_key("Private key is invalid", ssl_ctx);
 
-                void *args[] = { &config, ssl_ctx };
-
-                SSL_CTX_set_tlsext_servername_arg(ssl_ctx,
-                                                  static_cast<void *>(args));
+                SSL_CTX_set_tlsext_servername_arg(ssl_ctx, nullptr);
                 SSL_CTX_set_tlsext_servername_callback(ssl_ctx, sni_callback);
             }
             catch (const std::exception &e)
@@ -144,12 +141,6 @@ int main(int argc, char *argv[])
             }
         }
         http::dispatcher.add_vhost(vhost);
-    }
-
-    for (auto v : http::dispatcher)
-    {
-        auto var_to_see = v->ctx_get().get();
-        (void)var_to_see;
     }
 
 #ifdef _DEBUG

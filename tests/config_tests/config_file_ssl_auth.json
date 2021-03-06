@@ -5,8 +5,8 @@
             "port": 8081,
             "root": "./tests/www",
             "server_name": "localhost",
-            "ssl_cert": "certs/localhost.pem",
-            "ssl_key": "certs/localhost-key.pem"
+            "ssl_cert": "./tests/certs/localhost.pem",
+            "ssl_key": "./tests/certs/localhost-key.pem"
         },
         {
             "ip": "0.0.0.0",

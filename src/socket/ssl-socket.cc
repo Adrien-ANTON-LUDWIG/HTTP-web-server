@@ -12,14 +12,15 @@ namespace http
     SSLSocket::SSLSocket(int domain, int type, int protocol, SSL_CTX *ssl_ctx)
         : Socket{ std::make_shared<misc::FileDescriptor>(
             sys::socket(domain, type, protocol)) }
-    {
-        ssl_.reset(SSL_new(ssl_ctx));
-    }
+        , ssl_(SSL_new(ssl_ctx), SSL_free)
+    {}
 
     SSLSocket::SSLSocket(const misc::shared_fd &fd, SSL_CTX *ssl_ctx)
         : Socket(fd)
+        , ssl_(SSL_new(ssl_ctx), SSL_free)
     {
-        ssl_.reset(SSL_new(ssl_ctx));
+        SSL_set_fd(ssl_.get(), fd->fd_);
+        ssl::accept(ssl_.get());
     }
 
     ssize_t SSLSocket::recv(void *dst, size_t len)
@@ -106,16 +107,21 @@ namespace http
 
     shared_socket SSLSocket::accept(sockaddr *addr, socklen_t *addrlen)
     {
-        misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
-            sys::accept(*fd_, addr, addrlen));
-        shared_socket ptr =
-            std::make_shared<SSLSocket>(fd_ptr, SSL_get_SSL_CTX(ssl_.get()));
+        try
+        {
+            misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
+                sys::accept(*fd_, addr, addrlen));
+            shared_socket ptr = std::make_shared<SSLSocket>(
+                fd_ptr, SSL_get_SSL_CTX(ssl_.get()));
 
-        SSL_set_fd(ssl_.get(), fd_ptr->fd_);
-        ssl::accept(ssl_.get());
-
-        sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
-        return ptr;
+            sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
+            return ptr;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "SSL accept: " << e.what() << '\n';
+            return nullptr;
+        }
     }
 
     void SSLSocket::connect(const sockaddr *addr, socklen_t addrlen)

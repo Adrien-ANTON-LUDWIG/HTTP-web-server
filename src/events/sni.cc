@@ -1,26 +1,24 @@
 #include "sni.hh"
 
-int sni_callback(SSL *s, int *, void *arg)
-{
-    // Advanced technique copyrighted by Pierre Pelletier Inc - 2021.
-    void **args = static_cast<void **>(arg);
-    http::ServerConfig *conf = static_cast<http::ServerConfig *>(args[0]);
-    SSL_CTX *ctx = static_cast<SSL_CTX *>(args[1]);
-    // End of the advanded technique
+#include "config/config.hh"
+#include "vhost/dispatcher.hh"
 
+int sni_callback(SSL *s, int *, void *)
+{
     int type = SSL_get_servername_type(s);
     if (type == -1)
         return SSL_TLSEXT_ERR_NOACK;
     auto name = SSL_get_servername(s, type);
     if (!name)
         return SSL_TLSEXT_ERR_NOACK;
-    for (auto v : conf->vhosts)
+    for (auto &v : http::dispatcher)
     {
-        if (v.server_name == name || v.ip == name)
+        auto &conf = v->conf_get();
+        if (conf.server_name == name || conf.ip == name)
         {
-            if (v.ssl_cert.empty() || v.ssl_key.empty())
+            if (conf.ssl_cert.size() == 0 || conf.ssl_key.size() == 0)
                 return SSL_TLSEXT_ERR_NOACK;
-            SSL_set_SSL_CTX(s, ctx);
+            SSL_set_SSL_CTX(s, v->ctx_get().get());
             return SSL_TLSEXT_ERR_OK;
         }
     }
