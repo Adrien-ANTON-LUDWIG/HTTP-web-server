@@ -88,6 +88,8 @@ namespace http
             host = value;
         else if (name == "Content-Length")
             check_content_length(value);
+        else if (name == "Authorization")
+            auth = value;
         headers[name] = value;
     }
 
@@ -163,7 +165,8 @@ namespace http
 
     bool Request::is_good()
     {
-        return status_code == STATUS_CODE::OK;
+        return status_code == STATUS_CODE::OK
+            || status_code == STATUS_CODE::UNAUTHORIZED;
     }
 
     void Request::pretty_print()

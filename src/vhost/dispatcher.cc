@@ -1,5 +1,7 @@
 #include "dispatcher.hh"
 
+#include "misc/openssl/base64.hh"
+
 namespace http
 {
     void Dispatcher::add_vhost(const shared_vhost &vhost)
@@ -44,7 +46,7 @@ namespace http
     void Dispatcher::dispatch(const shared_connection &connection,
                               struct Request &request)
     {
-        shared_vhost vhost = nullptr;
+        shared_vhost vhost = get_default_vhost();
         for (auto v : vhosts_)
         {
             if (check_host(connection, request, v->conf_get()))
@@ -59,7 +61,40 @@ namespace http
             vhosts_[0]->respond(request, connection);
         }
         else
+        {
+            if (!vhost->conf_get().auth_basic.empty())
+            {
+                request.auth_basic = vhost->conf_get().auth_basic;
+                if (request.auth.empty())
+                {
+                    request.status_code = STATUS_CODE::UNAUTHORIZED;
+                }
+                std::stringstream auth_stream(request.auth);
+                std::string auth_type;
+                auth_stream >> auth_type;
+                if (auth_type != "Basic")
+                    request.status_code = STATUS_CODE::UNAUTHORIZED;
+                else
+                {
+                    std::string auth_credentials;
+                    auth_stream >> auth_credentials;
+                    auto plain_credentials =
+                        ssl::base64_decode(auth_credentials);
+                    bool logged_in = false;
+                    for (auto x : vhost->conf_get().auth_basic_users)
+                    {
+                        if (x == plain_credentials)
+                        {
+                            logged_in = true;
+                            break;
+                        }
+                    }
+                    if (!logged_in)
+                        request.status_code = STATUS_CODE::UNAUTHORIZED;
+                }
+            }
             vhost->respond(request, connection);
+        }
     }
 
     void Dispatcher::set_default_vhost(const shared_vhost &default_vhost)

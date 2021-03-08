@@ -68,6 +68,9 @@ namespace http
 
         std::string host;
 
+        std::string auth = "";
+        std::string auth_basic;
+
         size_t content_length = 0;
         size_t current_length = 0;
         std::string body;

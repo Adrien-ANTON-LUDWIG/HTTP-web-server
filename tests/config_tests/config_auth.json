@@ -2,16 +2,16 @@
     "vhosts": [
         {
             "ip": "0.0.0.0",
-            "port": 8080,
+            "port": 8000,
             "server_name": "localhost",
             "root": "./tests/www/",
             "default_file": "index.html",
-            "auth_basic": "Please log in to sub.localhost!",
+            "auth_basic": "Please log in to localhost!",
             "auth_basic_users": [
-                "adrien.anton-ludwig",
-                "alexandre.lemonnier",
-                "jeanne.morin",
-                "pierre.pelletier"
+                "adrien.anton-ludwig:anssi",
+                "alexandre.lemonnier:password",
+                "jeanne.morin:123456",
+                "pierre.pelletier:azerty"
             ],
             "default_vhost": true
         }
