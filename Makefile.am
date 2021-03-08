@@ -51,6 +51,8 @@ SOURCES = \
           src/events/events.cc \
           src/events/events.hh \
           src/events/listener.hh \
+          src/events/sni.cc \
+          src/events/sni.hh \
           src/events/register.cc \
           src/events/register.hh \
           src/events/register.hxx \
@@ -87,6 +89,7 @@ SOURCES = \
           src/socket/default-socket.cc \
           src/socket/default-socket.hh \
           src/socket/socket.hh \
+          src/socket/ssl-socket.cc \
           src/socket/ssl-socket.hh \
           src/vhost/connection.hh \
           src/vhost/dispatcher.cc \

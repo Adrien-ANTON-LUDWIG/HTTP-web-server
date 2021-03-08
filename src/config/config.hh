@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <openssl/ssl.h>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,14 @@ namespace http
         std::string server_name;
         std::string root;
         std::string default_file = "index.html";
+        std::string ssl_cert;
+        std::string ssl_key;
+        std::string auth_basic;
+        std::vector<std::string> auth_basic_users;
+
+        // SSL_CTX *ssl_ctx;
+
+        bool default_vhost = false;
     };
 
     /**

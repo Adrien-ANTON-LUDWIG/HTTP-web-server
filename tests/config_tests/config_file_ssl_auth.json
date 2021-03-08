@@ -1,0 +1,43 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8002,
+            "root": "./tests/www",
+            "server_name": "localhost",
+            "ssl_cert": "./tests/certs/localhost.pem",
+            "ssl_key": "./tests/certs/localhost-key.pem"
+        },
+        {
+            "ip": "0.0.0.0",
+            "port": 8000,
+            "server_name": "localhost",
+            "root": "./tests/www/",
+            "default_file": "index.html",
+            "auth_basic": "Please log in to localhost!",
+            "auth_basic_users": [
+                "adrien.anton-ludwig:anssi",
+                "alexandre.lemonnier:password",
+                "jeanne.morin:123456",
+                "pierre.pelletier:azerty"
+            ]
+        },
+        {
+            "ip": "127.0.0.1",
+            "port": 8001,
+            "server_name": "localhost",
+            "root": "./tests/www/",
+            "default_file": "index.html",
+            "ssl_cert": "./tests/certs/localhost.pem",
+            "ssl_key": "./tests/certs/localhost-key.pem",
+            "auth_basic": "Please log in to localhost!",
+            "auth_basic_users": [
+                "adrien.anton-ludwig:anssi",
+                "alexandre.lemonnier:password",
+                "jeanne.morin:123456",
+                "pierre.pelletier:azerty"
+            ],
+            "default_vhost": true
+        }
+    ]
+}

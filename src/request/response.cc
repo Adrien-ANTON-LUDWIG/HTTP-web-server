@@ -25,6 +25,7 @@ namespace http
 
         size_t time_size = strftime(datebuffer, BUFFER_SIZE,
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
+
         response += "Date: " + std::string(datebuffer, time_size);
         response += "Content-Length: 0\r\n";
         response += "Connection: close\r\n";
@@ -53,6 +54,12 @@ namespace http
 
         response = "HTTP/1.1 " + std::to_string(codepair.first) + " "
             + codepair.second + "\r\n";
+
+        if (code == STATUS_CODE::UNAUTHORIZED)
+        {
+            response += "WWW-Authenticate: Basic realm=\"";
+            response += req.auth_basic + "\"\r\n";
+        }
 
         time_t now;
         time(&now);

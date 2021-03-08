@@ -28,12 +28,6 @@ namespace http
         GET,
         HEAD,
         POST,
-        PUT,
-        DELETE,
-        CONNECT,
-        OPTIONS,
-        TRACE,
-        PATCH,
         ERR
     };
 
@@ -73,6 +67,9 @@ namespace http
         std::map<std::string, std::string> headers;
 
         std::string host;
+
+        std::string auth = "";
+        std::string auth_basic;
 
         size_t content_length = 0;
         size_t current_length = 0;

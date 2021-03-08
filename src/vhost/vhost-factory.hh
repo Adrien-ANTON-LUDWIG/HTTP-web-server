@@ -4,6 +4,8 @@
  * \brief VHostFactory
  */
 
+#include <memory>
+
 #include "vhost/vhost-static-file.hh"
 #include "vhost/vhost.hh"
 
