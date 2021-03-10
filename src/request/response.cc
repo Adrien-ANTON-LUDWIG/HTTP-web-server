@@ -34,18 +34,28 @@ namespace http
     Response::Response(const Request &req, const STATUS_CODE &code)
     {
         auto realcode = code;
+        auto file_size = 0;
 
         std::string body;
-
-        file_stream.open(req.uri);
-        file_path = req.uri;
-        if (!file_stream.is_open())
+        if (code == STATUS_CODE::OK)
         {
-            if (std::filesystem::exists(req.uri))
-                realcode = STATUS_CODE::FORBIDDEN;
-            else
-                realcode = STATUS_CODE::NOT_FOUND;
+            file_stream.open(req.uri);
+            file_path = req.uri;
+            if (!file_stream.is_open())
+            {
+                if (std::filesystem::exists(req.uri))
+                    realcode = STATUS_CODE::FORBIDDEN;
+                else
+                    realcode = STATUS_CODE::NOT_FOUND;
+            }
+            try
+            {
+                file_size = std::filesystem::file_size(req.uri);
+            }
+            catch (const std::exception &)
+            {}
         }
+
         if (req.method == Method::HEAD)
             body = "";
 
@@ -69,13 +79,6 @@ namespace http
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
         response += "Date: " + std::string(datebuffer, time_size);
 
-        auto file_size = 0;
-        try
-        {
-            file_size = std::filesystem::file_size(req.uri);
-        }
-        catch (const std::exception &)
-        {}
         if (req.method == Method::HEAD)
             file_stream.close();
 

@@ -46,8 +46,22 @@ namespace http
                 std::cerr << "ssl_cert and ssl_key must both be define.\n";
                 exit(1);
             }
+
             vhost.ssl_cert = v["ssl_cert"];
             vhost.ssl_key = v["ssl_key"];
+
+            if (vhost.ssl_cert.empty() || vhost.ssl_key.empty())
+            {
+                std::cerr << "ssl_cert or ssl_key is empty.\n";
+                exit(1);
+            }
+
+            if (!std::filesystem::exists(vhost.ssl_cert)
+                || !std::filesystem::exists(vhost.ssl_key))
+            {
+                std::cerr << "ssl_cert or ssl_key does not exist.\n";
+                exit(1);
+            }
         }
         if (v.find("auth_basic") != v.end()
             || v.find("auth_basic_users") != v.end())
@@ -61,10 +75,23 @@ namespace http
             }
             vhost.auth_basic = v["auth_basic"];
             auto c = v["auth_basic_users"];
-            for (auto e : c)
+            for (std::string e : c)
             {
-                vhost.auth_basic_users.push_back(e);
+#ifdef _DEBUG
                 std::cout << e << '\n';
+#endif
+                vhost.auth_basic_users.push_back(e);
+                if (e.find(":") == std::string::npos)
+                {
+                    std::cerr
+                        << "auth_basic_users wrong format : user:password\n";
+                    exit(1);
+                }
+            }
+            if (vhost.auth_basic.empty() || vhost.auth_basic_users.size() == 0)
+            {
+                std::cerr << "auth_basic or auth_basic_users is empty.\n";
+                exit(1);
             }
         }
     }
@@ -96,14 +123,15 @@ namespace http
                 parse_configuration2(vhost, v);
                 if (v.find("default_vhost") != v.end())
                 {
-                    if (default_vhost_find)
+                    bool value = v["default_vhost"];
+                    if (default_vhost_find && value)
                     {
                         std::cerr << "default_vhost must be unique in the "
                                      "whole config file.\n";
                         exit(1);
                     }
-                    default_vhost_find = true;
-                    vhost.default_vhost = true;
+                    default_vhost_find = value;
+                    vhost.default_vhost = value;
                 }
 
                 for (auto c : s_conf.vhosts)

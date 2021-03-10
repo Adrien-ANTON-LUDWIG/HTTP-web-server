@@ -6,7 +6,8 @@
             "root": "./tests/www",
             "server_name": "localhost",
             "ssl_cert": "./tests/certs/localhost.pem",
-            "ssl_key": "./tests/certs/localhost-key.pem"
+            "ssl_key": "./tests/certs/localhost-key.pem",
+            "default_vhost": false
         },
         {
             "ip": "0.0.0.0",
@@ -20,7 +21,8 @@
                 "alexandre.lemonnier:password",
                 "jeanne.morin:123456",
                 "pierre.pelletier:azerty"
-            ]
+            ],
+            "default_vhost": true
         },
         {
             "ip": "127.0.0.1",
@@ -32,12 +34,12 @@
             "ssl_key": "./tests/certs/localhost-key.pem",
             "auth_basic": "Please log in to localhost!",
             "auth_basic_users": [
-                "adrien.anton-ludwig:anssi",
+                "adrien.anton-ludwig:anssi2",
                 "alexandre.lemonnier:password",
                 "jeanne.morin:123456",
                 "pierre.pelletier:azerty"
             ],
-            "default_vhost": true
+            "default_vhost": false
         }
     ]
 }

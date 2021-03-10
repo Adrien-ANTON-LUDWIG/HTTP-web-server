@@ -26,5 +26,4 @@ forbidden_file
 tests/env
 env
 tests/www/inception.mkv
-src/request/response.hh
 tests/www/download/inception.mkv
