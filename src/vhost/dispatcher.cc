@@ -76,21 +76,30 @@ namespace http
                     request.status_code = STATUS_CODE::UNAUTHORIZED;
                 else
                 {
-                    std::string auth_credentials;
-                    auth_stream >> auth_credentials;
-                    auto plain_credentials =
-                        ssl::base64_decode(auth_credentials);
-                    bool logged_in = false;
-                    for (auto x : vhost->conf_get().auth_basic_users)
+                    try
                     {
-                        if (x == plain_credentials)
+                        std::string auth_credentials;
+                        auth_stream >> auth_credentials;
+                        auto plain_credentials =
+                            ssl::base64_decode(auth_credentials);
+                        bool logged_in = false;
+                        for (auto x : vhost->conf_get().auth_basic_users)
                         {
-                            logged_in = true;
-                            break;
+                            if (x == plain_credentials)
+                            {
+                                logged_in = true;
+                                break;
+                            }
                         }
+                        if (!logged_in)
+                            request.status_code = STATUS_CODE::UNAUTHORIZED;
                     }
-                    if (!logged_in)
+                    catch (std::exception &e)
+                    {
+                        std::cerr << "Decode auhtentification : " << e.what()
+                                  << '\n';
                         request.status_code = STATUS_CODE::UNAUTHORIZED;
+                    }
                 }
             }
             vhost->respond(request, connection);

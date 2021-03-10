@@ -90,7 +90,11 @@ namespace http
 
             if (check_err_response(request, connection))
                 return;
-
+            if (request.status_code == STATUS_CODE::UNAUTHORIZED)
+            {
+                request.content_length = 0;
+                request.body.erase();
+            }
             struct Response response(request, request.status_code);
             event_register.register_event<SendResponseEW>(connection, response);
         }
