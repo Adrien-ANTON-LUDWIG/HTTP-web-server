@@ -74,18 +74,29 @@ namespace http
                 exit(1);
             }
             vhost.auth_basic = v["auth_basic"];
-            auto c = v["auth_basic_users"];
-            for (std::string e : c)
+            auto l = v["auth_basic_users"];
+            for (std::string e : l)
             {
 #ifdef _DEBUG
                 std::cout << e << '\n';
 #endif
                 vhost.auth_basic_users.push_back(e);
-                if (e.find(":") == std::string::npos)
+                size_t pos = e.find(":");
+                if (pos == std::string::npos || pos == 0 || e[pos + 1] == '\0')
                 {
                     std::cerr
                         << "auth_basic_users wrong format : user:password\n";
                     exit(1);
+                }
+                for (auto c : e)
+                {
+                    if (c > 32 && c < 127)
+                        continue;
+                    else
+                    {
+                        std::cerr << "invalid character";
+                        exit(1);
+                    }
                 }
             }
             if (vhost.auth_basic.empty() || vhost.auth_basic_users.size() == 0)
@@ -137,7 +148,9 @@ namespace http
                 for (auto c : s_conf.vhosts)
                 {
                     if (c.ip == vhost.ip && c.port == vhost.port
-                        && c.server_name == vhost.server_name)
+                        && c.server_name == vhost.server_name
+                        && (c.ssl_cert == vhost.ssl_cert
+                            || c.ssl_key == vhost.ssl_key))
                     {
                         std::cerr << "There is already a vhost with the same "
                                      "configuration\n";

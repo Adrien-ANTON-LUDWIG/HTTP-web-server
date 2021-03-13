@@ -13,7 +13,7 @@ namespace http
                            struct Request &request, const VHostConfig v_conf)
     {
         std::string host = request.host;
-        if (host == "" || connection->listener_ip != v_conf.ip
+        if (connection->listener_ip != v_conf.ip
             || connection->listener_port != v_conf.port)
         {
             return false;
