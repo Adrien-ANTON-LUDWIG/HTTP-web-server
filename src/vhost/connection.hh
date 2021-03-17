@@ -7,10 +7,9 @@
 
 #include <memory>
 
+#include "config/config.hh"
 #include "request/types.hh"
 #include "socket/socket.hh"
-#include "config/config.hh"
-
 
 namespace http
 {
@@ -38,8 +37,8 @@ namespace http
         ~Connection() = default;
 
         /**
-         * @brief 
-         * 
+         * @brief
+         *
          */
         shared_socket sock;
 
@@ -49,7 +48,7 @@ namespace http
          */
         std::string listener_ip;
         uint listener_port;
-        
+
         bool keep_alive = true;
 
         /**
