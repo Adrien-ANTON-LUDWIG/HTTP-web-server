@@ -90,6 +90,8 @@ namespace http
             check_content_length(value);
         else if (name == "Authorization")
             auth = value;
+        else if (name == "Connection")
+            keep_alive = value.find("close") == std::string::npos;
         headers[name] = value;
     }
 

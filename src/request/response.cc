@@ -57,7 +57,10 @@ namespace http
         }
 
         if (req.method == Method::HEAD)
+        {
             body = "";
+            file_stream.close();
+        }
 
         auto codepair = statusCode(realcode);
         char datebuffer[BUFFER_SIZE];
@@ -79,11 +82,9 @@ namespace http
                                     "%a, %d %b %Y %X %Z\r\n", now_time);
         response += "Date: " + std::string(datebuffer, time_size);
 
-        if (req.method == Method::HEAD)
-            file_stream.close();
-
         response += "Content-Length: " + std::to_string(file_size) + "\r\n";
-        response += "Connection: close\r\n";
-        response += "\r\n";
+        response += "Connection: ";
+        response += req.keep_alive ? "keep-alive" : "close";
+        response += "\r\n\r\n";
     }
 } // namespace http

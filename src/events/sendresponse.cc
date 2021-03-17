@@ -29,6 +29,9 @@ namespace http
                 auto len = response_.file_stream.readsome(buffer, BUFFER_SIZE);
                 if (len <= 0)
                 {
+                    if (connection_->keep_alive)
+                        event_register.register_event<RecvHeadersEW>(
+                            connection_);
                     event_register.unregister_ew(this);
                     return;
                 }

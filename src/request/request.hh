@@ -68,6 +68,8 @@ namespace http
 
         std::string host;
 
+        bool keep_alive = true;
+
         std::string auth = "";
         std::string auth_basic;
 

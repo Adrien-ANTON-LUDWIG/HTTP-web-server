@@ -6,6 +6,7 @@
 
 #include "events/events.hh"
 #include "events/register.hh"
+#include "events/recvheaders.hh"
 #include "misc/define.hh"
 #include "misc/sys-wrapper.hh"
 #include "request/response.hh"
