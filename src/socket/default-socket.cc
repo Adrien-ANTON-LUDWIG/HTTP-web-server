@@ -1,7 +1,9 @@
 #include "socket/default-socket.hh"
 
+#include <arpa/inet.h>
 #include <iostream>
 
+#include "misc/addrinfo/addrinfo.hh"
 #include "misc/fd.hh"
 #include "misc/socket.hh"
 
@@ -108,6 +110,7 @@ namespace http
         misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
         shared_socket ptr = std::make_shared<DefaultSocket>(fd_ptr);
+        ptr->ipv6_set(addr->sa_family == AF_INET6);
         sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
         return ptr;
     }

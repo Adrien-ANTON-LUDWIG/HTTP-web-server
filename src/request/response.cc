@@ -87,4 +87,8 @@ namespace http
         response += req.keep_alive ? "keep-alive" : "close";
         response += "\r\n\r\n";
     }
+
+    Response::Response(const std::string &resp)
+        : response(resp)
+    {}
 } // namespace http

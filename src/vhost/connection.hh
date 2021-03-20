@@ -49,6 +49,8 @@ namespace http
         std::string listener_ip;
         uint listener_port;
 
+        VHostConfig vhost_conf;
+
         bool keep_alive = true;
 
         /**

@@ -123,8 +123,12 @@ namespace http
             bconf.ip = x["ip"];
             bconf.port = x["port"];
             bconf.health = x["health"];
-            bconf.weight = x["weight"];
-            config.backends.push_back(bconf);
+            if (x.find("health") != x.end())
+                bconf.weight = x["weight"];
+            if (x.find("weight") != x.end())
+                config.backends.push_back(bconf);
+            else
+                bconf.weight = 1;
         }
     }
 

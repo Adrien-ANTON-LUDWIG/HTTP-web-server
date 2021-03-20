@@ -30,7 +30,7 @@ namespace http
         std::string ip;
         int port;
         std::string health;
-        std::string weight;
+        int weight;
     };
 
     /**

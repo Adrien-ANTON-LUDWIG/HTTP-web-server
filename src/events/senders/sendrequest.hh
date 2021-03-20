@@ -6,10 +6,13 @@
 
 #include "events/events.hh"
 #include "events/receivers/recvheaders.hh"
+#include "events/receivers/recvresponse.hh"
 #include "events/register.hh"
+#include "misc/addrinfo/addrinfo.hh"
 #include "misc/define.hh"
 #include "misc/sys-wrapper.hh"
 #include "request/response.hh"
+#include "socket/default-socket.hh"
 #include "socket/socket.hh"
 
 namespace http
@@ -17,18 +20,17 @@ namespace http
     class SendRequestEW : public EventWatcher
     {
     public:
-        explicit SendRequestEW(const shared_connection &connection,
-                               const Request &request)
-            : EventWatcher(connection->sock->fd_get()->fd_, EV_WRITE)
-            , connection_(connection)
-            , request_(request)
-        {}
+        explicit SendRequestEW(const Request &request,
+                               const shared_socket &backend_sock,
+                               const shared_connection &connection);
 
         void operator()() final;
 
     private:
+        shared_socket backend_sock_;
         shared_connection connection_;
-        struct Request request_;
+        std::string request_;
+        bool keep_alive = true;
         bool sending_body = false;
     };
 } // namespace http

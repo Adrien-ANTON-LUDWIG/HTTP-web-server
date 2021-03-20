@@ -22,6 +22,9 @@ namespace http
         Response(const struct Request &req,
                  const STATUS_CODE & = STATUS_CODE::OK);
 
+        // Constructor called by RecvResponseEW
+        Response(const std::string &resp);
+
         Response() = default;
         Response(const Response &resp)
         {
@@ -36,7 +39,7 @@ namespace http
         ~Response() = default;
 
         std::string response;
-        std::string file_path; // For copying
+        std::string file_path = ""; // For copying
         std::ifstream file_stream;
     };
 } // namespace http

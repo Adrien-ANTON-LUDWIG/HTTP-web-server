@@ -2,46 +2,45 @@
 
 namespace http
 {
+    SendRequestEW::SendRequestEW(const Request &request,
+                                 const shared_socket &backend_sock,
+                                 const shared_connection &connection)
+        : EventWatcher(backend_sock->fd_get()->fd_, EV_WRITE)
+        , backend_sock_(backend_sock)
+        , connection_(connection)
+    {
+        std::string methods[4] = { "GET", "HEAD", "POST", "ERR" };
+        request_ += methods[static_cast<int>(request.method)] + ' '
+            + request.uri + " HTTP/1.1\r\n";
+
+        for (auto h : request.headers)
+            request_ += h.first + ": " + h.second + "\r\n";
+
+        if (request.body != "")
+            request_ += "\r\n\r\n" + request.body + "\r\n";
+    }
+
     void SendRequestEW::operator()()
     {
         try
         {
-            /*
-            if (response_.response.size())
+            char buffer[BUFFER_SIZE];
+            size_t copied = request_.copy(buffer, BUFFER_SIZE, 0);
+            if (!copied) // TODO: Check is the connection needs to stay alive
             {
-                char buffer[BUFFER_SIZE];
-                auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
-                if (connection_->sock->send(buffer, len) <= 0)
-                    throw std::ifstream::failure("Connection closed (header)");
-                response_.response.erase(response_.response.begin(),
-                                         response_.response.begin() + len);
-#ifdef _DEBUG
-                std::cout << std::string(buffer, len) << '\n';
-#endif
+                event_register.register_event<RecvResponseEW>(connection_,
+                                                              backend_sock_);
+                event_register.unregister_ew(this);
+                return;
             }
-            else
+            size_t sent = backend_sock_->send(buffer, copied);
+            request_.erase(request_.begin(), request_.begin() + sent);
+            if (sent <= 0)
             {
-                if (!response_.file_stream.is_open())
-                {
-                    event_register.unregister_ew(this);
-                    return;
-                }
-                char buffer[BUFFER_SIZE];
-                auto len = response_.file_stream.readsome(buffer, BUFFER_SIZE);
-                if (len <= 0)
-                {
-                    if (connection_->keep_alive)
-                        event_register.register_event<RecvHeadersEW>(
-                            connection_);
-                    event_register.unregister_ew(this);
-                    return;
-                }
-                auto sent = connection_->sock->send(buffer, len);
-                if (sent <= 0)
-                    throw std::ifstream::failure("Connection closed (body)");
-                response_.file_stream.seekg(sent - len, std::ios_base::cur);
+                event_register.register_event<RecvResponseEW>(connection_,
+                                                              backend_sock_);
+                event_register.unregister_ew(this);
             }
-            */
         }
         catch (const std::exception &e)
         {

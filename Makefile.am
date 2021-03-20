@@ -22,7 +22,8 @@ AM_CXXFLAGS = \
 if DEBUG
 AM_CXXFLAGS += -D_DEBUG \
                -g \
-               -Og
+               -Og \
+               -fsanitize=address
 endif
 
 AM_LDFLAGS = \
