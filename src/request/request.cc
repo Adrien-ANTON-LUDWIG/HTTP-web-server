@@ -165,10 +165,9 @@ namespace http
             status_code = STATUS_CODE::BAD_REQUEST;
     }
 
-    bool Request::is_good()
+    bool Request::is_fatal()
     {
-        return status_code == STATUS_CODE::OK
-            || status_code == STATUS_CODE::UNAUTHORIZED;
+        return status_code == STATUS_CODE::BAD_REQUEST || status_code >= 500;
     }
 
     void Request::pretty_print()

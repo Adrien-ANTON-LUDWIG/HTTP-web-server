@@ -53,8 +53,9 @@ namespace http
         bool check_err_response(Request &request,
                                 std::shared_ptr<Connection> connection)
         {
-            if (!request.is_good())
+            if (request.is_fatal())
             {
+                connection->keep_alive = false;
                 event_register.register_event<SendResponseEW>(
                     connection, Response(request.status_code));
                 return true;

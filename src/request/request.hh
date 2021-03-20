@@ -58,7 +58,7 @@ namespace http
 
         void parse_request(const std::string &message);
 
-        bool is_good();
+        bool is_fatal();
 
         void pretty_print();
 

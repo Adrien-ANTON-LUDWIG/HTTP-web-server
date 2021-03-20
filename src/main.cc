@@ -85,24 +85,8 @@ static void init_ssl()
     SSL_load_error_strings();
 }
 
-int main(int argc, char *argv[])
+static void build_vhost(struct ServerConfig config)
 {
-    if (argc == 1 || argc > 3 || (argc == 3 && strcmp(argv[1], "-t")))
-    {
-        std::cout << "Usage : ./spider [-t] <config_file>\n";
-        return 1;
-    }
-
-    if (argc == 3 && !strcmp(argv[1], "-t"))
-    {
-        std::string path(argv[2]);
-        http::parse_configuration(path);
-        return 0;
-    }
-
-    std::string path(argv[1]);
-
-    auto config = http::parse_configuration(path);
     bool ssl_loaded = false;
     for (auto &v : config.vhosts)
     {
@@ -146,6 +130,27 @@ int main(int argc, char *argv[])
 
         http::dispatcher.add_vhost(vhost);
     }
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc == 1 || argc > 3 || (argc == 3 && strcmp(argv[1], "-t")))
+    {
+        std::cout << "Usage : ./spider [-t] <config_file>\n";
+        return 1;
+    }
+
+    if (argc == 3 && !strcmp(argv[1], "-t"))
+    {
+        std::string path(argv[2]);
+        http::parse_configuration(path);
+        return 0;
+    }
+
+    std::string path(argv[1]);
+
+    auto config = http::parse_configuration(path);
+    build_vhost(config);
 
 #ifdef _DEBUG
     for (auto v : http::dispatcher)

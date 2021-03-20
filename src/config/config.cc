@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 #include "arpa/inet.h"
 #include "misc/json.hh"
@@ -11,8 +12,7 @@
 
 namespace http
 {
-    static void parse_configuration2(struct VHostConfig &vhost,
-                                     nlohmann::json &v)
+    static void parse_essential(struct VHostConfig &vhost, nlohmann::json &v)
     {
         vhost.ip = v["ip"];
 
@@ -38,7 +38,10 @@ namespace http
 
         if (v.find("default_file") != v.end())
             vhost.default_file = v["default_file"];
+    }
 
+    static void parse_ssl_auth(struct VHostConfig &vhost, nlohmann::json &v)
+    {
         if (v.find("ssl_cert") != v.end() || v.find("ssl_key") != v.end())
         {
             if (v.find("ssl_cert") == v.end() || v.find("ssl_key") == v.end())
@@ -107,6 +110,44 @@ namespace http
         }
     }
 
+    static void parse_reverse_upstream(struct VHostConfig &vhost,
+                                       nlohmann::json &v)
+    {
+        if (v.find("upstreams") == v.end())
+            return;
+    }
+
+    static void parse_reverse_proxy(struct VHostConfig &vhost,
+                                    nlohmann::json &v)
+    {
+        struct ProxyPassConfig proxy;
+        if (v.find("proxy_pass") != v.end())
+        {
+            proxy.ip = v["ip"];
+            int port = v["port"];
+
+            if (port < 0 || port > 65535)
+            {
+                std::cerr << "Forbidden port\n";
+                exit(1);
+            }
+            proxy.port = port;
+
+            std::vector<std::string> proxy_remove_header =
+                v["proxy_remove_header"];
+            proxy.proxy_remove_header = proxy_remove_header;
+            std::map<std::string, std::string> proxy_set_header =
+                v["proxy_set_header"];
+            proxy.proxy_set_header = proxy_set_header;
+            std::vector<std::string> remove_header = v["remove_header"];
+            proxy.remove_header = remove_header;
+            std::map<std::string, std::string> set_header = v["set_header"];
+            proxy.set_header = set_header;
+
+            vhost.proxy_pass = proxy;
+        }
+    }
+
     struct ServerConfig parse_configuration(const std::string &path)
     {
         try
@@ -131,7 +172,9 @@ namespace http
             {
                 struct VHostConfig vhost;
 
-                parse_configuration2(vhost, v);
+                parse_essential(vhost, v);
+                parse_ssl_auth(vhost, v);
+                parse_reverse_proxy(vhost, v);
                 if (v.find("default_vhost") != v.end())
                 {
                     bool value = v["default_vhost"];
