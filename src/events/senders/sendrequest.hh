@@ -5,7 +5,7 @@
 #include <string>
 
 #include "events/events.hh"
-#include "events/recvheaders.hh"
+#include "events/receivers/recvheaders.hh"
 #include "events/register.hh"
 #include "misc/define.hh"
 #include "misc/sys-wrapper.hh"
@@ -14,21 +14,21 @@
 
 namespace http
 {
-    class SendResponseEW : public EventWatcher
+    class SendRequestEW : public EventWatcher
     {
     public:
-        explicit SendResponseEW(const shared_connection &connection,
-                                const Response &response)
+        explicit SendRequestEW(const shared_connection &connection,
+                               const Request &request)
             : EventWatcher(connection->sock->fd_get()->fd_, EV_WRITE)
             , connection_(connection)
-            , response_(response)
+            , request_(request)
         {}
 
         void operator()() final;
 
     private:
         shared_connection connection_;
-        struct Response response_;
+        struct Request request_;
         bool sending_body = false;
     };
 } // namespace http

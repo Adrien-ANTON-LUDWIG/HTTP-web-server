@@ -85,7 +85,7 @@ static void init_ssl()
     SSL_load_error_strings();
 }
 
-static void build_vhost(struct ServerConfig config)
+static void build_vhost(struct http::ServerConfig &config)
 {
     bool ssl_loaded = false;
     for (auto &v : config.vhosts)
@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
     for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 #endif
+
     start_server();
 
     misc::announce_spider_readiness(argv[0]);

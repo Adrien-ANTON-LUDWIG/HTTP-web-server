@@ -25,6 +25,14 @@ namespace http
         std::vector<std::string> remove_header;
     };
 
+    struct BackendConfig
+    {
+        std::string ip;
+        int port;
+        std::string health;
+        std::string weight;
+    };
+
     /**
      * \struct VHostConfig
      * \brief Value object storing a virtual host configuration.
@@ -78,6 +86,9 @@ namespace http
         /* FIXME: Add members to store the information relative to the
            configuration of the server. */
         std::vector<VHostConfig> vhosts;
+
+        std::vector<BackendConfig> backends;
+        std::string balancing_method;
     };
 
     /**

@@ -51,15 +51,22 @@ SOURCES = \
           src/events/events.cc \
           src/events/events.hh \
           src/events/listener.hh \
+          src/events/listener.cc \
           src/events/sni.cc \
           src/events/sni.hh \
           src/events/register.cc \
           src/events/register.hh \
           src/events/register.hxx \
-          src/events/recvheaders.hh \
-          src/events/recvbody.hh \
-          src/events/sendresponse.hh \
-          src/events/sendresponse.cc \
+          src/events/receivers/recvheaders.cc \
+          src/events/receivers/recvheaders.hh \
+          src/events/receivers/recvresponse.cc \
+          src/events/receivers/recvresponse.hh \
+          src/events/receivers/recvbody.cc \
+          src/events/receivers/recvbody.hh \
+          src/events/senders/senders/sendresponse.hh \
+          src/events/senders/sendresponse.cc \
+          src/events/senders/sendrequest.hh \
+          src/events/senders/sendrequest.cc \
           src/misc/addrinfo/addrinfo-error.cc \
           src/misc/addrinfo/addrinfo-error.hh \
           src/misc/addrinfo/addrinfo-iterator.hh \
@@ -95,7 +102,10 @@ SOURCES = \
           src/vhost/dispatcher.cc \
           src/vhost/dispatcher.hh \
           src/vhost/vhost-factory.hh \
+          src/vhost/vhost-static-file.cc \
           src/vhost/vhost-static-file.hh \
+          src/vhost/vhost-reverse-proxy.hh \
+          src/vhost/vhost-reverse-proxy.cc \
           $(NULL)-static-file.hh \
           src/vhost/vhost
 

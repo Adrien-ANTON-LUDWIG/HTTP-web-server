@@ -110,11 +110,22 @@ namespace http
         }
     }
 
-    static void parse_reverse_upstream(struct VHostConfig &vhost,
-                                       nlohmann::json &v)
+    static void parse_upstream(struct ServerConfig &config, nlohmann::json &v)
     {
         if (v.find("upstreams") == v.end())
             return;
+        auto backend = v["backend"];
+        config.balancing_method = backend["method"];
+        auto hosts = backend["hosts"];
+        for (auto x : hosts)
+        {
+            struct BackendConfig bconf;
+            bconf.ip = x["ip"];
+            bconf.port = x["port"];
+            bconf.health = x["health"];
+            bconf.weight = x["weight"];
+            config.backends.push_back(bconf);
+        }
     }
 
     static void parse_reverse_proxy(struct VHostConfig &vhost,
@@ -200,10 +211,9 @@ namespace http
                         exit(1);
                     }
                 }
-
                 s_conf.vhosts.push_back(vhost);
             }
-
+            parse_upstream(s_conf, j);
             return s_conf;
         }
         catch (json::exception &e)
