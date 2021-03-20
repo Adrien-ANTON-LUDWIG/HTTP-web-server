@@ -22,6 +22,9 @@ namespace http
             {
                 if (!response_.file_stream.is_open())
                 {
+                    if (connection_->keep_alive)
+                        event_register.register_event<RecvHeadersEW>(
+                            connection_);
                     event_register.unregister_ew(this);
                     return;
                 }
