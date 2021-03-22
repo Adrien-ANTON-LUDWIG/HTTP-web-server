@@ -15,13 +15,17 @@ namespace http
                 response_.response.erase(response_.response.begin(),
                                          response_.response.begin() + len);
 #ifdef _DEBUG
-                std::cout << std::string(buffer, len) << '\n';
+                std::cout << "SendResponseEW send :\n"
+                          << std::string(buffer, len) << "\n";
 #endif
             }
             else
             {
                 if (!response_.file_stream.is_open())
                 {
+                    if (connection_->keep_alive)
+                        event_register.register_event<RecvHeadersEW>(
+                            connection_);
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -29,6 +33,9 @@ namespace http
                 auto len = response_.file_stream.readsome(buffer, BUFFER_SIZE);
                 if (len <= 0)
                 {
+                    if (connection_->keep_alive)
+                        event_register.register_event<RecvHeadersEW>(
+                            connection_);
                     event_register.unregister_ew(this);
                     return;
                 }

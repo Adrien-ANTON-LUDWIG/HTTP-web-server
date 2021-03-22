@@ -58,7 +58,7 @@ namespace http
 
         void parse_request(const std::string &message);
 
-        bool is_good();
+        bool is_fatal();
 
         void pretty_print();
 
@@ -67,6 +67,8 @@ namespace http
         std::map<std::string, std::string> headers;
 
         std::string host;
+
+        bool keep_alive = true;
 
         std::string auth = "";
         std::string auth_basic;

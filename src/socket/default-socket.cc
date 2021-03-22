@@ -1,7 +1,9 @@
 #include "socket/default-socket.hh"
 
+#include <arpa/inet.h>
 #include <iostream>
 
+#include "misc/addrinfo/addrinfo.hh"
 #include "misc/fd.hh"
 #include "misc/socket.hh"
 
@@ -10,6 +12,7 @@ namespace http
     DefaultSocket::DefaultSocket(int domain, int type, int protocol)
         : Socket{ std::make_shared<misc::FileDescriptor>(
             sys::socket(domain, type, protocol)) }
+        , domain_(domain)
     {}
 
     ssize_t DefaultSocket::recv(void *dst, size_t len)
@@ -108,6 +111,7 @@ namespace http
         misc::shared_fd fd_ptr = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
         shared_socket ptr = std::make_shared<DefaultSocket>(fd_ptr);
+        ptr->ipv6_set(domain_ == AF_INET6);
         sys::fcntl_set(*ptr->fd_get(), O_NONBLOCK);
         return ptr;
     }

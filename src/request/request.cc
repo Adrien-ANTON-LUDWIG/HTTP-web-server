@@ -90,6 +90,8 @@ namespace http
             check_content_length(value);
         else if (name == "Authorization")
             auth = value;
+        else if (name == "Connection")
+            keep_alive = value.find("close") == std::string::npos;
         headers[name] = value;
     }
 
@@ -163,15 +165,15 @@ namespace http
             status_code = STATUS_CODE::BAD_REQUEST;
     }
 
-    bool Request::is_good()
+    bool Request::is_fatal()
     {
-        return status_code == STATUS_CODE::OK
-            || status_code == STATUS_CODE::UNAUTHORIZED;
+        return status_code == STATUS_CODE::BAD_REQUEST || status_code >= 500;
     }
 
     void Request::pretty_print()
     {
 #ifdef _DEBUG
+        std::cout << "Request pretty_print :\n";
         std::string methods[NB_OF_METHODS + 1] = {
             "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
             "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "events/events.hh"
+#include "events/receivers/recvheaders.hh"
 #include "events/register.hh"
 #include "misc/define.hh"
 #include "misc/sys-wrapper.hh"

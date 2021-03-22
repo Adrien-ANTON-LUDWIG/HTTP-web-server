@@ -5,12 +5,34 @@
 
 #pragma once
 
+#include <map>
 #include <openssl/ssl.h>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace http
 {
+    struct ProxyPassConfig
+    {
+        ProxyPassConfig() = default;
+
+        std::string ip;
+        unsigned int port;
+        std::map<std::string, std::string> proxy_set_header;
+        std::vector<std::string> proxy_remove_header;
+        std::map<std::string, std::string> set_header;
+        std::vector<std::string> remove_header;
+    };
+
+    struct BackendConfig
+    {
+        std::string ip;
+        int port;
+        std::string health;
+        int weight;
+    };
+
     /**
      * \struct VHostConfig
      * \brief Value object storing a virtual host configuration.
@@ -40,13 +62,12 @@ namespace http
         std::string auth_basic;
         std::vector<std::string> auth_basic_users;
 
-        // SSL_CTX *ssl_ctx;
+        std::optional<ProxyPassConfig> proxy_pass = std::nullopt;
 
         bool default_vhost = false;
     };
 
-    /**
-     * \struct ServerConfig
+    /*
      * \brief Value object storing the server configuration.
      *
      * To avoid opening the configuration file each time we need to access the
@@ -65,6 +86,9 @@ namespace http
         /* FIXME: Add members to store the information relative to the
            configuration of the server. */
         std::vector<VHostConfig> vhosts;
+
+        std::vector<BackendConfig> backends;
+        std::string balancing_method;
     };
 
     /**

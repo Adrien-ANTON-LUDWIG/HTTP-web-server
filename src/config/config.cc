@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 #include "arpa/inet.h"
 #include "misc/json.hh"
@@ -11,8 +12,7 @@
 
 namespace http
 {
-    static void parse_configuration2(struct VHostConfig &vhost,
-                                     nlohmann::json &v)
+    static void parse_essential(struct VHostConfig &vhost, nlohmann::json &v)
     {
         vhost.ip = v["ip"];
 
@@ -26,19 +26,30 @@ namespace http
 
         vhost.port = port;
         vhost.server_name = v["server_name"];
-        vhost.root = v["root"];
-
-        if (!std::filesystem::is_directory(vhost.root))
+        if (v.find("proxy_pass") != v.end() && v.find("root") != v.end())
         {
-            std::cerr << "Root is not a directory\n";
-            exit(1);
+            std::cerr << "Root and proxy_pass are mutually exclusive\n";
+            exit(0);
         }
-        else if (vhost.root[vhost.root.size() - 1] == '/')
-            vhost.root.pop_back();
+        if (v.find("proxy_pass") == v.end())
+        {
+            vhost.root = v["root"];
 
-        if (v.find("default_file") != v.end())
-            vhost.default_file = v["default_file"];
+            if (!std::filesystem::is_directory(vhost.root))
+            {
+                std::cerr << "Root is not a directory\n";
+                exit(1);
+            }
+            else if (vhost.root[vhost.root.size() - 1] == '/')
+                vhost.root.pop_back();
 
+            if (v.find("default_file") != v.end())
+                vhost.default_file = v["default_file"];
+        }
+    }
+
+    static void parse_ssl_auth(struct VHostConfig &vhost, nlohmann::json &v)
+    {
         if (v.find("ssl_cert") != v.end() || v.find("ssl_key") != v.end())
         {
             if (v.find("ssl_cert") == v.end() || v.find("ssl_key") == v.end())
@@ -107,6 +118,60 @@ namespace http
         }
     }
 
+    static void parse_upstream(struct ServerConfig &config, nlohmann::json &v)
+    {
+        if (v.find("upstreams") == v.end())
+            return;
+        auto backend = v["backend"];
+        config.balancing_method = backend["method"];
+        auto hosts = backend["hosts"];
+        for (auto x : hosts)
+        {
+            struct BackendConfig bconf;
+            bconf.ip = x["ip"];
+            bconf.port = x["port"];
+            bconf.health = x["health"];
+            if (x.find("health") != x.end())
+                bconf.weight = x["weight"];
+            if (x.find("weight") != x.end())
+                config.backends.push_back(bconf);
+            else
+                bconf.weight = 1;
+        }
+    }
+
+    static void parse_reverse_proxy(struct VHostConfig &vhost,
+                                    nlohmann::json &v)
+    {
+        struct ProxyPassConfig proxy;
+        if (v.find("proxy_pass") != v.end())
+        {
+            v = *v.find("proxy_pass");
+            proxy.ip = v["ip"];
+            int port = v["port"];
+
+            if (port < 0 || port > 65535)
+            {
+                std::cerr << "Forbidden port\n";
+                exit(1);
+            }
+            proxy.port = port;
+
+            std::vector<std::string> proxy_remove_header =
+                v["proxy_remove_header"];
+            proxy.proxy_remove_header = proxy_remove_header;
+            std::map<std::string, std::string> proxy_set_header =
+                v["proxy_set_header"];
+            proxy.proxy_set_header = proxy_set_header;
+            std::vector<std::string> remove_header = v["remove_header"];
+            proxy.remove_header = remove_header;
+            std::map<std::string, std::string> set_header = v["set_header"];
+            proxy.set_header = set_header;
+
+            vhost.proxy_pass = proxy;
+        }
+    }
+
     struct ServerConfig parse_configuration(const std::string &path)
     {
         try
@@ -131,7 +196,8 @@ namespace http
             {
                 struct VHostConfig vhost;
 
-                parse_configuration2(vhost, v);
+                parse_essential(vhost, v);
+                parse_ssl_auth(vhost, v);
                 if (v.find("default_vhost") != v.end())
                 {
                     bool value = v["default_vhost"];
@@ -145,6 +211,8 @@ namespace http
                     vhost.default_vhost = value;
                 }
 
+                parse_reverse_proxy(vhost, v);
+
                 for (auto c : s_conf.vhosts)
                 {
                     if (c.ip == vhost.ip && c.port == vhost.port
@@ -157,10 +225,9 @@ namespace http
                         exit(1);
                     }
                 }
-
                 s_conf.vhosts.push_back(vhost);
             }
-
+            parse_upstream(s_conf, j);
             return s_conf;
         }
         catch (json::exception &e)

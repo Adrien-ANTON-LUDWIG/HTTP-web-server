@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <arpa/inet.h>
+#include <cstring>
+#include <iostream>
 #include <memory>
 #include <sys/socket.h>
 
@@ -25,7 +28,12 @@ namespace http
          */
         explicit Socket(const misc::shared_fd &fd)
             : fd_{ fd }
-        {}
+        {
+            struct sockaddr_in addr;
+            socklen_t addr_size = sizeof(struct sockaddr_in);
+            getpeername(fd->fd_, (struct sockaddr *)&addr, &addr_size);
+            hostname_ = inet_ntoa(addr.sin_addr);
+        }
 
         Socket() = default;
         Socket(const Socket &) = delete;

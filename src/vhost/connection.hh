@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "config/config.hh"
 #include "request/types.hh"
 #include "socket/socket.hh"
 
@@ -36,7 +37,8 @@ namespace http
         ~Connection() = default;
 
         /**
-         * \brief Client socket
+         * @brief
+         *
          */
         shared_socket sock;
 
@@ -46,6 +48,10 @@ namespace http
          */
         std::string listener_ip;
         uint listener_port;
+
+        VHostConfig vhost_conf;
+
+        bool keep_alive = true;
 
         /**
          * \brief Message of the client

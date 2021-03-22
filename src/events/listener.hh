@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 
 #include "events/events.hh"
-#include "events/recvheaders.hh"
+#include "events/receivers/recvheaders.hh"
 #include "events/register.hh"
 #include "socket/socket.hh"
 
@@ -38,27 +38,7 @@ namespace http
         /**
          * \brief Start accepting connections on listener socket.
          */
-        void operator()() final
-        {
-            try
-            {
-                auto client_socket = sock_->accept(nullptr, nullptr);
-                if (client_socket == nullptr)
-                    return;
-                shared_connection connection =
-                    std::make_shared<Connection>(client_socket, ip_, port_);
-                event_register.register_event<RecvHeadersEW>(connection);
-#ifdef _DEBUG
-                std::cout << "Client connected !\n";
-#endif
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << "Error while accepting client: " << e.what()
-                          << '\n';
-                return;
-            }
-        }
+        void operator()() final;
 
     private:
         /**
