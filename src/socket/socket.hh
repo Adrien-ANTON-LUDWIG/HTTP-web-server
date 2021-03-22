@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <memory>
 #include <sys/socket.h>
 
@@ -92,6 +93,7 @@ namespace http
 
         void ipv6_set(bool ipv6) noexcept
         {
+            std::cout << ipv6 << '\n';
             ipv6_ = ipv6;
         }
 
