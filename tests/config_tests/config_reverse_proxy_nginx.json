@@ -5,8 +5,8 @@
             "port": 8000,
             "server_name": "localhost",
             "proxy_pass": {
-                "ip": "127.0.0.1",
-                "port": 8001,
+                "ip": "152.228.131.44",
+                "port": 80,
                 "proxy_remove_header": [
                     "Header-Removed",
                     "HTTP_X_FORWARDED_PROTO"

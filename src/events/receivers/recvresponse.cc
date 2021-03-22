@@ -20,7 +20,7 @@ namespace http
         if (carriage != std::string::npos)
         {
 #ifdef _DEBUG
-            std::cout << response_;
+            std::cout << "RecvResponseEW response:\n" << response_ << "\n";
 #endif
             std::string str = "Content-Length:";
             auto start = response_.find(str) + str.size();
@@ -76,9 +76,6 @@ namespace http
             if (rm != std::string::npos)
                 response_.erase(rm, response_.find("\r\n", rm) + 2);
             response_ += header.first + ": " + header.second + "\r\n";
-            std::cout << "Set header : "
-                      << header.first + ": " + header.second + "\r\n";
-            std::cout << response_;
         }
 
         response_ += "\r\n";

@@ -15,7 +15,8 @@ namespace http
                 response_.response.erase(response_.response.begin(),
                                          response_.response.begin() + len);
 #ifdef _DEBUG
-                std::cout << std::string(buffer, len) << '\n';
+                std::cout << "SendResponseEW send :\n"
+                          << std::string(buffer, len) << "\n";
 #endif
             }
             else

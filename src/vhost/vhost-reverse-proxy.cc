@@ -108,7 +108,6 @@ namespace http
                 "\"[" + connection->sock->get_hostname() + "]\"";
         else
             forwarded->second += connection->sock->get_hostname();
-        std::cout << "request.host:" << request.headers["Host"] << '\n';
 
         forwarded->second += ";host=" + request.headers["Host"]
             + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");

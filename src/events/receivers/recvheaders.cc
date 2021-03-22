@@ -19,7 +19,8 @@ namespace http
         if (connection_->message.find(carriage) != std::string::npos)
         {
 #ifdef _DEBUG
-            std::cout << connection_->message;
+            std::cout << "RecvHeadersEW request :\n"
+                      << connection_->message << "\n";
 #endif
             request_.parse_request(connection_->message);
             connection_->keep_alive = request_.keep_alive;

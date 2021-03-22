@@ -11,7 +11,9 @@ namespace http
         if (request_.content_length <= request_.current_length)
         {
 #ifdef _DEBUG
-            std::cout << request_.body << std::endl;
+            std::cout << "RecvBodyEw body :\n"
+                      << request_.body << '\n'
+                      << std::endl;
 #endif
             dispatcher.dispatch(connection_, request_);
             event_register.unregister_ew(this);

@@ -173,6 +173,7 @@ namespace http
     void Request::pretty_print()
     {
 #ifdef _DEBUG
+        std::cout << "Request pretty_print :\n";
         std::string methods[NB_OF_METHODS + 1] = {
             "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
             "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
