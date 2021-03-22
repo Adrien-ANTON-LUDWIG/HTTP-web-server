@@ -16,8 +16,12 @@ namespace http
         for (auto h : request.headers)
             request_ += h.first + ": " + h.second + "\r\n";
 
+        request_ += "Connection: close";
+
+        request_ += "\r\n\r\n";
+
         if (request.body != "")
-            request_ += "\r\n\r\n" + request.body + "\r\n";
+            request_ += request.body + "\r\n";
     }
 
     void SendRequestEW::operator()()

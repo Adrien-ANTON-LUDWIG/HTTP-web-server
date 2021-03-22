@@ -15,9 +15,9 @@ namespace http
 
         response_.append(buffer, buffer + read_size);
 
-        std::string carriage = "\r\n\r\n";
+        auto carriage = response_.find("\r\n\r\n");
 
-        if (response_.find(carriage) != std::string::npos)
+        if (carriage != std::string::npos)
         {
 #ifdef _DEBUG
             std::cout << response_;
@@ -27,7 +27,11 @@ namespace http
             auto end = response_.find("\r\n", start);
             content_length_ = std::stoi(std::string(response_.begin() + start,
                                                     response_.begin() + end));
-            current_length_ = 0;
+
+            // TODO Body
+            body_ = response_.substr(carriage + 4);
+            current_length_ = body_.size();
+            response_.erase(carriage + 2);
         }
     }
 
@@ -54,10 +58,31 @@ namespace http
         for (auto &header : connection_->vhost_conf.proxy_pass->remove_header)
         {
             auto rm = response_.find(header);
-            response_.erase(rm, response_.find("\r\n", rm));
+            if (rm != std::string::npos)
+                response_.erase(rm, response_.find("\r\n", rm) + 2);
         }
 
-        // TODO Add Connection header
+        if (connection_->keep_alive)
+        {
+            auto rm = response_.find("Connection");
+            if (rm != std::string::npos)
+                response_.erase(rm, response_.find("\r\n", rm) + 2);
+            response_ += "Connection: keep-alive\r\n";
+        }
+
+        for (auto &header : connection_->vhost_conf.proxy_pass->set_header)
+        {
+            auto rm = response_.find(header.first);
+            if (rm != std::string::npos)
+                response_.erase(rm, response_.find("\r\n", rm) + 2);
+            response_ += header.first + ": " + header.second + "\r\n";
+            std::cout << "Set header : "
+                      << header.first + ": " + header.second + "\r\n";
+            std::cout << response_;
+        }
+
+        response_ += "\r\n";
+        res = response_ + body_;
 
         return res;
     }

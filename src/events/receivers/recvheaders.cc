@@ -22,6 +22,7 @@ namespace http
             std::cout << connection_->message;
 #endif
             request_.parse_request(connection_->message);
+            connection_->keep_alive = request_.keep_alive;
 
             request_.pretty_print();
             if (request_.method == Method::POST && request_.content_length != 0

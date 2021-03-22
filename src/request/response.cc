@@ -28,7 +28,7 @@ namespace http
 
         response += "Date: " + std::string(datebuffer, time_size);
         response += "Content-Length: 0\r\n";
-        response += "Connection: \r\n";
+        response += "Connection: close\r\n";
     }
 
     Response::Response(const Request &req, const STATUS_CODE &code)

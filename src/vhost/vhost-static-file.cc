@@ -49,7 +49,6 @@ namespace http
             request.body.erase();
         }
         struct Response response(request, request.status_code);
-        connection->keep_alive = request.keep_alive;
         event_register.register_event<SendResponseEW>(connection, response);
     }
 

@@ -55,6 +55,9 @@ namespace http
         for (auto header : conf_.proxy_pass->proxy_remove_header)
             request.headers.erase(header);
 
+        if (request.headers.find("Connection") != request.headers.end())
+            request.headers.erase("Connection");
+
         for (auto header : conf_.proxy_pass->proxy_set_header)
         {
             if (header.first == "Host")
@@ -74,6 +77,8 @@ namespace http
         }
         else
         {
+            request.headers["Forwarded"] = "";
+            forwarded = request.headers.find("Forwarded");
             auto x_for = request.headers.find("X-Forwarded-For");
             auto has_x_for = x_for != request.headers.end();
             auto x_host = request.headers.find("X-Forwarded-Host");
@@ -103,9 +108,12 @@ namespace http
                 "\"[" + connection->sock->get_hostname() + "]\"";
         else
             forwarded->second += connection->sock->get_hostname();
+        std::cout << "request.host:" << request.headers["Host"] << '\n';
 
-        forwarded->second += ";host=" + request.host
+        forwarded->second += ";host=" + request.headers["Host"]
             + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");
+
+        request.headers["Host"] = request.host;
 
         connection->vhost_conf = conf_;
         event_register.register_event<SendRequestEW>(
