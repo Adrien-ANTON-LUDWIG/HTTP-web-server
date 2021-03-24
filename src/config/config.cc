@@ -118,28 +118,6 @@ namespace http
         }
     }
 
-    static void parse_upstream(struct ServerConfig &config, nlohmann::json &v)
-    {
-        if (v.find("upstreams") == v.end())
-            return;
-        auto backend = v["backend"];
-        config.balancing_method = backend["method"];
-        auto hosts = backend["hosts"];
-        for (auto x : hosts)
-        {
-            struct BackendConfig bconf;
-            bconf.ip = x["ip"];
-            bconf.port = x["port"];
-            bconf.health = x["health"];
-            if (x.find("health") != x.end())
-                bconf.weight = x["weight"];
-            if (x.find("weight") != x.end())
-                config.backends.push_back(bconf);
-            else
-                bconf.weight = 1;
-        }
-    }
-
     static void parse_reverse_proxy(struct VHostConfig &vhost,
                                     nlohmann::json &v)
     {
@@ -147,6 +125,14 @@ namespace http
         if (v.find("proxy_pass") != v.end())
         {
             v = *v.find("proxy_pass");
+
+            if (v.find("upstream") != v.end())
+            {
+                proxy.upstream = v["upstream"];
+                vhost.proxy_pass = proxy;
+                return;
+            }
+
             proxy.ip = v["ip"];
             int port = v["port"];
 
@@ -171,6 +157,57 @@ namespace http
             vhost.proxy_pass = proxy;
         }
     }
+    static void parse_upstream(struct ServerConfig &config, nlohmann::json &j)
+    {
+        (void)config;
+        if (j.find("upstreams") == j.end())
+            return;
+        auto upstreams = *j.find("upstreams");
+        for (auto it = upstreams.begin(); it != upstreams.end(); it++)
+        {
+            struct Backend backend;
+            backend.name = it.key();
+            if (it.value().find("method") == it.value().end())
+            {
+                std::cerr << "No method declared\n";
+                exit(1);
+            }
+            backend.method = *it.value().find("method");
+            if (it.value().find("hosts") == it.value().end())
+            {
+                std::cerr << "No hosts declared\n";
+                exit(1);
+            }
+            int i = 0;
+            for (auto &h : *it.value().find("hosts"))
+            {
+                i++;
+                struct Host host;
+
+                host.ip = h["ip"];
+                host.port = h["port"];
+                if (h.find("weight") != h.end())
+                    host.weight = h["weight"];
+                if (backend.method == "fail-robin"
+                    || backend.method == "failover")
+                    host.health = h["health"];
+                else
+                {
+                    if (h.find("health") != h.end())
+                        host.health = h["health"];
+                }
+
+                backend.hosts.push_back(host);
+            }
+            if (i == 0)
+            {
+                std::cerr << "Hosts is empty\n";
+                exit(1);
+            }
+
+            config.upstreams.push_back(backend);
+        }
+    }
 
     struct ServerConfig parse_configuration(const std::string &path)
     {
@@ -192,7 +229,7 @@ namespace http
             auto vhosts = *j.find("vhosts");
             bool default_vhost_find = false;
 
-            for (auto v : vhosts)
+            for (auto &v : vhosts)
             {
                 struct VHostConfig vhost;
 

@@ -23,14 +23,22 @@ namespace http
         std::vector<std::string> proxy_remove_header;
         std::map<std::string, std::string> set_header;
         std::vector<std::string> remove_header;
+
+        std::string upstream;
     };
 
-    struct BackendConfig
+    struct Host
     {
         std::string ip;
         int port;
         std::string health;
-        int weight;
+        int weight = 1;
+    };
+    struct Backend
+    {
+        std::string name;
+        std::string method;
+        std::vector<Host> hosts;
     };
 
     /**
@@ -87,8 +95,7 @@ namespace http
            configuration of the server. */
         std::vector<VHostConfig> vhosts;
 
-        std::vector<BackendConfig> backends;
-        std::string balancing_method;
+        std::vector<Backend> upstreams;
     };
 
     /**
