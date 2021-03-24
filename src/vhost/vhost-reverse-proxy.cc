@@ -48,8 +48,9 @@ namespace http
         return sfd;
     }
 
-    void VHostReverseProxy::respond(Request &request,
-                                    std::shared_ptr<Connection> connection)
+    void
+    VHostReverseProxy::build_request(Request &request,
+                                     std::shared_ptr<Connection> &connection)
     {
         bool find_host_header = false;
         for (auto header : conf_.proxy_pass->proxy_remove_header)
@@ -118,6 +119,31 @@ namespace http
             + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");
 
         request.headers["Host"] = request.host;
+    }
+
+    void VHostReverseProxy::respond(Request &request,
+                                    std::shared_ptr<Connection> connection)
+    {
+        // LOAD BALANCING
+        if (backend != std::nullopt)
+        {
+            if (backend->method == "round-robin")
+            {
+                conf_.proxy_pass->ip =
+                    backend->hosts[backend->robin_tab[backend->robin_index]].ip;
+                conf_.proxy_pass->port =
+                    backend->hosts[backend->robin_tab[backend->robin_index]]
+                        .port;
+
+                std::cout << conf_.proxy_pass->ip << ": "
+                          << conf_.proxy_pass->port << '\n';
+
+                backend->robin_index += 1;
+                backend->robin_index %= backend->robin_tab.size();
+            }
+        }
+
+        build_request(request, connection);
 
         connection->vhost_conf = conf_;
         event_register.register_event<SendRequestEW>(

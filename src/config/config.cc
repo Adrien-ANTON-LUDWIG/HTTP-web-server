@@ -204,7 +204,7 @@ namespace http
                 std::cerr << "Hosts is empty\n";
                 exit(1);
             }
-
+            backend.create_robin_tab();
             config.upstreams.push_back(backend);
         }
     }

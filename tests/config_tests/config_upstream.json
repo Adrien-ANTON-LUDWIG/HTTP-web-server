@@ -30,13 +30,13 @@
             "port": 8080,
             "server_name": "sub.localhost",
             "proxy_pass": {
-                "upstream": "backend"
+                "upstream": "backendA"
             }
         }
     ],
     "upstreams": {
         "backendA": {
-            "method": "fail-robin",
+            "method": "round-robin",
             "hosts": [
                 {
                     "ip": "127.0.0.1",
