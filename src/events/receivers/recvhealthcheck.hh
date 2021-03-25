@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <iostream>
+#include <memory>
 
 #include "config/config.hh"
 #include "events/events.hh"
@@ -19,9 +20,11 @@ namespace http
          * @brief
          *
          */
-        RecvHealthCheckEW(const shared_connection &connection,
+        RecvHealthCheckEW(std::shared_ptr<Host> host,
+                          const shared_connection &connection,
                           const shared_socket &backend_sock)
             : EventWatcher(backend_sock->fd_get()->fd_, EV_READ)
+            , host_(host)
             , connection_(connection)
             , backend_sock_(backend_sock)
         {}
@@ -33,6 +36,8 @@ namespace http
         bool check_response();
 
     private:
+        std::shared_ptr<Host> host_ = nullptr;
+
         /**
          * @brief Structure connection
          *
@@ -42,7 +47,5 @@ namespace http
         shared_socket backend_sock_;
 
         std::string data;
-
-        struct Host *host_ = nullptr;
     };
 } // namespace http

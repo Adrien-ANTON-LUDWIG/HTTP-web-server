@@ -30,16 +30,18 @@ namespace http
             {
                 sfd = std::make_shared<DefaultSocket>(
                     rp.ai_family, rp.ai_socktype, rp.ai_protocol);
-                sfd->setsockopt(SOL_SOCKET, 0, 1);
                 sfd->connect(rp.ai_addr, rp.ai_addrlen);
                 sfd->ipv6_set(rp.ai_family == AF_INET6);
                 break;
             }
             catch (const std::exception &)
             {
+                sfd = nullptr;
                 continue;
             }
         }
+        if (!sfd)
+            return nullptr;
         if (sfd->fd_get().get()->fd_ == -1)
         {
             std::cerr << "Could not connect to any interface\n";
@@ -126,15 +128,16 @@ namespace http
                                     std::shared_ptr<Connection> connection)
     {
         // LOAD BALANCING
-        if (backend != std::nullopt)
+        if (backend)
         {
             if (backend->method == "round-robin")
             {
                 conf_.proxy_pass->ip =
-                    backend->hosts[backend->robin_tab[backend->robin_index]].ip;
+                    backend->hosts[backend->robin_tab[backend->robin_index]]
+                        ->ip;
                 conf_.proxy_pass->port =
                     backend->hosts[backend->robin_tab[backend->robin_index]]
-                        .port;
+                        ->port;
 
                 std::cout << conf_.proxy_pass->ip << ": "
                           << conf_.proxy_pass->port << '\n';
@@ -145,8 +148,10 @@ namespace http
             else if (backend->method == "failover")
             {
                 size_t i = 0;
-                while (i < backend->hosts.size() && !backend->hosts[i].alive)
+                while (i < backend->hosts.size() && !backend->hosts[i]->alive)
+                {
                     i++;
+                }
 
                 if (i == backend->hosts.size())
                 {
@@ -157,8 +162,28 @@ namespace http
                     return;
                 }
 
-                conf_.proxy_pass->ip = backend->hosts[i].ip;
-                conf_.proxy_pass->port = backend->hosts[i].port;
+                conf_.proxy_pass->ip = backend->hosts[i]->ip;
+                conf_.proxy_pass->port = backend->hosts[i]->port;
+            }
+            else if (backend->method == "round-robin")
+            {
+                size_t i = 0;
+                while (i < backend->hosts.size() && !backend->hosts[i]->alive)
+                {
+                    i++;
+                }
+                conf_.proxy_pass->ip =
+                    backend->hosts[backend->robin_tab[backend->robin_index]]
+                        ->ip;
+                conf_.proxy_pass->port =
+                    backend->hosts[backend->robin_tab[backend->robin_index]]
+                        ->port;
+
+                std::cout << conf_.proxy_pass->ip << ": "
+                          << conf_.proxy_pass->port << '\n';
+
+                backend->robin_index += 1;
+                backend->robin_index %= backend->robin_tab.size();
             }
         }
 
@@ -176,15 +201,17 @@ namespace http
     {
         (void)loop;
         (void)revents;
-        Backend *be = static_cast<Backend *>(et->data);
+        auto be = *static_cast<std::shared_ptr<Backend> *>(et->data);
 
-        for (auto host : be->hosts)
+        for (auto &host : be->hosts)
         {
-            unsigned int port = host.port;
-            host.alive = false;
-            shared_socket backend_sock = connect_to_backend(host.ip, port);
+            unsigned int port = host->port;
+            host->alive = false;
+            shared_socket backend_sock = connect_to_backend(host->ip, port);
+            if (!backend_sock)
+                continue;
             shared_connection connection =
-                std::make_shared<Connection>(backend_sock, host.ip, port);
+                std::make_shared<Connection>(backend_sock, host->ip, port);
 
             event_register.register_event<SendHealthCheckEW>(host, backend_sock,
                                                              connection);

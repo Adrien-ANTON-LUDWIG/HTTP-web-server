@@ -55,12 +55,12 @@
                 {
                     "ip": "127.0.0.1",
                     "port": 5000,
-                    "health": "/tests/www/index.html"
+                    "health": "/index.html"
                 },
                 {
                     "ip": "127.0.0.1",
                     "port": 5050,
-                    "health": "/tests/www/index.html"
+                    "health": "/index.html"
                 }
             ]
         },
@@ -70,13 +70,13 @@
                 {
                     "ip": "127.0.0.1",
                     "port": 5000,
-                    "health": "/tests/www/index.html"
+                    "health": "/index.html"
                 },
                 {
                     "ip": "127.0.0.1",
                     "port": 5050,
                     "weight": 3,
-                    "health": "/tests/www/index.html"
+                    "health": "/index.html"
                 }
             ]
         }

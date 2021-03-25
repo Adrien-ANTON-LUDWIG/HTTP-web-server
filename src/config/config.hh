@@ -6,6 +6,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <openssl/ssl.h>
 #include <optional>
 #include <string>
@@ -39,21 +40,21 @@ namespace http
     {
         std::string name;
         std::string method;
-        std::vector<Host> hosts;
+        std::vector<std::shared_ptr<Host>> hosts;
 
         std::vector<size_t> robin_tab;
         int robin_index = -1;
 
         void create_robin_tab()
         {
-            std::vector<Host> cp_hosts = hosts;
+            std::vector<std::shared_ptr<Host>> cp_hosts = hosts;
             while (!cp_hosts.empty())
             {
                 for (size_t i = 0; i < cp_hosts.size(); i++)
                 {
                     this->robin_tab.push_back(i);
-                    cp_hosts[i].weight -= 1;
-                    if (cp_hosts[i].weight < 1)
+                    cp_hosts[i]->weight -= 1;
+                    if (cp_hosts[i]->weight < 1)
                         cp_hosts.erase(cp_hosts.begin() + i);
                 }
             }

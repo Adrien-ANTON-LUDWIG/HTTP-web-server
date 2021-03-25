@@ -35,7 +35,7 @@ namespace http
         void build_request(Request &request,
                            std::shared_ptr<Connection> &connection);
 
-        std::optional<Backend> backend;
+        std::shared_ptr<Backend> backend = nullptr;
 
         static void timeout_cb(struct ev_loop *loop, ev_timer *w, int revents);
 
@@ -57,12 +57,15 @@ namespace http
         explicit VHostReverseProxy(const VHostConfig &vhost,
                                    const std::optional<Backend> &b)
             : VHost(vhost)
-            , backend(b)
         {
-            ev_timer et_;
-            ev_timer_init(&et_, timeout_cb, 12., 12.);
-            et_.data = &backend;
-            event_register.get_loop().register_timer_watcher(&et_);
+            if (b.has_value())
+            {
+                auto et_ = new ev_timer;
+                ev_timer_init(et_, this->timeout_cb, 0., 12.);
+                backend = std::make_shared<Backend>(b.value());
+                et_->data = &backend;
+                event_register.get_loop().register_timer_watcher(et_);
+            }
         }
     };
 } // namespace http

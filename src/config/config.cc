@@ -197,7 +197,7 @@ namespace http
                         host.health = h["health"];
                 }
 
-                backend.hosts.push_back(host);
+                backend.hosts.push_back(std::make_shared<Host>(host));
             }
             if (i == 0)
             {

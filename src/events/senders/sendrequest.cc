@@ -37,7 +37,7 @@ namespace http
                 event_register.unregister_ew(this);
                 return;
             }
-            size_t sent = backend_sock_->send(buffer, copied);
+            ssize_t sent = backend_sock_->send(buffer, copied);
             request_.erase(request_.begin(), request_.begin() + sent);
             if (sent <= 0)
             {

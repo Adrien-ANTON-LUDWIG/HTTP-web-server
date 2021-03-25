@@ -18,13 +18,14 @@ namespace http
     class SendHealthCheckEW : public EventWatcher
     {
     public:
-        explicit SendHealthCheckEW(const Host &host,
+        explicit SendHealthCheckEW(std::shared_ptr<Host> host,
                                    const shared_socket &backend_sock,
                                    const shared_connection &connection);
 
         void operator()() final;
 
     private:
+        std::shared_ptr<Host> host_ = nullptr;
         shared_socket backend_sock_;
         shared_connection connection_;
         std::string request_;
