@@ -6,6 +6,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <openssl/ssl.h>
 #include <optional>
 #include <string>
@@ -24,7 +25,7 @@ namespace http
         std::map<std::string, std::string> set_header;
         std::vector<std::string> remove_header;
 
-        std::string upstream;
+        std::string upstream = "";
     };
 
     struct Host
@@ -33,12 +34,39 @@ namespace http
         int port;
         std::string health;
         int weight = 1;
+        bool alive = false;
     };
     struct Backend
     {
         std::string name;
         std::string method;
-        std::vector<Host> hosts;
+        std::vector<std::shared_ptr<Host>> hosts;
+
+        std::vector<size_t> robin_tab;
+        int robin_index = -1;
+
+        void create_robin_tab()
+        {
+            std::vector<std::shared_ptr<Host>> cp_hosts = hosts;
+            while (!cp_hosts.empty())
+            {
+                for (size_t i = 0; i < cp_hosts.size(); i++)
+                {
+                    this->robin_tab.push_back(i);
+                    cp_hosts[i]->weight -= 1;
+                    if (cp_hosts[i]->weight < 1)
+                        cp_hosts.erase(cp_hosts.begin() + i);
+                }
+            }
+
+            this->robin_index = 0;
+        }
+
+        void robin_index_incr()
+        {
+            robin_index += 1;
+            robin_index %= robin_tab.size();
+        }
     };
 
     /**

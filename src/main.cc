@@ -90,7 +90,7 @@ static void build_vhost(struct http::ServerConfig &config)
     bool ssl_loaded = false;
     for (auto &v : config.vhosts)
     {
-        auto vhost = http::VHostFactory::Create(v);
+        auto vhost = http::VHostFactory::Create(v, config);
         if (!v.ssl_cert.empty() && !v.ssl_key.empty())
         {
             if (!ssl_loaded)

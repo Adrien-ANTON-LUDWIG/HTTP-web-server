@@ -5,10 +5,13 @@
 
 #pragma once
 
+#include <ev.h>
 #include <filesystem>
 #include <memory>
+#include <optional>
 
 #include "config/config.hh"
+#include "events/senders/sendhealthcheck.hh"
 #include "events/senders/sendrequest.hh"
 #include "misc/addrinfo/addrinfo-iterator.hh"
 #include "misc/addrinfo/addrinfo.hh"
@@ -29,17 +32,13 @@ namespace http
         friend class VHostFactory;
         virtual ~VHostReverseProxy() = default;
 
-    private:
-        /**
-         * \brief Constructor called by the factory.
-         *
-         * \param config VHostConfig virtual host configuration.
-         */
-        explicit VHostReverseProxy(const VHostConfig &vhost)
-            : VHost(vhost)
-        {}
+        void build_request(Request &request,
+                           std::shared_ptr<Connection> &connection);
 
-    public:
+        std::shared_ptr<Backend> backend = nullptr;
+
+        static void timeout_cb(struct ev_loop *loop, ev_timer *w, int revents);
+
         /**
          * \brief Send request to the upstream.
          *
@@ -48,5 +47,31 @@ namespace http
          */
         void respond(Request &request,
                      std::shared_ptr<Connection> connection) final;
+
+    private:
+        /**
+         * \brief Constructor called by the factory.
+         *
+         * \param config VHostConfig virtual host configuration.
+         */
+        explicit VHostReverseProxy(const VHostConfig &vhost,
+                                   const std::optional<Backend> &b)
+            : VHost(vhost)
+        {
+            if (b.has_value())
+            {
+                auto et_ = new ev_timer;
+                ev_timer_init(et_, this->timeout_cb, 0., 12.);
+                backend = std::make_shared<Backend>(b.value());
+                et_->data = &backend;
+                event_register.get_loop().register_timer_watcher(et_);
+            }
+        }
+
+        void handle_round_robin();
+        void handle_failover(Request &request,
+                             std::shared_ptr<Connection> connection);
+        void handle_fail_robin(Request &request,
+                               std::shared_ptr<Connection> connection);
     };
 } // namespace http

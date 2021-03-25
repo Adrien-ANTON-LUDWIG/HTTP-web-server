@@ -64,41 +64,65 @@ namespace http
         {
             if (!vhost->conf_get().auth_basic.empty())
             {
-                request.auth_basic = vhost->conf_get().auth_basic;
-                if (request.auth.empty())
+                if (request.is_proxy
+                    != vhost->conf_get().proxy_pass.has_value())
                 {
-                    request.status_code = STATUS_CODE::UNAUTHORIZED;
+                    request.status_code =
+                        vhost->conf_get().proxy_pass.has_value()
+                        ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                        : STATUS_CODE::UNAUTHORIZED;
                 }
-                std::stringstream auth_stream(request.auth);
-                std::string auth_type;
-                auth_stream >> auth_type;
-                if (auth_type != "Basic")
-                    request.status_code = STATUS_CODE::UNAUTHORIZED;
                 else
                 {
-                    try
+                    request.auth_basic = vhost->conf_get().auth_basic;
+                    if (request.auth.empty())
                     {
-                        std::string auth_credentials;
-                        auth_stream >> auth_credentials;
-                        auto plain_credentials =
-                            ssl::base64_decode(auth_credentials);
-                        bool logged_in = false;
-                        for (auto x : vhost->conf_get().auth_basic_users)
-                        {
-                            if (x == plain_credentials)
-                            {
-                                logged_in = true;
-                                break;
-                            }
-                        }
-                        if (!logged_in)
-                            request.status_code = STATUS_CODE::UNAUTHORIZED;
+                        request.status_code =
+                            vhost->conf_get().proxy_pass.has_value()
+                            ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                            : STATUS_CODE::UNAUTHORIZED;
                     }
-                    catch (std::exception &e)
+                    std::stringstream auth_stream(request.auth);
+                    std::string auth_type;
+                    auth_stream >> auth_type;
+                    if (auth_type != "Basic")
+                        request.status_code =
+                            vhost->conf_get().proxy_pass.has_value()
+                            ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                            : STATUS_CODE::UNAUTHORIZED;
+                    else
                     {
-                        std::cerr << "Decode auhtentification : " << e.what()
-                                  << '\n';
-                        request.status_code = STATUS_CODE::UNAUTHORIZED;
+                        try
+                        {
+                            std::string auth_credentials;
+                            auth_stream >> auth_credentials;
+                            auto plain_credentials =
+                                ssl::base64_decode(auth_credentials);
+                            bool logged_in = false;
+                            for (auto x : vhost->conf_get().auth_basic_users)
+                            {
+                                if (x == plain_credentials)
+                                {
+                                    logged_in = true;
+                                    break;
+                                }
+                            }
+                            if (!logged_in)
+                                request.status_code =
+                                    vhost->conf_get().proxy_pass.has_value()
+                                    ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                                    : STATUS_CODE::UNAUTHORIZED;
+                        }
+                        catch (std::exception &e)
+                        {
+                            std::cerr
+                                << "Decode auhtentification : " << e.what()
+                                << '\n';
+                            request.status_code =
+                                vhost->conf_get().proxy_pass.has_value()
+                                ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                                : STATUS_CODE::UNAUTHORIZED;
+                        }
                     }
                 }
             }

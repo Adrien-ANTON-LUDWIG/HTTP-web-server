@@ -4,6 +4,7 @@
  * \brief VHostFactory
  */
 
+#include <chrono>
 #include <memory>
 
 #include "vhost/vhost-reverse-proxy.hh"
@@ -22,10 +23,27 @@ namespace http
         /**
          * \brief Create a VHost object from a given VHostConfig.
          */
-        static shared_vhost Create(const VHostConfig &vhost_c)
+        static shared_vhost Create(const VHostConfig &vhost_c,
+                                   const ServerConfig &server_c)
         {
             if (vhost_c.proxy_pass != std::nullopt)
-                return std::shared_ptr<VHost>(new VHostReverseProxy(vhost_c));
+            {
+                if (!vhost_c.proxy_pass->upstream.empty())
+                {
+                    for (auto &backend : server_c.upstreams)
+                    {
+                        if (backend.name == vhost_c.proxy_pass->upstream)
+                        {
+                            return std::shared_ptr<VHost>(
+                                new VHostReverseProxy(vhost_c, backend));
+                        }
+                    }
+                    std::cerr << "No backend found\n";
+                    exit(1);
+                }
+                return std::shared_ptr<VHost>(
+                    new VHostReverseProxy(vhost_c, std::nullopt));
+            }
             return std::shared_ptr<VHost>(new VHostStaticFile(vhost_c));
         }
     };

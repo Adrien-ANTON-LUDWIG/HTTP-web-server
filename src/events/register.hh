@@ -79,6 +79,11 @@ namespace http
             loop_();
         }
 
+        EventLoop get_loop() const
+        {
+            return loop_;
+        }
+
         /**
          * \brief Access EventWatcher in the map.
          *

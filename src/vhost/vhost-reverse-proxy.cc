@@ -30,15 +30,18 @@ namespace http
             {
                 sfd = std::make_shared<DefaultSocket>(
                     rp.ai_family, rp.ai_socktype, rp.ai_protocol);
-                sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 1);
                 sfd->connect(rp.ai_addr, rp.ai_addrlen);
+                sfd->ipv6_set(rp.ai_family == AF_INET6);
                 break;
             }
             catch (const std::exception &)
             {
+                sfd = nullptr;
                 continue;
             }
         }
+        if (!sfd)
+            return nullptr;
         if (sfd->fd_get().get()->fd_ == -1)
         {
             std::cerr << "Could not connect to any interface\n";
@@ -48,8 +51,9 @@ namespace http
         return sfd;
     }
 
-    void VHostReverseProxy::respond(Request &request,
-                                    std::shared_ptr<Connection> connection)
+    void
+    VHostReverseProxy::build_request(Request &request,
+                                     std::shared_ptr<Connection> &connection)
     {
         bool find_host_header = false;
         for (auto header : conf_.proxy_pass->proxy_remove_header)
@@ -118,6 +122,98 @@ namespace http
             + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");
 
         request.headers["Host"] = request.host;
+    }
+
+    void VHostReverseProxy::handle_round_robin()
+    {
+        conf_.proxy_pass->ip =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->ip;
+        conf_.proxy_pass->port =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->port;
+
+        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
+                  << '\n';
+
+        backend->robin_index_incr();
+    }
+
+    void
+    VHostReverseProxy::handle_failover(Request &request,
+                                       std::shared_ptr<Connection> connection)
+    {
+        size_t i = 0;
+        while (i < backend->hosts.size() && !backend->hosts[i]->alive)
+        {
+            i++;
+        }
+
+        if (i == backend->hosts.size())
+        {
+            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            event_register.register_event<SendResponseEW>(
+                connection,
+                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+            return;
+        }
+
+        conf_.proxy_pass->ip = backend->hosts[i]->ip;
+        conf_.proxy_pass->port = backend->hosts[i]->port;
+    }
+
+    void
+    VHostReverseProxy::handle_fail_robin(Request &request,
+                                         std::shared_ptr<Connection> connection)
+    {
+        auto i = backend->robin_index;
+        backend->robin_index_incr();
+
+        while (backend->robin_index != i
+               && !backend->hosts[backend->robin_index]->alive)
+            backend->robin_index_incr();
+
+        if (i == backend->robin_index)
+        {
+            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            event_register.register_event<SendResponseEW>(
+                connection,
+                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+            return;
+        }
+
+        conf_.proxy_pass->ip =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->ip;
+        conf_.proxy_pass->port =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->port;
+
+        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
+                  << '\n';
+
+        backend->robin_index_incr();
+    }
+
+    void VHostReverseProxy::respond(Request &request,
+                                    std::shared_ptr<Connection> connection)
+    {
+        // Authentification
+        if (request.status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
+        {
+            event_register.register_event<SendResponseEW>(
+                connection, Response(request, request.status_code));
+            return;
+        }
+
+        // LOAD BALANCING
+        if (backend)
+        {
+            if (backend->method == "round-robin")
+                handle_round_robin();
+            else if (backend->method == "failover")
+                handle_failover(request, connection);
+            else if (backend->method == "fail-robin")
+                handle_fail_robin(request, connection);
+        }
+
+        build_request(request, connection);
 
         connection->vhost_conf = conf_;
         event_register.register_event<SendRequestEW>(
@@ -126,4 +222,25 @@ namespace http
             connection);
     }
 
+    void VHostReverseProxy::timeout_cb(struct ev_loop *loop, ev_timer *et,
+                                       int revents)
+    {
+        (void)loop;
+        (void)revents;
+        auto be = *static_cast<std::shared_ptr<Backend> *>(et->data);
+
+        for (auto &host : be->hosts)
+        {
+            unsigned int port = host->port;
+            host->alive = false;
+            shared_socket backend_sock = connect_to_backend(host->ip, port);
+            if (!backend_sock)
+                continue;
+            shared_connection connection =
+                std::make_shared<Connection>(backend_sock, host->ip, port);
+
+            event_register.register_event<SendHealthCheckEW>(host, backend_sock,
+                                                             connection);
+        }
+    }
 } // namespace http

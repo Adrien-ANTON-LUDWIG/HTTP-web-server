@@ -4,8 +4,14 @@
             "ip": "127.0.0.1",
             "port": 8081,
             "server_name": "localhost",
-            "ssl_cert": "tests/certs/localhost.pem",
-            "ssl_key": "tests/certs/localhost-key.pem",
+            "auth_basic": "Please log in to localhost!",
+            "auth_basic_users": [
+                "test:testtest",
+                "adrien.anton-ludwig:anssi",
+                "alexandre.lemonnier:password",
+                "jeanne.morin:123456",
+                "pierre.pelletier:azerty"
+            ],
             "proxy_pass": {
                 "ip": "127.0.0.1",
                 "port": 8000,

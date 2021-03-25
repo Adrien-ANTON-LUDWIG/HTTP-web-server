@@ -1,5 +1,6 @@
 #include "recvresponse.hh"
 
+#include "vhost/vhost-reverse-proxy.hh"
 namespace http
 {
     void RecvResponseEW::recv_headers()

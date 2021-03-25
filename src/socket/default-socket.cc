@@ -125,6 +125,7 @@ namespace http
         catch (const std::exception &e)
         {
             std::cerr << "Connection Failed: " << e.what() << '\n';
+            throw e;
         }
     }
 

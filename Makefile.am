@@ -62,10 +62,14 @@ SOURCES = \
           src/events/receivers/recvheaders.hh \
           src/events/receivers/recvresponse.cc \
           src/events/receivers/recvresponse.hh \
+          src/events/receivers/recvhealthcheck.hh \
+          src/events/receivers/recvhealthcheck.cc \
           src/events/receivers/recvbody.cc \
           src/events/receivers/recvbody.hh \
-          src/events/senders/senders/sendresponse.hh \
+          src/events/senders/sendresponse.hh \
           src/events/senders/sendresponse.cc \
+          src/events/senders/sendhealthcheck.hh \
+          src/events/senders/sendhealthcheck.cc \
           src/events/senders/sendrequest.hh \
           src/events/senders/sendrequest.cc \
           src/misc/addrinfo/addrinfo-error.cc \

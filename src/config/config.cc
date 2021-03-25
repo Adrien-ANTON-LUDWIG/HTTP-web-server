@@ -197,14 +197,14 @@ namespace http
                         host.health = h["health"];
                 }
 
-                backend.hosts.push_back(host);
+                backend.hosts.push_back(std::make_shared<Host>(host));
             }
             if (i == 0)
             {
                 std::cerr << "Hosts is empty\n";
                 exit(1);
             }
-
+            backend.create_robin_tab();
             config.upstreams.push_back(backend);
         }
     }

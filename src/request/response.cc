@@ -68,9 +68,12 @@ namespace http
         response = "HTTP/1.1 " + std::to_string(codepair.first) + " "
             + codepair.second + "\r\n";
 
-        if (code == STATUS_CODE::UNAUTHORIZED)
+        if (code == STATUS_CODE::UNAUTHORIZED
+            || code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
         {
-            response += "WWW-Authenticate: Basic realm=\"";
+            response += code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+                ? "Proxy-Authenticate: Basic realm=\""
+                : "WWW-Authenticate: Basic realm=\"";
             response += req.auth_basic + "\"\r\n";
         }
 

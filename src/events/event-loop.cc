@@ -32,6 +32,16 @@ namespace http
         ev_signal_start(loop, es);
     }
 
+    void EventLoop::register_timer_watcher(ev_timer *et) const
+    {
+        ev_timer_start(loop, et);
+    }
+
+    void EventLoop::unregister_timer_watcher(ev_timer *et) const
+    {
+        ev_timer_stop(loop, et);
+    }
+
     void EventLoop::operator()() const
     {
         ev_run(loop);

@@ -72,26 +72,14 @@ namespace http
          *
          * \param watcher ev_timer* to register in the loop.
          */
-        void register_timer_watcher(ev_timer *et) const
-        {
-            // This is just a hack for clang++ warning
-            // change this body once you implement timeouts
-            if (et)
-                throw http::NotImplemented();
-        }
+        void register_timer_watcher(ev_timer *et) const;
 
         /**
          * \brief Stop ev_timer.
          *
          * \param watcher ev_timer* to unregister in the loop.
          */
-        void unregister_timer_watcher(ev_timer *et) const
-        {
-            // This is just a hack for clang++ warning
-            // change this body once you implement timeouts
-            if (et)
-                throw http::NotImplemented();
-        }
+        void unregister_timer_watcher(ev_timer *et) const;
         /**
          * \brief Start waiting for events.
          */
