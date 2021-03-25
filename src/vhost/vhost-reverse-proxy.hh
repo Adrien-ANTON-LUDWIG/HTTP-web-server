@@ -67,5 +67,11 @@ namespace http
                 event_register.get_loop().register_timer_watcher(et_);
             }
         }
+
+        void handle_round_robin();
+        void handle_failover(Request &request,
+                             std::shared_ptr<Connection> connection);
+        void handle_fail_robin(Request &request,
+                               std::shared_ptr<Connection> connection);
     };
 } // namespace http

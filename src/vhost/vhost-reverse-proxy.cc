@@ -124,67 +124,93 @@ namespace http
         request.headers["Host"] = request.host;
     }
 
+    void VHostReverseProxy::handle_round_robin()
+    {
+        conf_.proxy_pass->ip =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->ip;
+        conf_.proxy_pass->port =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->port;
+
+        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
+                  << '\n';
+
+        backend->robin_index_incr();
+    }
+
+    void
+    VHostReverseProxy::handle_failover(Request &request,
+                                       std::shared_ptr<Connection> connection)
+    {
+        size_t i = 0;
+        while (i < backend->hosts.size() && !backend->hosts[i]->alive)
+        {
+            i++;
+        }
+
+        if (i == backend->hosts.size())
+        {
+            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            event_register.register_event<SendResponseEW>(
+                connection,
+                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+            return;
+        }
+
+        conf_.proxy_pass->ip = backend->hosts[i]->ip;
+        conf_.proxy_pass->port = backend->hosts[i]->port;
+    }
+
+    void
+    VHostReverseProxy::handle_fail_robin(Request &request,
+                                         std::shared_ptr<Connection> connection)
+    {
+        auto i = backend->robin_index;
+        backend->robin_index_incr();
+
+        while (backend->robin_index != i
+               && !backend->hosts[backend->robin_index]->alive)
+            backend->robin_index_incr();
+
+        if (i == backend->robin_index)
+        {
+            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            event_register.register_event<SendResponseEW>(
+                connection,
+                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+            return;
+        }
+
+        conf_.proxy_pass->ip =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->ip;
+        conf_.proxy_pass->port =
+            backend->hosts[backend->robin_tab[backend->robin_index]]->port;
+
+        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
+                  << '\n';
+
+        backend->robin_index_incr();
+    }
+
     void VHostReverseProxy::respond(Request &request,
                                     std::shared_ptr<Connection> connection)
     {
+        // Authentification
+        if (request.status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
+        {
+            event_register.register_event<SendResponseEW>(
+                connection, Response(request, request.status_code));
+            return;
+        }
+
         // LOAD BALANCING
         if (backend)
         {
             if (backend->method == "round-robin")
-            {
-                conf_.proxy_pass->ip =
-                    backend->hosts[backend->robin_tab[backend->robin_index]]
-                        ->ip;
-                conf_.proxy_pass->port =
-                    backend->hosts[backend->robin_tab[backend->robin_index]]
-                        ->port;
-
-                std::cout << conf_.proxy_pass->ip << ": "
-                          << conf_.proxy_pass->port << '\n';
-
-                backend->robin_index += 1;
-                backend->robin_index %= backend->robin_tab.size();
-            }
+                handle_round_robin();
             else if (backend->method == "failover")
-            {
-                size_t i = 0;
-                while (i < backend->hosts.size() && !backend->hosts[i]->alive)
-                {
-                    i++;
-                }
-
-                if (i == backend->hosts.size())
-                {
-                    request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
-                    event_register.register_event<SendResponseEW>(
-                        connection,
-                        Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
-                    return;
-                }
-
-                conf_.proxy_pass->ip = backend->hosts[i]->ip;
-                conf_.proxy_pass->port = backend->hosts[i]->port;
-            }
-            else if (backend->method == "round-robin")
-            {
-                size_t i = 0;
-                while (i < backend->hosts.size() && !backend->hosts[i]->alive)
-                {
-                    i++;
-                }
-                conf_.proxy_pass->ip =
-                    backend->hosts[backend->robin_tab[backend->robin_index]]
-                        ->ip;
-                conf_.proxy_pass->port =
-                    backend->hosts[backend->robin_tab[backend->robin_index]]
-                        ->port;
-
-                std::cout << conf_.proxy_pass->ip << ": "
-                          << conf_.proxy_pass->port << '\n';
-
-                backend->robin_index += 1;
-                backend->robin_index %= backend->robin_tab.size();
-            }
+                handle_failover(request, connection);
+            else if (backend->method == "fail-robin")
+                handle_fail_robin(request, connection);
         }
 
         build_request(request, connection);

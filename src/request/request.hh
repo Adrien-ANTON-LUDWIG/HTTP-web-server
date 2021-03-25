@@ -68,6 +68,8 @@ namespace http
 
         std::string host;
 
+        bool is_proxy = false;
+
         bool keep_alive = true;
 
         std::string auth = "";

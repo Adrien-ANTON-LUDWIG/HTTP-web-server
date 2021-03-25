@@ -61,6 +61,12 @@ namespace http
 
             this->robin_index = 0;
         }
+
+        void robin_index_incr()
+        {
+            robin_index += 1;
+            robin_index %= robin_tab.size();
+        }
     };
 
     /**

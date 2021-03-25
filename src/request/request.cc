@@ -90,6 +90,11 @@ namespace http
             check_content_length(value);
         else if (name == "Authorization")
             auth = value;
+        else if (name == "Proxy-Authorization")
+        {
+            auth = value;
+            is_proxy = true;
+        }
         else if (name == "Connection")
             keep_alive = value.find("close") == std::string::npos;
         headers[name] = value;
