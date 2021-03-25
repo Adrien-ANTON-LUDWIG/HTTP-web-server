@@ -30,8 +30,9 @@ namespace http
             {
                 sfd = std::make_shared<DefaultSocket>(
                     rp.ai_family, rp.ai_socktype, rp.ai_protocol);
-                sfd->setsockopt(SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 1);
+                sfd->setsockopt(SOL_SOCKET, 0, 1);
                 sfd->connect(rp.ai_addr, rp.ai_addrlen);
+                sfd->ipv6_set(rp.ai_family == AF_INET6);
                 break;
             }
             catch (const std::exception &)
@@ -156,4 +157,23 @@ namespace http
             connection);
     }
 
+    void VHostReverseProxy::timeout_cb(struct ev_loop *loop, ev_timer *et,
+                                       int revents)
+    {
+        (void)loop;
+        (void)revents;
+        Backend *be = static_cast<Backend *>(et->data);
+
+        for (auto host : be->hosts)
+        {
+            unsigned int port = host.port;
+            host.alive = false;
+            shared_socket backend_sock = connect_to_backend(host.ip, port);
+            shared_connection connection =
+                std::make_shared<Connection>(backend_sock, host.ip, port);
+
+            event_register.register_event<SendHealthCheckEW>(host, backend_sock,
+                                                             connection);
+        }
+    }
 } // namespace http

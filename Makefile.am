@@ -51,8 +51,6 @@ SOURCES = \
           src/events/event-loop.hh \
           src/events/events.cc \
           src/events/events.hh \
-          src/events/healthcheck.hh \
-          src/events/healthcheck.cc \
           src/events/listener.hh \
           src/events/listener.cc \
           src/events/sni.cc \
@@ -68,8 +66,10 @@ SOURCES = \
           src/events/receivers/recvhealthcheck.cc \
           src/events/receivers/recvbody.cc \
           src/events/receivers/recvbody.hh \
-          src/events/senders/senders/sendresponse.hh \
+          src/events/senders/sendresponse.hh \
           src/events/senders/sendresponse.cc \
+          src/events/senders/sendhealthcheck.hh \
+          src/events/senders/sendhealthcheck.cc \
           src/events/senders/sendrequest.hh \
           src/events/senders/sendrequest.cc \
           src/misc/addrinfo/addrinfo-error.cc \
