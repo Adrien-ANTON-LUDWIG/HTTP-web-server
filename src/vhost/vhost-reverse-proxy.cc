@@ -141,6 +141,10 @@ namespace http
                 backend->robin_index += 1;
                 backend->robin_index %= backend->robin_tab.size();
             }
+            if (backend->method == "failover")
+            {
+                // ON CHOISIT UN DES HOSTS DU BACKEND ALIVE
+            }
         }
 
         build_request(request, connection);

@@ -4,6 +4,7 @@
  * \brief VHostFactory
  */
 
+#include <chrono>
 #include <memory>
 
 #include "vhost/vhost-reverse-proxy.hh"
@@ -33,8 +34,13 @@ namespace http
                     {
                         if (backend.name == vhost_c.proxy_pass->upstream)
                         {
-                            return std::shared_ptr<VHost>(
+                            // REGISTER EV_TIMER CALLBACK
+
+                            std::shared_ptr<VHost> ptr = std::shared_ptr<VHost>(
                                 new VHostReverseProxy(vhost_c, backend));
+
+                            // CREATE AN EVENTWATCHER HEALTH CHECK AVEC LE
+                            // BACKEND
                         }
                     }
                     std::cerr << "No backend found\n";

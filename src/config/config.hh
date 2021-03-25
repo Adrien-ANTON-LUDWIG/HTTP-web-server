@@ -33,6 +33,7 @@ namespace http
         int port;
         std::string health;
         int weight = 1;
+        bool alive = false;
     };
     struct Backend
     {
