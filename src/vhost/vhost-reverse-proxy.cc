@@ -216,10 +216,16 @@ namespace http
         build_request(request, connection);
 
         connection->vhost_conf = conf_;
-        event_register.register_event<SendRequestEW>(
-            request,
-            connect_to_backend(conf_.proxy_pass->ip, conf_.proxy_pass->port),
-            connection);
+        shared_socket backend_sock =
+            connect_to_backend(conf_.proxy_pass->ip, conf_.proxy_pass->port);
+        if (!backend_sock)
+        {
+            event_register.register_event<SendResponseEW>(
+                connection, Response(request, STATUS_CODE::BAD_GATEWAY));
+            return;
+        }
+        event_register.register_event<SendRequestEW>(request, backend_sock,
+                                                     connection);
     }
 
     void VHostReverseProxy::timeout_cb(struct ev_loop *loop, ev_timer *et,
