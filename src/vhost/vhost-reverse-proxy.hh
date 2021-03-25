@@ -60,8 +60,8 @@ namespace http
             , backend(b)
         {
             ev_timer et_;
+            ev_timer_init(&et_, timeout_cb, 12., 12.);
             et_.data = &backend;
-            ev_timer_init(&et_, timeout_cb, 0., 12.);
             event_register.get_loop().register_timer_watcher(&et_);
         }
     };

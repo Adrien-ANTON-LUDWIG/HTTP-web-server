@@ -30,7 +30,7 @@
             "port": 8080,
             "server_name": "sub.localhost",
             "proxy_pass": {
-                "upstream": "backendA"
+                "upstream": "backendB"
             }
         }
     ],
@@ -40,30 +40,43 @@
             "hosts": [
                 {
                     "ip": "127.0.0.1",
-                    "port": 5000,
-                    "health": "/vie",
-                    "weight": 15
+                    "port": 5000
                 },
                 {
                     "ip": "127.0.0.1",
                     "port": 5050,
-                    "health": "/health"
+                    "weight": 3
                 }
             ]
         },
         "backendB": {
-            "method": "paul",
+            "method": "failover",
             "hosts": [
                 {
                     "ip": "127.0.0.1",
                     "port": 5000,
-                    "health": "/vie",
-                    "weight": 15
+                    "health": "/tests/www/index.html"
                 },
                 {
                     "ip": "127.0.0.1",
                     "port": 5050,
-                    "health": "/health"
+                    "health": "/tests/www/index.html"
+                }
+            ]
+        },
+        "backendC": {
+            "method": "fail-robin",
+            "hosts": [
+                {
+                    "ip": "127.0.0.1",
+                    "port": 5000,
+                    "health": "/tests/www/index.html"
+                },
+                {
+                    "ip": "127.0.0.1",
+                    "port": 5050,
+                    "weight": 3,
+                    "health": "/tests/www/index.html"
                 }
             ]
         }

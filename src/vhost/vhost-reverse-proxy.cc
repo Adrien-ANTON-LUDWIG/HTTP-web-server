@@ -142,9 +142,23 @@ namespace http
                 backend->robin_index += 1;
                 backend->robin_index %= backend->robin_tab.size();
             }
-            if (backend->method == "failover")
+            else if (backend->method == "failover")
             {
-                // ON CHOISIT UN DES HOSTS DU BACKEND ALIVE
+                size_t i = 0;
+                while (i < backend->hosts.size() && !backend->hosts[i].alive)
+                    i++;
+
+                if (i == backend->hosts.size())
+                {
+                    request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+                    event_register.register_event<SendResponseEW>(
+                        connection,
+                        Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+                    return;
+                }
+
+                conf_.proxy_pass->ip = backend->hosts[i].ip;
+                conf_.proxy_pass->port = backend->hosts[i].port;
             }
         }
 
