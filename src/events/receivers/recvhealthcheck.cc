@@ -7,7 +7,7 @@ namespace http
     bool RecvHealthCheckEW::check_response()
     {
         size_t pos = 0;
-        if ((pos = data.find("\r\n")) != std::string::npos)
+        if ((pos = data.find("200 OK")) != std::string::npos)
         {
             if (host_)
             {

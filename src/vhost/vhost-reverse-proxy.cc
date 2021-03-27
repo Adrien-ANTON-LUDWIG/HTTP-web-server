@@ -20,6 +20,8 @@ namespace http
         hint.family(AF_UNSPEC);
         hint.socktype(SOCK_STREAM);
 
+        std::cout << ip.c_str() << ":" << std::to_string(port).c_str() << '\n';
+
         misc::AddrInfo addrinfo =
             misc::getaddrinfo(ip.c_str(), std::to_string(port).c_str(), hint);
 
@@ -131,13 +133,13 @@ namespace http
         conf_.proxy_pass->port =
             backend->hosts[backend->robin_tab[backend->robin_index]]->port;
 
-        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
-                  << '\n';
+        std::cout << "Round robin : " << conf_.proxy_pass->ip << ": "
+                  << conf_.proxy_pass->port << '\n';
 
         backend->robin_index_incr();
     }
 
-    void
+    std::shared_ptr<Host>
     VHostReverseProxy::handle_failover(Request &request,
                                        std::shared_ptr<Connection> connection)
     {
@@ -153,31 +155,38 @@ namespace http
             event_register.register_event<SendResponseEW>(
                 connection,
                 Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
-            return;
+            return nullptr;
         }
 
         conf_.proxy_pass->ip = backend->hosts[i]->ip;
         conf_.proxy_pass->port = backend->hosts[i]->port;
+
+        std::cout << "Failover : " << conf_.proxy_pass->ip << ": "
+                  << conf_.proxy_pass->port << '\n';
+        return backend->hosts[i];
     }
 
-    void
+    std::shared_ptr<Host>
     VHostReverseProxy::handle_fail_robin(Request &request,
                                          std::shared_ptr<Connection> connection)
     {
-        auto i = backend->robin_index;
-        backend->robin_index_incr();
+        size_t i = 1;
 
-        while (backend->robin_index != i
-               && !backend->hosts[backend->robin_index]->alive)
+        while (
+            i != backend->robin_tab.size()
+            && !backend->hosts[backend->robin_tab[backend->robin_index]]->alive)
+        {
             backend->robin_index_incr();
+            i++;
+        }
 
-        if (i == backend->robin_index)
+        if (i == backend->robin_tab.size())
         {
             request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
             event_register.register_event<SendResponseEW>(
                 connection,
                 Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
-            return;
+            return nullptr;
         }
 
         conf_.proxy_pass->ip =
@@ -185,10 +194,11 @@ namespace http
         conf_.proxy_pass->port =
             backend->hosts[backend->robin_tab[backend->robin_index]]->port;
 
-        std::cout << conf_.proxy_pass->ip << ": " << conf_.proxy_pass->port
-                  << '\n';
+        std::cout << "Fail-robin : " << conf_.proxy_pass->ip << ": "
+                  << conf_.proxy_pass->port << '\n';
 
         backend->robin_index_incr();
+        return backend->hosts[i];
     }
 
     void VHostReverseProxy::respond(Request &request,
@@ -202,15 +212,25 @@ namespace http
             return;
         }
 
+        std::shared_ptr<Host> found_host = nullptr;
+
         // LOAD BALANCING
         if (backend)
         {
             if (backend->method == "round-robin")
                 handle_round_robin();
             else if (backend->method == "failover")
-                handle_failover(request, connection);
+            {
+                found_host = handle_failover(request, connection);
+                if (!found_host)
+                    return;
+            }
             else if (backend->method == "fail-robin")
-                handle_fail_robin(request, connection);
+            {
+                found_host = handle_fail_robin(request, connection);
+                if (!found_host)
+                    return;
+            }
         }
 
         build_request(request, connection);
@@ -222,6 +242,8 @@ namespace http
         {
             event_register.register_event<SendResponseEW>(
                 connection, Response(request, STATUS_CODE::BAD_GATEWAY));
+            if (found_host)
+                found_host->alive = false;
             return;
         }
         event_register.register_event<SendRequestEW>(request, backend_sock,

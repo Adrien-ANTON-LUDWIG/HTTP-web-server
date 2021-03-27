@@ -1,0 +1,21 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8000,
+            "server_name": "localhost",
+            "ssl_cert": "tests/certs/localhost.pem",
+            "ssl_key": "tests/certs/localhost-key.pem",
+            "proxy_pass": {
+                "ip": "127.0.0.1",
+                "port": 8001
+            }
+        },
+        {
+            "ip": "127.0.0.1",
+            "port": 8001,
+            "server_name": "localhost",
+            "root": "tests/www/"
+        }
+    ]
+}

@@ -4,13 +4,15 @@
             "ip": "127.0.0.1",
             "port": 5000,
             "server_name": "localhost",
-            "root": "./tests/www"
+            "root": "./tests/www",
+            "default_file": "load_balancing_1"
         },
         {
             "ip": "127.0.0.1",
             "port": 5050,
             "server_name": "localhost2",
-            "root": "./tests/www"
+            "root": "./tests/www",
+            "default_file": "load_balancing_2"
         },
         {
             "ip": "127.0.0.1",

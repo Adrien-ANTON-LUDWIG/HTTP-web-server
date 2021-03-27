@@ -58,7 +58,7 @@ namespace http
                                    const std::optional<Backend> &b)
             : VHost(vhost)
         {
-            if (b.has_value())
+            if (b.has_value() && b->method != "round-robin")
             {
                 auto et_ = new ev_timer;
                 ev_timer_init(et_, this->timeout_cb, 0., 12.);
@@ -66,12 +66,18 @@ namespace http
                 et_->data = &backend;
                 event_register.get_loop().register_timer_watcher(et_);
             }
+            if (b.has_value() && b->method == "round-robin")
+            {
+                backend = std::make_shared<Backend>(b.value());
+            }
         }
 
         void handle_round_robin();
-        void handle_failover(Request &request,
-                             std::shared_ptr<Connection> connection);
-        void handle_fail_robin(Request &request,
-                               std::shared_ptr<Connection> connection);
+        std::shared_ptr<Host>
+        handle_failover(Request &request,
+                        std::shared_ptr<Connection> connection);
+        std::shared_ptr<Host>
+        handle_fail_robin(Request &request,
+                          std::shared_ptr<Connection> connection);
     };
 } // namespace http

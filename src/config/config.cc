@@ -28,8 +28,14 @@ namespace http
         vhost.server_name = v["server_name"];
         if (v.find("proxy_pass") != v.end() && v.find("root") != v.end())
         {
-            std::cerr << "Root and proxy_pass are mutually exclusive\n";
-            exit(0);
+            std::cerr << "Root and proxy_pass are mutually exclusive.\n";
+            exit(1);
+        }
+        if (v.find("proxy_pass") != v.end()
+            && v.find("default_file") != v.end())
+        {
+            std::cerr << "Default file not allowed when proxy_pass is set.\n";
+            exit(1);
         }
         if (v.find("proxy_pass") == v.end())
         {
@@ -126,40 +132,58 @@ namespace http
         {
             v = *v.find("proxy_pass");
 
+            if (v.find("upstream") != v.end()
+                && (v.find("ip") != v.end() || v.find("port") != v.end()))
+            {
+                std::cerr << "Upstream and ip/port are mutually exclusive\n";
+                exit(1);
+            }
+
             if (v.find("upstream") != v.end())
             {
                 proxy.upstream = v["upstream"];
-                vhost.proxy_pass = proxy;
-                return;
             }
-
-            proxy.ip = v["ip"];
-            int port = v["port"];
-
-            if (port < 0 || port > 65535)
+            else
             {
-                std::cerr << "Forbidden port\n";
-                exit(1);
-            }
-            proxy.port = port;
+                proxy.ip = v["ip"];
+                int port = v["port"];
 
-            std::vector<std::string> proxy_remove_header =
-                v["proxy_remove_header"];
-            proxy.proxy_remove_header = proxy_remove_header;
-            std::map<std::string, std::string> proxy_set_header =
-                v["proxy_set_header"];
-            proxy.proxy_set_header = proxy_set_header;
-            std::vector<std::string> remove_header = v["remove_header"];
-            proxy.remove_header = remove_header;
-            std::map<std::string, std::string> set_header = v["set_header"];
-            proxy.set_header = set_header;
+                if (port < 0 || port > 65535)
+                {
+                    std::cerr << "Forbidden port\n";
+                    exit(1);
+                }
+                proxy.port = port;
+            }
+
+            if (v.find("proxy_remove_hearder") != v.end())
+            {
+                std::vector<std::string> proxy_remove_header =
+                    v["proxy_remove_header"];
+                proxy.proxy_remove_header = proxy_remove_header;
+            }
+            if (v.find("proxy_set_hearder") != v.end())
+            {
+                std::map<std::string, std::string> proxy_set_header =
+                    v["proxy_set_header"];
+                proxy.proxy_set_header = proxy_set_header;
+            }
+            if (v.find("remove_hearder") != v.end())
+            {
+                std::vector<std::string> remove_header = v["remove_header"];
+                proxy.remove_header = remove_header;
+            }
+            if (v.find("set_hearder") != v.end())
+            {
+                std::map<std::string, std::string> set_header = v["set_header"];
+                proxy.set_header = set_header;
+            }
 
             vhost.proxy_pass = proxy;
         }
     }
     static void parse_upstream(struct ServerConfig &config, nlohmann::json &j)
     {
-        (void)config;
         if (j.find("upstreams") == j.end())
             return;
         auto upstreams = *j.find("upstreams");
@@ -173,6 +197,12 @@ namespace http
                 exit(1);
             }
             backend.method = *it.value().find("method");
+            if (backend.method != "round-robin" && backend.method != "failover"
+                && backend.method != "fail-robin")
+            {
+                std::cerr << "Invalid method: " << backend.method << '\n';
+                exit(1);
+            }
             if (it.value().find("hosts") == it.value().end())
             {
                 std::cerr << "No hosts declared\n";
@@ -185,16 +215,47 @@ namespace http
                 struct Host host;
 
                 host.ip = h["ip"];
+                if (host.ip == "")
+                {
+                    std::cerr << "Empty ip\n";
+                    exit(1);
+                }
                 host.port = h["port"];
+                if (host.ip == "")
+                {
+                    std::cerr << "Empty port\n";
+                    exit(1);
+                }
+                if (host.port < 0 || host.port > 65535)
+                {
+                    std::cerr << "Forbidden port\n";
+                    exit(1);
+                }
                 if (h.find("weight") != h.end())
+                {
                     host.weight = h["weight"];
+                    if (host.weight <= 0)
+                    {
+                        std::cerr << "Invalid weight : " << host.weight << '\n';
+                        exit(1);
+                    }
+                }
                 if (backend.method == "fail-robin"
                     || backend.method == "failover")
+                {
                     host.health = h["health"];
+                    if (host.health == "")
+                    {
+                        std::cerr << "Empty health path\n";
+                        exit(1);
+                    }
+                }
                 else
                 {
                     if (h.find("health") != h.end())
+                    {
                         host.health = h["health"];
+                    }
                 }
 
                 backend.hosts.push_back(std::make_shared<Host>(host));
