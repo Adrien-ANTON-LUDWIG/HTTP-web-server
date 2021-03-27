@@ -1,0 +1,11 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 5000,
+            "server_name": "localhost",
+            "root": "./tests/www",
+            "default_file": "load_balancing_1"
+        }
+    ]
+}

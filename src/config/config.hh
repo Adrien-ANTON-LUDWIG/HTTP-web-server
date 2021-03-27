@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <memory>
 #include <openssl/ssl.h>
@@ -47,15 +48,23 @@ namespace http
 
         void create_robin_tab()
         {
-            std::vector<std::shared_ptr<Host>> cp_hosts = hosts;
-            while (!cp_hosts.empty())
+            std::vector<size_t> weights;
+
+            for (auto host : hosts)
+                weights.push_back(host->weight);
+
+            bool add = true;
+            while (add)
             {
-                for (size_t i = 0; i < cp_hosts.size(); i++)
+                add = false;
+                for (size_t i = 0; i < weights.size(); i++)
                 {
-                    this->robin_tab.push_back(i);
-                    cp_hosts[i]->weight -= 1;
-                    if (cp_hosts[i]->weight < 1)
-                        cp_hosts.erase(cp_hosts.begin() + i);
+                    if (weights[i] > 0)
+                    {
+                        this->robin_tab.push_back(i);
+                        weights[i] -= 1;
+                        add = true;
+                    }
                 }
             }
 

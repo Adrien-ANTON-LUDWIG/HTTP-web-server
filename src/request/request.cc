@@ -96,7 +96,7 @@ namespace http
             is_proxy = true;
         }
         else if (name == "Connection")
-            keep_alive = value.find("close") == std::string::npos;
+            keep_alive = value != "close";
         headers[name] = value;
     }
 
@@ -179,7 +179,7 @@ namespace http
     {
 #ifdef _DEBUG
         std::cout << "Request pretty_print :\n";
-        std::string methods[NB_OF_METHODS + 1] = {
+        static std::string methods[NB_OF_METHODS + 1] = {
             "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
             "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
         };

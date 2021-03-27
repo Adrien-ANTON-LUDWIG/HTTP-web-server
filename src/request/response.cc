@@ -71,9 +71,10 @@ namespace http
         if (code == STATUS_CODE::UNAUTHORIZED
             || code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
         {
-            response += code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
-                ? "Proxy-Authenticate: Basic realm=\""
-                : "WWW-Authenticate: Basic realm=\"";
+            if (code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
+                response += "Proxy-Authenticate: Basic realm=\"";
+            else
+                response += "WWW-Authenticate: Basic realm=\"";
             response += req.auth_basic + "\"\r\n";
         }
 
