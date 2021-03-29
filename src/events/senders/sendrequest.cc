@@ -14,7 +14,9 @@ namespace http
             + request.uri + " HTTP/1.1\r\n";
 
         for (auto h : request.headers)
+        {
             request_ += h.first + ": " + h.second + "\r\n";
+        }
 
         request_ += "Connection: close";
 

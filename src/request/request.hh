@@ -15,7 +15,7 @@
 #include "request/response.hh"
 #include "request/types.hh"
 
-#define NB_OF_METHODS 9
+#define NB_OF_METHODS 3
 
 namespace http
 {
