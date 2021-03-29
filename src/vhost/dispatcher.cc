@@ -64,6 +64,7 @@ namespace http
         {
             if (!vhost->conf_get().auth_basic.empty())
             {
+                request.auth_basic = vhost->conf_get().auth_basic;
                 if (request.is_proxy
                     != vhost->conf_get().proxy_pass.has_value())
                 {
@@ -74,7 +75,6 @@ namespace http
                 }
                 else
                 {
-                    request.auth_basic = vhost->conf_get().auth_basic;
                     if (request.auth.empty())
                     {
                         request.status_code =
