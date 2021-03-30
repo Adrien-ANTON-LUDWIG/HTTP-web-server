@@ -9,12 +9,13 @@ namespace http
         , backend_sock_(backend_sock)
         , connection_(connection)
     {
-        std::string methods[4] = { "GET", "HEAD", "POST", "ERR" };
-        request_ += methods[static_cast<int>(request.method)] + ' '
-            + request.uri + " HTTP/1.1\r\n";
+        request_ +=
+            request.method_string_ + ' ' + request.uri + " HTTP/1.1\r\n";
 
         for (auto h : request.headers)
+        {
             request_ += h.first + ": " + h.second + "\r\n";
+        }
 
         request_ += "Connection: close";
 

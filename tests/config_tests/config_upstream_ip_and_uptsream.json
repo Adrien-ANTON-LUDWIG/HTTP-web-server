@@ -5,7 +5,8 @@
             "port": 8080,
             "server_name": "sub.localhost",
             "proxy_pass": {
-                "upstream": "wrong_name"
+                "ip": "127.0.0.1",
+                "upstream": "backendA"
             }
         }
     ],

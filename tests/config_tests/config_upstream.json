@@ -4,8 +4,6 @@
             "ip": "127.0.0.1",
             "port": 8081,
             "server_name": "localhost",
-            "ssl_cert": "tests/certs/localhost.pem",
-            "ssl_key": "tests/certs/localhost-key.pem",
             "proxy_pass": {
                 "ip": "127.0.0.1",
                 "port": 8000,
@@ -30,7 +28,7 @@
             "port": 8080,
             "server_name": "sub.localhost",
             "proxy_pass": {
-                "upstream": "backendB"
+                "upstream": "backendA"
             }
         }
     ],

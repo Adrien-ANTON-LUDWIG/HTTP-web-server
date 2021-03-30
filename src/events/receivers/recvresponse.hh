@@ -52,6 +52,7 @@ namespace http
          *
          */
         std::string response_;
+        bool recv_finished = false;
         int content_length_ = -1;
         std::string body_;
         int current_length_ = -2;

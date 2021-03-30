@@ -142,6 +142,12 @@ namespace http
             if (v.find("upstream") != v.end())
             {
                 proxy.upstream = v["upstream"];
+
+                if (proxy.upstream.empty())
+                {
+                    std::cerr << "Empty upstream name\n";
+                    exit(1);
+                }
             }
             else
             {
@@ -156,24 +162,24 @@ namespace http
                 proxy.port = port;
             }
 
-            if (v.find("proxy_remove_hearder") != v.end())
+            if (v.find("proxy_remove_header") != v.end())
             {
                 std::vector<std::string> proxy_remove_header =
                     v["proxy_remove_header"];
                 proxy.proxy_remove_header = proxy_remove_header;
             }
-            if (v.find("proxy_set_hearder") != v.end())
+            if (v.find("proxy_set_header") != v.end())
             {
                 std::map<std::string, std::string> proxy_set_header =
                     v["proxy_set_header"];
                 proxy.proxy_set_header = proxy_set_header;
             }
-            if (v.find("remove_hearder") != v.end())
+            if (v.find("remove_header") != v.end())
             {
                 std::vector<std::string> remove_header = v["remove_header"];
                 proxy.remove_header = remove_header;
             }
-            if (v.find("set_hearder") != v.end())
+            if (v.find("set_header") != v.end())
             {
                 std::map<std::string, std::string> set_header = v["set_header"];
                 proxy.set_header = set_header;

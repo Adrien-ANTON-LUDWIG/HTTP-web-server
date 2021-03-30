@@ -4,6 +4,19 @@
 
 namespace http
 {
+    static bool check_err_response(Request &request,
+                                   std::shared_ptr<Connection> connection)
+    {
+        if (request.is_fatal())
+        {
+            connection->keep_alive = false;
+            event_register.register_event<SendResponseEW>(
+                connection, Response(request.status_code));
+            return true;
+        }
+        return false;
+    }
+
     static std::string x_for_to_forwarded(const std::string &x_for)
     {
         auto new_for = x_for + ",";
@@ -204,8 +217,12 @@ namespace http
     void VHostReverseProxy::respond(Request &request,
                                     std::shared_ptr<Connection> connection)
     {
+        if (check_err_response(request, connection))
+            return;
+
         // Authentification
-        if (request.status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED)
+        if (request.status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+            || check_err_response(request, connection))
         {
             event_register.register_event<SendResponseEW>(
                 connection, Response(request, request.status_code));

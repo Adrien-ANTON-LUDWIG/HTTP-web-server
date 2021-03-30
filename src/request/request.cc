@@ -40,11 +40,7 @@ namespace http
 
     void Request::parse_method(const std::string &method_string)
     {
-        /*std::string methods[NB_OF_METHODS] = { "GET",     "HEAD",   "POST",
-                                               "PUT",     "DELETE", "CONNECT",
-                                               "OPTIONS", "TRACE",  "PATCH" };*/
-
-        std::string methods[NB_OF_METHODS] = { "GET", "HEAD", "POST" };
+        static std::string methods[NB_OF_METHODS] = { "GET", "HEAD", "POST" };
 
         int i = 0;
         for (; i < NB_OF_METHODS; i++)
@@ -59,6 +55,7 @@ namespace http
             method = Method::ERR;
             status_code = STATUS_CODE::METHOD_NOT_ALLOWED;
         }
+        method_string_ = method_string;
     }
 
     void Request::check_content_length(std::string &value)
@@ -179,10 +176,8 @@ namespace http
     {
 #ifdef _DEBUG
         std::cout << "Request pretty_print :\n";
-        static std::string methods[NB_OF_METHODS + 1] = {
-            "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
-            "CONNECT", "OPTIONS", "TRACE", "PATCH", "ERR"
-        };
+        static std::string methods[NB_OF_METHODS + 1] = { "GET", "HEAD", "POST",
+                                                          "ERR" };
         std::cout << methods[static_cast<int>(method)] << ' ' << uri << ' '
                   << "HTTP/1.1\n";
 

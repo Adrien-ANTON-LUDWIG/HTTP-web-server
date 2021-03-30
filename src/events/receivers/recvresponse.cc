@@ -28,7 +28,6 @@ namespace http
             auto end = response_.find("\r\n", start);
             content_length_ = std::stoi(std::string(response_.begin() + start,
                                                     response_.begin() + end));
-
             // TODO Body
             body_ = response_.substr(carriage + 4);
             current_length_ = body_.size();
@@ -43,8 +42,9 @@ namespace http
 
         if (read_size <= 0)
         {
+            recv_finished = true;
             event_register.unregister_ew(this);
-            std::cout << "RecvResponse : recv_body error" << std::endl;
+            std::cout << "RecvResponse : recv_body end" << std::endl;
             return;
         }
 
@@ -79,6 +79,24 @@ namespace http
             response_ += header.first + ": " + header.second + "\r\n";
         }
 
+        if (response_.find("\r\nDate:") == std::string::npos)
+        {
+            time_t now;
+            char datebuffer[BUFFER_SIZE];
+            time(&now);
+            auto now_time = gmtime(&now);
+
+            size_t time_size = strftime(datebuffer, BUFFER_SIZE,
+                                        "%a, %d %b %Y %X %Z\r\n", now_time);
+            response_ += "Date: " + std::string(datebuffer, time_size) + "\r\n";
+        }
+
+        if (response_.find("\r\nContent-Length:") == std::string::npos)
+        {
+            response_ +=
+                "Content-Length: " + std::to_string(content_length_) + "\r\n";
+        }
+
         response_ += "\r\n";
         res = response_ + body_;
 
@@ -89,12 +107,14 @@ namespace http
     {
         if (content_length_ == -1)
             recv_headers();
-        else
+        if (content_length_ != -1)
             recv_body();
 
-        if (content_length_ <= current_length_)
+        if (recv_finished)
         {
             auto response = build_response();
+            if (response.find("HTTP") == std::string::npos)
+                response = Response(STATUS_CODE::BAD_REQUEST).response;
             event_register.register_event<SendResponseEW>(connection_,
                                                           Response(response));
             event_register.unregister_ew(this);

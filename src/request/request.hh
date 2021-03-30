@@ -15,7 +15,7 @@
 #include "request/response.hh"
 #include "request/types.hh"
 
-#define NB_OF_METHODS 9
+#define NB_OF_METHODS 3
 
 namespace http
 {
@@ -63,6 +63,7 @@ namespace http
         void pretty_print();
 
         Method method;
+        std::string method_string_;
         std::string uri;
         std::map<std::string, std::string> headers;
 
