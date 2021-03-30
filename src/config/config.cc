@@ -138,8 +138,7 @@ namespace http
                 std::cerr << "Upstream and ip/port are mutually exclusive\n";
                 exit(1);
             }
-
-            if (v.find("upstream") != v.end())
+            t if (v.find("upstream") != v.end())
             {
                 proxy.upstream = v["upstream"];
             }
@@ -154,6 +153,11 @@ namespace http
                     exit(1);
                 }
                 proxy.port = port;
+            }
+
+            if (v.find("timeout") != v.end())
+            {
+                proxy.timeout = v.find["timeout"];
             }
 
             if (v.find("proxy_remove_hearder") != v.end())
@@ -182,6 +186,34 @@ namespace http
             vhost.proxy_pass = proxy;
         }
     }
+
+    static void parse_timeout(struct ServerConfig &config, nlohmann::json &j)
+    {
+        if (j.find("timeout") == j.end())
+            return;
+
+        auto timeouts = *j.find("timeout");
+
+        if (timeouts.find("keep_alive") != timeouts.end())
+            config->timeout_keepalive = timeouts["keep_alive"];
+
+        if (timeouts.find("transaction") != timeouts.end())
+            config->timeout_transaction = timeouts["transaction"];
+
+        if (timeouts.find("throughput_val"))
+            config->timeout_throughput_val = timeouts["throughput_val"];
+
+        if (timeouts.find("throughput_time"))
+            config->timeout_throughput_time = timeouts["throughput_time"];
+
+        if (config->timeout_throughput_val.has_value()
+            != config->timeout_throughput_time.has_value())
+        {
+            std::cerr << "Timeout throughput needs time and value\n";
+            exit(1);
+        }
+    }
+
     static void parse_upstream(struct ServerConfig &config, nlohmann::json &j)
     {
         if (j.find("upstreams") == j.end())
