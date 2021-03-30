@@ -55,6 +55,7 @@ namespace http
             method = Method::ERR;
             status_code = STATUS_CODE::METHOD_NOT_ALLOWED;
         }
+        method_string_ = method_string;
     }
 
     void Request::check_content_length(std::string &value)
