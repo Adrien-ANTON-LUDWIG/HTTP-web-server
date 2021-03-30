@@ -138,7 +138,7 @@ namespace http
                 std::cerr << "Upstream and ip/port are mutually exclusive\n";
                 exit(1);
             }
-            t if (v.find("upstream") != v.end())
+            if (v.find("upstream") != v.end())
             {
                 proxy.upstream = v["upstream"];
 
@@ -163,7 +163,7 @@ namespace http
 
             if (v.find("timeout") != v.end())
             {
-                proxy.timeout = v.find["timeout"];
+                proxy.timeout = v["timeout"];
             }
 
             if (v.find("proxy_remove_hearder") != v.end())
@@ -201,19 +201,19 @@ namespace http
         auto timeouts = *j.find("timeout");
 
         if (timeouts.find("keep_alive") != timeouts.end())
-            config->timeout_keepalive = timeouts["keep_alive"];
+            config.timeout_keepalive = timeouts["keep_alive"];
 
         if (timeouts.find("transaction") != timeouts.end())
-            config->timeout_transaction = timeouts["transaction"];
+            config.timeout_transaction = timeouts["transaction"];
 
-        if (timeouts.find("throughput_val"))
-            config->timeout_throughput_val = timeouts["throughput_val"];
+        if (timeouts.find("throughput_val") != timeouts.end())
+            config.timeout_throughput_val = timeouts["throughput_val"];
 
-        if (timeouts.find("throughput_time"))
-            config->timeout_throughput_time = timeouts["throughput_time"];
+        if (timeouts.find("throughput_time") != timeouts.end())
+            config.timeout_throughput_time = timeouts["throughput_time"];
 
-        if (config->timeout_throughput_val.has_value()
-            != config->timeout_throughput_time.has_value())
+        if (config.timeout_throughput_val.has_value()
+            != config.timeout_throughput_time.has_value())
         {
             std::cerr << "Timeout throughput needs time and value\n";
             exit(1);
@@ -364,6 +364,7 @@ namespace http
                 s_conf.vhosts.push_back(vhost);
             }
             parse_upstream(s_conf, j);
+            parse_timeout(s_conf, j);
             return s_conf;
         }
         catch (json::exception &e)

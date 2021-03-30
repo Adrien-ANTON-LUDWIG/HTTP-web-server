@@ -27,7 +27,7 @@ namespace http
         std::vector<std::string> remove_header;
 
         std::string upstream = "";
-        std::optional<float> timeout = std::nullopt; 
+        std::optional<float> timeout = std::nullopt;
     };
 
     struct Host
