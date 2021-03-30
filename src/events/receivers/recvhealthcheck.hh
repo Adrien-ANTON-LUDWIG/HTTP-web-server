@@ -21,11 +21,9 @@ namespace http
          *
          */
         RecvHealthCheckEW(std::shared_ptr<Host> host,
-                          const shared_connection &connection,
                           const shared_socket &backend_sock)
             : EventWatcher(backend_sock->fd_get()->fd_, EV_READ)
             , host_(host)
-            , connection_(connection)
             , backend_sock_(backend_sock)
         {}
 
@@ -37,12 +35,6 @@ namespace http
 
     private:
         std::shared_ptr<Host> host_ = nullptr;
-
-        /**
-         * @brief Structure connection
-         *
-         */
-        shared_connection connection_;
 
         shared_socket backend_sock_;
 

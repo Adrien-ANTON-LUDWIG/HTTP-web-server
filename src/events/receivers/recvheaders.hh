@@ -28,27 +28,15 @@ namespace http
          */
         explicit RecvHeadersEW(const shared_connection &connection)
             : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
-            , connection_(connection)
-            , request_()
-        {}
+        {
+            connection_ = connection;
+            // TODO Register Timeout keep alive
+        }
 
         /**
          * \brief Start or resume receiving data from the corresponding client.
          */
         void operator()() final;
-
-    private:
-        /**
-         * @brief Structure connection
-         *
-         */
-        shared_connection connection_;
-
-        /**
-         * @brief Structure to contain the parsed request.
-         *
-         */
-        struct Request request_;
     };
 
 } // namespace http

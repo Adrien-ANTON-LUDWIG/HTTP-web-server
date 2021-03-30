@@ -44,12 +44,12 @@ namespace http
     }
 
     void Dispatcher::dispatch(const shared_connection &connection,
-                              struct Request &request)
+                              std::shared_ptr<Request> &request)
     {
         shared_vhost vhost = get_default_vhost();
         for (auto v : vhosts_)
         {
-            if (check_host(connection, request, v->conf_get()))
+            if (check_host(connection, *request, v->conf_get()))
             {
                 vhost = v;
                 break;
@@ -57,36 +57,36 @@ namespace http
         }
         if (vhost == nullptr)
         {
-            request.status_code = STATUS_CODE::BAD_REQUEST;
+            request->status_code = STATUS_CODE::BAD_REQUEST;
             vhosts_[0]->respond(request, connection);
         }
         else
         {
             if (!vhost->conf_get().auth_basic.empty())
             {
-                request.auth_basic = vhost->conf_get().auth_basic;
-                if (request.is_proxy
+                request->auth_basic = vhost->conf_get().auth_basic;
+                if (request->is_proxy
                     != vhost->conf_get().proxy_pass.has_value())
                 {
-                    request.status_code =
+                    request->status_code =
                         vhost->conf_get().proxy_pass.has_value()
                         ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
                         : STATUS_CODE::UNAUTHORIZED;
                 }
                 else
                 {
-                    if (request.auth.empty())
+                    if (request->auth.empty())
                     {
-                        request.status_code =
+                        request->status_code =
                             vhost->conf_get().proxy_pass.has_value()
                             ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
                             : STATUS_CODE::UNAUTHORIZED;
                     }
-                    std::stringstream auth_stream(request.auth);
+                    std::stringstream auth_stream(request->auth);
                     std::string auth_type;
                     auth_stream >> auth_type;
                     if (auth_type != "Basic")
-                        request.status_code =
+                        request->status_code =
                             vhost->conf_get().proxy_pass.has_value()
                             ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
                             : STATUS_CODE::UNAUTHORIZED;
@@ -108,7 +108,7 @@ namespace http
                                 }
                             }
                             if (!logged_in)
-                                request.status_code =
+                                request->status_code =
                                     vhost->conf_get().proxy_pass.has_value()
                                     ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
                                     : STATUS_CODE::UNAUTHORIZED;
@@ -118,7 +118,7 @@ namespace http
                             std::cerr
                                 << "Decode auhtentification : " << e.what()
                                 << '\n';
-                            request.status_code =
+                            request->status_code =
                                 vhost->conf_get().proxy_pass.has_value()
                                 ? STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
                                 : STATUS_CODE::UNAUTHORIZED;

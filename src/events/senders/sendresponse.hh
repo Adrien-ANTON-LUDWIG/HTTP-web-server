@@ -20,14 +20,14 @@ namespace http
         explicit SendResponseEW(const shared_connection &connection,
                                 const Response &response)
             : EventWatcher(connection->sock->fd_get()->fd_, EV_WRITE)
-            , connection_(connection)
             , response_(response)
-        {}
+        {
+            connection_ = connection;
+        }
 
         void operator()() final;
 
     private:
-        shared_connection connection_;
         struct Response response_;
         bool sending_body = false;
     };

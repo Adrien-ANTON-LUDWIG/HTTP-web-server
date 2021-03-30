@@ -28,7 +28,7 @@ namespace http
         void add_vhost(const shared_vhost &vhost);
 
         void dispatch(const shared_connection &connection,
-                      struct Request &request);
+                      std::shared_ptr<Request> &request);
 
         iterator begin()
         {

@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "events/events.hh"
@@ -20,7 +21,7 @@ namespace http
     class SendRequestEW : public EventWatcher
     {
     public:
-        explicit SendRequestEW(const Request &request,
+        explicit SendRequestEW(const std::shared_ptr<Request> &request,
                                const shared_socket &backend_sock,
                                const shared_connection &connection);
 
@@ -28,8 +29,7 @@ namespace http
 
     private:
         shared_socket backend_sock_;
-        shared_connection connection_;
-        std::string request_;
+        std::string request_string_;
         bool keep_alive = true;
         bool sending_body = false;
     };

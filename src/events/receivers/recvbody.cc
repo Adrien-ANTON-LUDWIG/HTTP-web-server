@@ -5,14 +5,14 @@ namespace http
     {
         char buffer[BUFFER_SIZE];
         auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
-        request_.body += std::string(buffer, read_size);
-        request_.current_length += read_size;
+        request_->body += std::string(buffer, read_size);
+        request_->current_length += read_size;
 
-        if (request_.content_length <= request_.current_length)
+        if (request_->content_length <= request_->current_length)
         {
 #ifdef _DEBUG
             std::cout << "RecvBodyEw body :\n"
-                      << request_.body << '\n'
+                      << request_->body << '\n'
                       << std::endl;
 #endif
             dispatcher.dispatch(connection_, request_);

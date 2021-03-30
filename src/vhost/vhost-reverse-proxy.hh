@@ -32,7 +32,7 @@ namespace http
         friend class VHostFactory;
         virtual ~VHostReverseProxy() = default;
 
-        void build_request(Request &request,
+        void build_request(std::shared_ptr<Request> &request,
                            std::shared_ptr<Connection> &connection);
 
         std::shared_ptr<Backend> backend = nullptr;
@@ -45,7 +45,7 @@ namespace http
          * \param req Request.
          * \param conn std::shared_ptr<Connection>.
          */
-        void respond(Request &request,
+        void respond(std::shared_ptr<Request> request,
                      std::shared_ptr<Connection> connection) final;
 
     private:
@@ -74,10 +74,10 @@ namespace http
 
         void handle_round_robin();
         std::shared_ptr<Host>
-        handle_failover(Request &request,
+        handle_failover(std::shared_ptr<Request> request,
                         std::shared_ptr<Connection> connection);
         std::shared_ptr<Host>
-        handle_fail_robin(Request &request,
+        handle_fail_robin(std::shared_ptr<Request> request,
                           std::shared_ptr<Connection> connection);
     };
 } // namespace http

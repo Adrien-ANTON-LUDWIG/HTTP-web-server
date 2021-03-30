@@ -4,14 +4,14 @@
 
 namespace http
 {
-    static bool check_err_response(Request &request,
+    static bool check_err_response(std::shared_ptr<Request> request,
                                    std::shared_ptr<Connection> connection)
     {
-        if (request.is_fatal())
+        if (request->is_fatal())
         {
             connection->keep_alive = false;
             event_register.register_event<SendResponseEW>(
-                connection, Response(request.status_code));
+                connection, Response(request->status_code));
             return true;
         }
         return false;
@@ -67,62 +67,62 @@ namespace http
     }
 
     void
-    VHostReverseProxy::build_request(Request &request,
+    VHostReverseProxy::build_request(std::shared_ptr<Request> &request,
                                      std::shared_ptr<Connection> &connection)
     {
         bool find_host_header = false;
         for (auto header : conf_.proxy_pass->proxy_remove_header)
-            request.headers.erase(header);
+            request->headers.erase(header);
 
-        if (request.headers.find("Connection") != request.headers.end())
-            request.headers.erase("Connection");
+        if (request->headers.find("Connection") != request->headers.end())
+            request->headers.erase("Connection");
 
         for (auto header : conf_.proxy_pass->proxy_set_header)
         {
             if (header.first == "Host")
             {
                 find_host_header = true;
-                request.host = header.second;
+                request->host = header.second;
             }
-            request.headers[header.first] = header.second;
+            request->headers[header.first] = header.second;
         }
         if (!find_host_header)
-            request.host = conf_.proxy_pass->ip;
+            request->host = conf_.proxy_pass->ip;
 
-        auto forwarded = request.headers.find("Forwarded");
-        if (forwarded != request.headers.end())
+        auto forwarded = request->headers.find("Forwarded");
+        if (forwarded != request->headers.end())
         {
             forwarded->second += ",";
         }
         else
         {
-            request.headers["Forwarded"] = "";
-            forwarded = request.headers.find("Forwarded");
-            auto x_for = request.headers.find("X-Forwarded-For");
-            auto has_x_for = x_for != request.headers.end();
-            auto x_host = request.headers.find("X-Forwarded-Host");
-            auto has_x_host = x_host != request.headers.end();
-            auto x_proto = request.headers.find("X-Forwarded-Proto");
-            auto has_x_proto = x_proto != request.headers.end();
+            request->headers["Forwarded"] = "";
+            forwarded = request->headers.find("Forwarded");
+            auto x_for = request->headers.find("X-Forwarded-For");
+            auto has_x_for = x_for != request->headers.end();
+            auto x_host = request->headers.find("X-Forwarded-Host");
+            auto has_x_host = x_host != request->headers.end();
+            auto x_proto = request->headers.find("X-Forwarded-Proto");
+            auto has_x_proto = x_proto != request->headers.end();
 
             if (has_x_for && !has_x_host && !has_x_proto)
             {
                 forwarded->second += x_for_to_forwarded(x_for->second);
-                request.headers.erase("X-Forwarded-For");
+                request->headers.erase("X-Forwarded-For");
             }
             else if (!has_x_for && has_x_host && !has_x_proto)
             {
                 x_host->second += ",";
                 forwarded->second += std::regex_replace(
                     x_host->second, std::regex("([^ ,]*,)"), "host=$1");
-                request.headers.erase("X-Forwarded-Host");
+                request->headers.erase("X-Forwarded-Host");
             }
             else if (!has_x_for && !has_x_host && has_x_proto)
             {
                 x_proto->second += ",";
                 forwarded->second += std::regex_replace(
                     x_proto->second, std::regex("([^ ,]*,)"), "proto=$1");
-                request.headers.erase("X-Forwarded-Proto");
+                request->headers.erase("X-Forwarded-Proto");
             }
         }
 
@@ -133,10 +133,10 @@ namespace http
         else
             forwarded->second += connection->sock->get_hostname();
 
-        forwarded->second += ";host=" + request.headers["Host"]
+        forwarded->second += ";host=" + request->headers["Host"]
             + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");
 
-        request.headers["Host"] = request.host;
+        request->headers["Host"] = request->host;
     }
 
     void VHostReverseProxy::handle_round_robin()
@@ -153,7 +153,7 @@ namespace http
     }
 
     std::shared_ptr<Host>
-    VHostReverseProxy::handle_failover(Request &request,
+    VHostReverseProxy::handle_failover(std::shared_ptr<Request> request,
                                        std::shared_ptr<Connection> connection)
     {
         size_t i = 0;
@@ -164,10 +164,10 @@ namespace http
 
         if (i == backend->hosts.size())
         {
-            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            request->status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
             event_register.register_event<SendResponseEW>(
                 connection,
-                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+                Response(*request, STATUS_CODE::SERVICE_UNAVAILABLE));
             return nullptr;
         }
 
@@ -180,7 +180,7 @@ namespace http
     }
 
     std::shared_ptr<Host>
-    VHostReverseProxy::handle_fail_robin(Request &request,
+    VHostReverseProxy::handle_fail_robin(std::shared_ptr<Request> request,
                                          std::shared_ptr<Connection> connection)
     {
         size_t i = 1;
@@ -195,10 +195,10 @@ namespace http
 
         if (i == backend->robin_tab.size())
         {
-            request.status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
+            request->status_code = STATUS_CODE::SERVICE_UNAVAILABLE;
             event_register.register_event<SendResponseEW>(
                 connection,
-                Response(request, STATUS_CODE::SERVICE_UNAVAILABLE));
+                Response(*request, STATUS_CODE::SERVICE_UNAVAILABLE));
             return nullptr;
         }
 
@@ -214,18 +214,18 @@ namespace http
         return backend->hosts[i];
     }
 
-    void VHostReverseProxy::respond(Request &request,
+    void VHostReverseProxy::respond(std::shared_ptr<Request> request,
                                     std::shared_ptr<Connection> connection)
     {
         if (check_err_response(request, connection))
             return;
 
         // Authentification
-        if (request.status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
+        if (request->status_code == STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED
             || check_err_response(request, connection))
         {
             event_register.register_event<SendResponseEW>(
-                connection, Response(request, request.status_code));
+                connection, Response(*request, request->status_code));
             return;
         }
 
@@ -258,7 +258,7 @@ namespace http
         if (!backend_sock)
         {
             event_register.register_event<SendResponseEW>(
-                connection, Response(request, STATUS_CODE::BAD_GATEWAY));
+                connection, Response(*request, STATUS_CODE::BAD_GATEWAY));
             if (found_host)
                 found_host->alive = false;
             return;
