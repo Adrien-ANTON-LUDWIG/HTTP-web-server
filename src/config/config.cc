@@ -141,6 +141,12 @@ namespace http
             t if (v.find("upstream") != v.end())
             {
                 proxy.upstream = v["upstream"];
+
+                if (proxy.upstream.empty())
+                {
+                    std::cerr << "Empty upstream name\n";
+                    exit(1);
+                }
             }
             else
             {

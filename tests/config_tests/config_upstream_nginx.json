@@ -5,8 +5,8 @@
             "port": 8081,
             "server_name": "localhost",
             "proxy_pass": {
-                "ip": "127.0.0.1",
-                "port": 8000,
+                "ip": "backend.localhost",
+                "port": 1234,
                 "proxy_remove_header": [
                     "Header-Removed",
                     "HTTP_X_FORWARDED_PROTO"
@@ -28,7 +28,7 @@
             "port": 8080,
             "server_name": "sub.localhost",
             "proxy_pass": {
-                "upstream": "backendA"
+                "upstream": "backendB"
             }
         }
     ],

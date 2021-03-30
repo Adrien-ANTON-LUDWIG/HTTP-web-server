@@ -1,0 +1,15 @@
+{
+    "vhosts": [
+        {
+            "ip": "0.0.0.0",
+            "port": 8080,
+            "server_name": "sub.localhost",
+            "proxy_pass": {
+                "ip": "127.0.0.1",
+                "port": 8001
+            }
+        }
+    ],
+    "upstreams": {
+    }
+}

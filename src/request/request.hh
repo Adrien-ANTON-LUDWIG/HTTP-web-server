@@ -63,6 +63,7 @@ namespace http
         void pretty_print();
 
         Method method;
+        std::string method_string_;
         std::string uri;
         std::map<std::string, std::string> headers;
 
