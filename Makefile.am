@@ -103,6 +103,8 @@ SOURCES = \
           src/socket/socket.hh \
           src/socket/ssl-socket.cc \
           src/socket/ssl-socket.hh \
+          src/timeout/timeout.hh \
+          src/timeout/timeout.cc \
           src/vhost/connection.hh \
           src/vhost/dispatcher.cc \
           src/vhost/dispatcher.hh \
