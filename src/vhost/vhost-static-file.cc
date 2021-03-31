@@ -21,6 +21,7 @@ namespace http
     static std::string list_directory(std::string &uri_path,
                                       std::string &path_without_root)
     {
+        bool add_slash = path_without_root[path_without_root.size() - 1] != '/';
         std::string index = "";
         index += "<!DOCTYPE html>\n<html>\n<head>\n<meta "
                  "charset=utf-8>\n<title>Index of "
@@ -28,7 +29,7 @@ namespace http
         for (auto &file : std::filesystem::directory_iterator(uri_path))
         {
             index += "<li><a href=\"" + path_without_root
-                + file.path().stem().string()
+                + (add_slash ? "/" : "") + file.path().stem().string()
                 + file.path().extension().stem().string() + "\">"
                 + file.path().filename().stem().string()
                 + file.path().extension().stem().string() + "</a></li>\n";
@@ -53,7 +54,6 @@ namespace http
                 if (request.uri[request.uri.size() - 1] != '/')
                 {
                     request.uri += "/";
-                    uri_without_root += "/";
                 }
                 if (conf_.auto_index && !conf_.default_file_found)
                 {
