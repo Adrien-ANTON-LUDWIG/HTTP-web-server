@@ -27,7 +27,12 @@ namespace http
             : EventWatcher(backend_sock->fd_get()->fd_, EV_READ)
             , connection_(connection)
             , backend_sock_(backend_sock)
-        {}
+        {
+            if (connection->timeout_proxy.has_value())
+                connection->timeout_proxy->set_ew(this);
+        }
+
+        void unregister_proxy_timeout();
 
         void recv_headers();
         void recv_body();

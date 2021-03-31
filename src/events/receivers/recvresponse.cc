@@ -3,6 +3,15 @@
 #include "vhost/vhost-reverse-proxy.hh"
 namespace http
 {
+    void RecvResponseEW::unregister_proxy_timeout()
+    {
+        if (connection_->timeout_proxy.has_value())
+        {
+            event_register.get_loop().unregister_timer_watcher(
+                connection_->timeout_proxy->get_et().get());
+        }
+    }
+
     void RecvResponseEW::recv_headers()
     {
         char buffer[BUFFER_SIZE];
@@ -10,6 +19,7 @@ namespace http
 
         if (read_size == -1)
         {
+            unregister_proxy_timeout();
             event_register.unregister_ew(this);
             return;
         }
@@ -43,6 +53,7 @@ namespace http
         if (read_size <= 0)
         {
             recv_finished = true;
+            unregister_proxy_timeout();
             event_register.unregister_ew(this);
             std::cout << "RecvResponse : recv_body end" << std::endl;
             return;
@@ -115,6 +126,7 @@ namespace http
             auto response = build_response();
             if (response.find("HTTP") == std::string::npos)
                 response = Response(STATUS_CODE::BAD_REQUEST).response;
+            unregister_proxy_timeout();
             event_register.register_event<SendResponseEW>(connection_,
                                                           Response(response));
             event_register.unregister_ew(this);

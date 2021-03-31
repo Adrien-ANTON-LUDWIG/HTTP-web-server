@@ -31,7 +31,16 @@ namespace http
         {
             connection_ = connection;
             // TODO Register Timeout keep alive
+            if (http::dispatcher.serv_config_.timeout_keepalive.has_value())
+                connection_->timeout_keep_alive =
+                    Timeout( // Guess I'll crash 🧑‍🤝‍🧑
+                        this,
+                        http::dispatcher.serv_config_.timeout_keepalive.value(),
+                        Timeout::keep_alive_cb);
         }
+
+        void handle_timeout_begin();
+        void unregister_timeout();
 
         /**
          * \brief Start or resume receiving data from the corresponding client.

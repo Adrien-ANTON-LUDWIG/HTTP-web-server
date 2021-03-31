@@ -24,6 +24,13 @@ namespace http
 
         if (request->body != "")
             request_string_ += request->body + "\r\n";
+
+        if (connection_->vhost_conf.proxy_pass->timeout.has_value())
+        {
+            connection_->timeout_proxy =
+                Timeout(this, *connection_->vhost_conf.proxy_pass->timeout,
+                        Timeout::proxy_transaction_cb);
+        }
     }
 
     void SendRequestEW::operator()()
