@@ -4,7 +4,7 @@
 
 namespace http
 {
-    TimeoutKeepAlive::TimeoutKeepAlive(EventWatcher *ew, unsigned timeout)
+    TimeoutKeepAlive::TimeoutKeepAlive(EventWatcher *ew, float timeout)
     {
         et_ = std::make_shared<ev_timer>();
         et_->data = &(ew->get_connection()->timeout_keep_alive);

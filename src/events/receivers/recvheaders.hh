@@ -30,12 +30,12 @@ namespace http
             : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
         {
             connection_ = connection;
-            // TODO Register Timeout keep alive
+
             if (http::dispatcher.serv_config_.timeout_keepalive.has_value())
-                connection_->timeout_keep_alive = std::make_shared<Timeout>(
+                connection_
+                    ->timeout_keep_alive = std::make_shared<TimeoutKeepAlive>(
                     this,
-                    http::dispatcher.serv_config_.timeout_keepalive.value(),
-                    Timeout::keep_alive_cb);
+                    http::dispatcher.serv_config_.timeout_keepalive.value());
         }
 
         void handle_timeout_begin();
@@ -45,6 +45,9 @@ namespace http
          * \brief Start or resume receiving data from the corresponding client.
          */
         void operator()() final;
+
+    private:
+        bool first_time_ = true;
     };
 
 } // namespace http

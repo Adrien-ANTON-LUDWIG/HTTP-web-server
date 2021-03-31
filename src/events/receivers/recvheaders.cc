@@ -4,6 +4,7 @@ namespace http
 {
     void RecvHeadersEW::handle_timeout_begin()
     {
+        first_time_ = false;
         if (connection_->timeout_keep_alive != nullptr)
         {
             auto et = connection_->timeout_keep_alive->get_et().get();
@@ -12,16 +13,17 @@ namespace http
         }
         if (http::dispatcher.serv_config_.timeout_transaction.has_value())
         {
-            connection_->timeout_transaction = std::make_shared<Timeout>(
-                this, *http::dispatcher.serv_config_.timeout_transaction,
-                Timeout::transaction_cb);
+            connection_->timeout_transaction =
+                std::make_shared<TimeoutTransaction>(
+                    this, *http::dispatcher.serv_config_.timeout_transaction);
         }
         if (http::dispatcher.serv_config_.timeout_throughput_time.has_value())
         {
-            connection_->timeout_throughput = std::make_shared<Timeout>(
-                this, *http::dispatcher.serv_config_.timeout_throughput_time,
-                *http::dispatcher.serv_config_.timeout_throughput_val,
-                Timeout::throughput_cb);
+            connection_->timeout_throughput =
+                std::make_shared<TimeoutThroughput>(
+                    this,
+                    *http::dispatcher.serv_config_.timeout_throughput_time,
+                    *http::dispatcher.serv_config_.timeout_throughput_val);
         }
     }
 
@@ -43,7 +45,8 @@ namespace http
 
     void RecvHeadersEW::operator()()
     {
-        handle_timeout_begin();
+        if (first_time_)
+            handle_timeout_begin();
 
         char buffer[BUFFER_SIZE];
         auto read_size = connection_->sock->recv(buffer, BUFFER_SIZE);
@@ -79,7 +82,10 @@ namespace http
                 event_register.register_event<RecvBodyEW>(connection_,
                                                           request_);
             else
+            {
+                unregister_timeout();
                 dispatcher.dispatch(connection_, request_);
+            }
 
             event_register.unregister_ew(this);
             connection_->message.erase();

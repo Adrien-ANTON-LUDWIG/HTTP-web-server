@@ -4,7 +4,7 @@
 
 namespace http
 {
-    TimeoutProxy::TimeoutProxy(EventWatcher *ew, unsigned timeout)
+    TimeoutProxy::TimeoutProxy(EventWatcher *ew, float timeout)
     {
         et_ = std::make_shared<ev_timer>();
         et_->data = &(ew->get_connection()->timeout_proxy);

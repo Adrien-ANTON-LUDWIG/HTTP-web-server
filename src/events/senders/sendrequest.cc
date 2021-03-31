@@ -27,9 +27,17 @@ namespace http
 
         if (connection_->vhost_conf.proxy_pass->timeout.has_value())
         {
-            connection_->timeout_proxy = std::make_shared<Timeout>(
-                this, *connection_->vhost_conf.proxy_pass->timeout,
-                Timeout::proxy_transaction_cb);
+            connection_->timeout_proxy = std::make_shared<TimeoutProxy>(
+                this, *connection_->vhost_conf.proxy_pass->timeout);
+        }
+    }
+
+    void SendRequestEW::unregister_proxy_timeout()
+    {
+        if (connection_->timeout_proxy != nullptr)
+        {
+            event_register.get_loop().unregister_timer_watcher(
+                connection_->timeout_proxy->get_et().get());
         }
     }
 
@@ -62,6 +70,7 @@ namespace http
             std::cerr << "Could not send the data to the client:\n";
             std::cerr << e.what() << std::endl;
 #endif
+
             event_register.unregister_ew(this);
         }
     }

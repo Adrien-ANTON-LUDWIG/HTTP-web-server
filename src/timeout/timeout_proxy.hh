@@ -10,7 +10,7 @@ namespace http
     class TimeoutProxy
     {
     public:
-        TimeoutProxy(EventWatcher *ew, unsigned timeout);
+        TimeoutProxy(EventWatcher *ew, float timeout);
 
         static void callback(struct ev_loop *, ev_timer *et, int);
 

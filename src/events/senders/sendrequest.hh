@@ -25,6 +25,8 @@ namespace http
                                const shared_socket &backend_sock,
                                const shared_connection &connection);
 
+        void unregister_proxy_timeout();
+
         void operator()() final;
 
     private:

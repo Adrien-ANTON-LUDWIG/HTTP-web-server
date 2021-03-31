@@ -33,7 +33,14 @@ namespace http
         {
             connection_ = connection;
             request_ = request;
+
+            if (connection->timeout_transaction != nullptr)
+                connection->timeout_transaction->set_ew(this);
+            if (connection->timeout_throughput != nullptr)
+                connection->timeout_throughput->set_ew(this);
         }
+
+        void unregister_timeout();
 
         /**
          * \brief Start or resume receiving data from the corresponding client.

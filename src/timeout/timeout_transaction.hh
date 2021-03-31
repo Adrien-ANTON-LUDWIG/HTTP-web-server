@@ -10,11 +10,13 @@ namespace http
     class TimeoutTransaction
     {
     public:
-        TimeoutTransaction(EventWatcher *ew, unsigned timeout);
+        TimeoutTransaction(EventWatcher *ew, float timeout);
 
         static void callback(struct ev_loop *, ev_timer *et, int);
 
         std::shared_ptr<ev_timer> get_et();
+
+        void set_ew(EventWatcher *ew);
 
     private:
         std::shared_ptr<ev_timer> et_ = nullptr;

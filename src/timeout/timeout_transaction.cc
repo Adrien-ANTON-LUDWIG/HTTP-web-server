@@ -4,7 +4,7 @@
 
 namespace http
 {
-    TimeoutTransaction::TimeoutTransaction(EventWatcher *ew, unsigned timeout)
+    TimeoutTransaction::TimeoutTransaction(EventWatcher *ew, float timeout)
     {
         et_ = std::make_shared<ev_timer>();
         et_->data = &(ew->get_connection()->timeout_transaction);
@@ -26,6 +26,10 @@ namespace http
         event_register.get_loop().unregister_timer_watcher(et);
     }
 
+    void TimeoutTransaction::set_ew(EventWatcher *ew)
+    {
+        shared_ew_ = ew;
+    }
     std::shared_ptr<ev_timer> TimeoutTransaction::get_et()
     {
         return et_;

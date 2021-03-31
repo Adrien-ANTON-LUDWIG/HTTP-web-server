@@ -10,7 +10,10 @@
 #include "config/config.hh"
 #include "request/types.hh"
 #include "socket/socket.hh"
-#include "timeout/timeout.hh"
+#include "timeout/timeout_keepalive.hh"
+#include "timeout/timeout_proxy.hh"
+#include "timeout/timeout_throughput.hh"
+#include "timeout/timeout_transaction.hh"
 
 namespace http
 {
@@ -58,10 +61,10 @@ namespace http
          * \brief Message of the client
          */
         std::string message = "";
-        std::shared_ptr<Timeout> timeout_keep_alive = nullptr;
-        std::shared_ptr<Timeout> timeout_transaction = nullptr;
-        std::shared_ptr<Timeout> timeout_throughput = nullptr;
-        std::shared_ptr<Timeout> timeout_proxy = nullptr;
+        std::shared_ptr<TimeoutKeepAlive> timeout_keep_alive = nullptr;
+        std::shared_ptr<TimeoutTransaction> timeout_transaction = nullptr;
+        std::shared_ptr<TimeoutThroughput> timeout_throughput = nullptr;
+        std::shared_ptr<TimeoutProxy> timeout_proxy = nullptr;
     };
     using shared_connection = std::shared_ptr<Connection>;
 } // namespace http

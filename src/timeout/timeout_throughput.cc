@@ -4,7 +4,7 @@
 
 namespace http
 {
-    TimeoutThroughput::TimeoutThroughput(EventWatcher *ew, unsigned timeout,
+    TimeoutThroughput::TimeoutThroughput(EventWatcher *ew, float timeout,
                                          unsigned int throughput_val)
     {
         et_ = std::make_shared<ev_timer>();
@@ -39,6 +39,11 @@ namespace http
     std::shared_ptr<ev_timer> TimeoutThroughput::get_et()
     {
         return et_;
+    }
+
+    void TimeoutThroughput::set_ew(EventWatcher *ew)
+    {
+        shared_ew_ = ew;
     }
 
     void TimeoutThroughput::received_bytes(const unsigned int &bytes)

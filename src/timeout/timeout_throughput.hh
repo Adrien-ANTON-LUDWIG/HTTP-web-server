@@ -10,12 +10,14 @@ namespace http
     class TimeoutThroughput
     {
     public:
-        TimeoutThroughput(EventWatcher *ew, unsigned timeout,
+        TimeoutThroughput(EventWatcher *ew, float timeout,
                           unsigned int throughput_val);
 
         static void callback(struct ev_loop *, ev_timer *et, int);
 
         std::shared_ptr<ev_timer> get_et();
+
+        void set_ew(EventWatcher *ew);
 
         void received_bytes(const unsigned int &bytes);
 

@@ -10,7 +10,7 @@ namespace http
     class TimeoutKeepAlive
     {
     public:
-        TimeoutKeepAlive(EventWatcher *ew, unsigned timeout);
+        TimeoutKeepAlive(EventWatcher *ew, float timeout);
 
         static void callback(struct ev_loop *, ev_timer *et, int);
 
