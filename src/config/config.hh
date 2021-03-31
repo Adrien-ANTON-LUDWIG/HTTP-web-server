@@ -108,8 +108,9 @@ namespace http
         std::vector<std::string> auth_basic_users;
 
         std::optional<ProxyPassConfig> proxy_pass = std::nullopt;
-
+        bool default_file_found = false;
         bool default_vhost = false;
+        bool auto_index = false;
     };
 
     /*

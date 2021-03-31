@@ -38,6 +38,9 @@ namespace http
         Response &operator=(Response &&) = default;
         ~Response() = default;
 
+        Response(const Request &req, const STATUS_CODE &code,
+                 std::string &list_directory);
+
         std::string response;
         std::string file_path = ""; // For copying
         std::ifstream file_stream;

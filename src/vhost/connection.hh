@@ -57,6 +57,9 @@ namespace http
          * \brief Message of the client
          */
         std::string message = "";
+
+        bool is_list_directory = false;
+        std::string list_directory = "";
     };
     using shared_connection = std::shared_ptr<Connection>;
 } // namespace http
