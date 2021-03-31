@@ -37,6 +37,11 @@ namespace http
             std::cerr << "Default file not allowed when proxy_pass is set.\n";
             exit(1);
         }
+        if (v.find("proxy_pass") != v.end() && v.find("auto_index") != v.end())
+        {
+            std::cerr << "Auto_index not allowed when proxy_pass is set.\n";
+            exit(1);
+        }
         if (v.find("proxy_pass") == v.end())
         {
             vhost.root = v["root"];
@@ -50,7 +55,12 @@ namespace http
                 vhost.root.pop_back();
 
             if (v.find("default_file") != v.end())
+            {
                 vhost.default_file = v["default_file"];
+                vhost.default_file_found = true;
+            }
+            if (v.find("auto_index") != v.end())
+                vhost.auto_index = v["auto_index"];
         }
     }
 

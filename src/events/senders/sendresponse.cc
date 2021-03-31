@@ -11,7 +11,8 @@ namespace http
                 char buffer[BUFFER_SIZE];
                 auto len = response_.response.copy(buffer, BUFFER_SIZE, 0);
                 if (connection_->sock->send(buffer, len) <= 0)
-                    throw std::ifstream::failure("Connection closed (header)");
+                    throw std::ifstream::failure(
+                        "Connection closed (SendResponseEW)");
                 response_.response.erase(response_.response.begin(),
                                          response_.response.begin() + len);
 #ifdef _DEBUG
@@ -21,6 +22,32 @@ namespace http
             }
             else
             {
+                if (connection_->is_list_directory)
+                {
+                    if (connection_->list_directory.size())
+                    {
+                        char buffer[BUFFER_SIZE];
+                        auto len = connection_->list_directory.copy(
+                            buffer, BUFFER_SIZE, 0);
+                        if (connection_->sock->send(buffer, len) <= 0)
+                            throw std::ifstream::failure(
+                                "Connection closed (header)");
+                        connection_->list_directory.erase(
+                            connection_->list_directory.begin(),
+                            connection_->list_directory.begin() + len);
+                        return;
+                    }
+                    else
+                    {
+                        connection_->is_list_directory = false;
+                        if (connection_->keep_alive)
+                            event_register.register_event<RecvHeadersEW>(
+                                connection_);
+                        event_register.unregister_ew(this);
+                        return;
+                    }
+                }
+
                 if (!response_.file_stream.is_open())
                 {
                     if (connection_->keep_alive)
