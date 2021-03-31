@@ -33,7 +33,7 @@ namespace http
                 + file.path().filename().stem().string()
                 + file.path().extension().stem().string() + "</a></li>\n";
         }
-        index += "</ul>\n</body>\n</html>\n";
+        index += "</ul>\n</body>\n</html>";
         return index;
     }
 
@@ -51,7 +51,10 @@ namespace http
             if (std::filesystem::is_directory(request.uri))
             {
                 if (request.uri[request.uri.size() - 1] != '/')
+                {
                     request.uri += "/";
+                    uri_without_root += "/";
+                }
                 if (conf_.auto_index && !conf_.default_file_found)
                 {
                     connection->is_list_directory = true;
