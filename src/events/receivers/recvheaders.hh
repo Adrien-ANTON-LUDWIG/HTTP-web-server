@@ -26,7 +26,7 @@ namespace http
          * @brief
          *
          */
-        explicit RecvHeadersEW(const shared_connection &connection)
+        RecvHeadersEW(const shared_connection connection)
             : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
         {
             connection_ = connection;

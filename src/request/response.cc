@@ -15,7 +15,6 @@ namespace http
     {
         auto codepair = statusCode(code);
         char datebuffer[BUFFER_SIZE];
-
         response = "HTTP/1.1 " + std::to_string(codepair.first) + " "
             + codepair.second + "\r\n";
 

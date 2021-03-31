@@ -45,6 +45,8 @@ namespace http
 
         shared_connection get_connection() const
         {
+            if (connection_ == nullptr)
+                throw std::runtime_error("Connection is nullptr");
             return connection_;
         }
 
@@ -78,8 +80,8 @@ namespace http
          */
         static void event_callback(struct ev_loop *loop, ev_io *w, int revents);
 
-        shared_connection connection_;
-        std::shared_ptr<Request> request_;
+        shared_connection connection_ = nullptr;
+        std::shared_ptr<Request> request_ = nullptr;
 
         /**
          * \brief Libev's io watcher.

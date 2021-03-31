@@ -29,7 +29,11 @@ namespace http
     {
         auto timeout = static_cast<Timeout *>(et->data);
         auto response = Response(STATUS_CODE::REQUEST_TIMEOUT, "Keep-Alive");
-
+        // std::cout << timeout->shared_ew_ << std::endl;
+        // std::cout << timeout->shared_ew_->get_connection() << std::endl;
+        // auto connection = timeout->shared_ew_->get_connection();
+        // connection->keep_alive = false;
+        // event_register.register_event<SendResponseEW>(connection, response);
         timeout->shared_ew_->get_connection()->keep_alive = false;
         event_register.register_event<SendResponseEW>(
             timeout->shared_ew_->get_connection(), response);
@@ -42,6 +46,7 @@ namespace http
         auto timeout = static_cast<Timeout *>(et->data);
         auto response = Response(STATUS_CODE::REQUEST_TIMEOUT, "Transaction");
 
+        timeout->shared_ew_->get_connection()->keep_alive = false;
         event_register.register_event<SendResponseEW>(
             timeout->shared_ew_->get_connection(), response);
         event_register.unregister_ew(timeout->shared_ew_);
@@ -59,6 +64,7 @@ namespace http
         }
         else
         {
+            timeout->shared_ew_->get_connection()->keep_alive = false;
             event_register.register_event<SendResponseEW>(
                 timeout->shared_ew_->get_connection(),
                 Response(STATUS_CODE::REQUEST_TIMEOUT, "Throughput"));
@@ -71,6 +77,7 @@ namespace http
     {
         auto timeout = static_cast<Timeout *>(et->data);
 
+        timeout->shared_ew_->get_connection()->keep_alive = false;
         event_register.register_event<SendResponseEW>(
             timeout->shared_ew_->get_connection(),
             Response(STATUS_CODE::GATEWAY_TIMEOUT));

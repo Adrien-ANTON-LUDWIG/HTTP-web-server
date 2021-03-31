@@ -9,6 +9,6 @@
     ],
     "timeout":
     {
-        "keep_alive": 5
+        "keep_alive": 2
     }
 }
