@@ -16,11 +16,6 @@ namespace http
         Timeout(EventWatcher *ew, unsigned timeout, unsigned int throughput_val,
                 void (*callback)(struct ev_loop *, ev_timer *, int));
 
-        ~Timeout()
-        {
-            return;
-        }
-
         static void keep_alive_cb(struct ev_loop *, ev_timer *et, int);
         static void transaction_cb(struct ev_loop *, ev_timer *et, int);
         static void throughput_cb(struct ev_loop *, ev_timer *et, int);

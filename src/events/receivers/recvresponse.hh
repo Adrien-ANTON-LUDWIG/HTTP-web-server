@@ -28,7 +28,7 @@ namespace http
             , connection_(connection)
             , backend_sock_(backend_sock)
         {
-            if (connection->timeout_proxy.has_value())
+            if (connection->timeout_proxy != nullptr)
                 connection->timeout_proxy->set_ew(this);
         }
 

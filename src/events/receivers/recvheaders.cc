@@ -4,21 +4,21 @@ namespace http
 {
     void RecvHeadersEW::handle_timeout_begin()
     {
-        if (connection_->timeout_keep_alive.has_value())
+        if (connection_->timeout_keep_alive != nullptr)
         {
-            auto et = connection_->timeout_keep_alive.value().get_et().get();
+            auto et = connection_->timeout_keep_alive->get_et().get();
             event_register.get_loop().unregister_timer_watcher(et);
-            connection_->timeout_keep_alive.reset();
+            connection_->timeout_keep_alive = nullptr;
         }
         if (http::dispatcher.serv_config_.timeout_transaction.has_value())
         {
-            connection_->timeout_transaction = Timeout(
+            connection_->timeout_transaction = std::make_shared<Timeout>(
                 this, *http::dispatcher.serv_config_.timeout_transaction,
                 Timeout::transaction_cb);
         }
         if (http::dispatcher.serv_config_.timeout_throughput_time.has_value())
         {
-            connection_->timeout_throughput = Timeout(
+            connection_->timeout_throughput = std::make_shared<Timeout>(
                 this, *http::dispatcher.serv_config_.timeout_throughput_time,
                 *http::dispatcher.serv_config_.timeout_throughput_val,
                 Timeout::throughput_cb);
@@ -27,17 +27,17 @@ namespace http
 
     void RecvHeadersEW::unregister_timeout()
     {
-        if (connection_->timeout_transaction.has_value())
+        if (connection_->timeout_transaction != nullptr)
         {
             event_register.get_loop().unregister_timer_watcher(
                 connection_->timeout_transaction->get_et().get());
-            connection_->timeout_transaction.reset();
+            connection_->timeout_transaction = nullptr;
         }
-        if (connection_->timeout_throughput.has_value())
+        if (connection_->timeout_throughput != nullptr)
         {
             event_register.get_loop().unregister_timer_watcher(
                 connection_->timeout_throughput->get_et().get());
-            connection_->timeout_throughput.reset();
+            connection_->timeout_throughput = nullptr;
         }
     }
 
@@ -55,7 +55,7 @@ namespace http
             return;
         }
 
-        if (connection_->timeout_throughput.has_value())
+        if (connection_->timeout_throughput != nullptr)
             connection_->timeout_throughput->received_bytes(read_size);
         connection_->message.append(buffer, buffer + read_size);
         std::string carriage = "\r\n\r\n";
@@ -81,7 +81,6 @@ namespace http
             else
                 dispatcher.dispatch(connection_, request_);
 
-            unregister_timeout();
             event_register.unregister_ew(this);
             connection_->message.erase();
         }

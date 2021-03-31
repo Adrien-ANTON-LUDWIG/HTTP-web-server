@@ -1,15 +1,16 @@
 #include "timeout.hh"
 
 #include "events/senders/sendresponse.hh"
+
 namespace http
 {
     Timeout::Timeout(EventWatcher *ew, unsigned timeout,
                      void (*callback)(struct ev_loop *, ev_timer *, int))
     {
         et_ = std::make_shared<ev_timer>();
+        et_->data = &(ew->get_connection()->timeout_transaction);
         shared_ew_ = ew;
         ev_timer_init(et_.get(), callback, timeout, 0);
-        et_->data = this;
         event_register.get_loop().register_timer_watcher(et_.get());
     }
 
@@ -29,11 +30,7 @@ namespace http
     {
         auto timeout = static_cast<Timeout *>(et->data);
         auto response = Response(STATUS_CODE::REQUEST_TIMEOUT, "Keep-Alive");
-        // std::cout << timeout->shared_ew_ << std::endl;
-        // std::cout << timeout->shared_ew_->get_connection() << std::endl;
-        // auto connection = timeout->shared_ew_->get_connection();
-        // connection->keep_alive = false;
-        // event_register.register_event<SendResponseEW>(connection, response);
+
         timeout->shared_ew_->get_connection()->keep_alive = false;
         event_register.register_event<SendResponseEW>(
             timeout->shared_ew_->get_connection(), response);
@@ -43,7 +40,7 @@ namespace http
 
     void Timeout::transaction_cb(struct ev_loop *, ev_timer *et, int)
     {
-        auto timeout = static_cast<Timeout *>(et->data);
+        auto timeout = *static_cast<std::shared_ptr<Timeout> *>(et->data);
         auto response = Response(STATUS_CODE::REQUEST_TIMEOUT, "Transaction");
 
         timeout->shared_ew_->get_connection()->keep_alive = false;

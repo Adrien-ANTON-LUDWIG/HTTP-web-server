@@ -41,14 +41,14 @@ namespace http
          * @brief
          *
          */
-        shared_socket sock;
+        shared_socket sock = nullptr;
 
         /**
          * @brief Listener information to check while dispatching.
          *
          */
-        std::string listener_ip;
-        uint listener_port;
+        std::string listener_ip = "";
+        uint listener_port = 0;
 
         VHostConfig vhost_conf;
 
@@ -58,10 +58,10 @@ namespace http
          * \brief Message of the client
          */
         std::string message = "";
-        std::optional<Timeout> timeout_keep_alive;
-        std::optional<Timeout> timeout_transaction;
-        std::optional<Timeout> timeout_throughput;
-        std::optional<Timeout> timeout_proxy;
+        std::shared_ptr<Timeout> timeout_keep_alive = nullptr;
+        std::shared_ptr<Timeout> timeout_transaction = nullptr;
+        std::shared_ptr<Timeout> timeout_throughput = nullptr;
+        std::shared_ptr<Timeout> timeout_proxy = nullptr;
     };
     using shared_connection = std::shared_ptr<Connection>;
 } // namespace http

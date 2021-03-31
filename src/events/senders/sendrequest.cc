@@ -27,9 +27,9 @@ namespace http
 
         if (connection_->vhost_conf.proxy_pass->timeout.has_value())
         {
-            connection_->timeout_proxy =
-                Timeout(this, *connection_->vhost_conf.proxy_pass->timeout,
-                        Timeout::proxy_transaction_cb);
+            connection_->timeout_proxy = std::make_shared<Timeout>(
+                this, *connection_->vhost_conf.proxy_pass->timeout,
+                Timeout::proxy_transaction_cb);
         }
     }
 

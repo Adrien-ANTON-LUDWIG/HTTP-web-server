@@ -5,7 +5,7 @@ namespace http
 {
     void RecvResponseEW::unregister_proxy_timeout()
     {
-        if (connection_->timeout_proxy.has_value())
+        if (connection_->timeout_proxy != nullptr)
         {
             event_register.get_loop().unregister_timer_watcher(
                 connection_->timeout_proxy->get_et().get());
