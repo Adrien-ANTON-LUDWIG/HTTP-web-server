@@ -26,11 +26,20 @@ namespace http
          * @brief
          *
          */
-        explicit RecvHeadersEW(const shared_connection &connection)
+        RecvHeadersEW(const shared_connection connection)
             : EventWatcher(connection->sock->fd_get()->fd_, EV_READ)
-            , connection_(connection)
-            , request_()
-        {}
+        {
+            connection_ = connection;
+
+            if (http::dispatcher.serv_config_.timeout_keepalive.has_value())
+                connection_
+                    ->timeout_keep_alive = std::make_shared<TimeoutKeepAlive>(
+                    this,
+                    http::dispatcher.serv_config_.timeout_keepalive.value());
+        }
+
+        void handle_timeout_begin();
+        void unregister_timeout();
 
         /**
          * \brief Start or resume receiving data from the corresponding client.
@@ -38,17 +47,7 @@ namespace http
         void operator()() final;
 
     private:
-        /**
-         * @brief Structure connection
-         *
-         */
-        shared_connection connection_;
-
-        /**
-         * @brief Structure to contain the parsed request.
-         *
-         */
-        struct Request request_;
+        bool first_time_ = true;
     };
 
 } // namespace http

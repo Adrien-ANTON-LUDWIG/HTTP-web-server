@@ -27,6 +27,7 @@ namespace http
         std::vector<std::string> remove_header;
 
         std::string upstream = "";
+        std::optional<float> timeout = std::nullopt;
     };
 
     struct Host
@@ -134,6 +135,11 @@ namespace http
         std::vector<VHostConfig> vhosts;
 
         std::vector<Backend> upstreams;
+
+        std::optional<float> timeout_keepalive = std::nullopt;
+        std::optional<float> timeout_transaction = std::nullopt;
+        std::optional<float> timeout_throughput_val = std::nullopt;
+        std::optional<float> timeout_throughput_time = std::nullopt;
     };
 
     /**

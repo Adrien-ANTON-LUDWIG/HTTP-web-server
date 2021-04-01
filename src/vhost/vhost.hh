@@ -15,6 +15,7 @@
 
 namespace http
 {
+    class Connection;
     /**
      * \class VHost
      * \brief Abstract class representing a VHost.
@@ -44,7 +45,8 @@ namespace http
          * \param req Request.
          * \param conn Connection.
          */
-        virtual void respond(Request &, std::shared_ptr<Connection>) = 0;
+        virtual void respond(std::shared_ptr<Request>,
+                             std::shared_ptr<Connection>) = 0;
 
         inline const VHostConfig &conf_get() const noexcept
         {

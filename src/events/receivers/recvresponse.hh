@@ -25,9 +25,14 @@ namespace http
         explicit RecvResponseEW(const shared_connection &connection,
                                 const shared_socket &backend_sock)
             : EventWatcher(backend_sock->fd_get()->fd_, EV_READ)
-            , connection_(connection)
             , backend_sock_(backend_sock)
-        {}
+        {
+            connection_ = connection;
+            if (connection->timeout_proxy != nullptr)
+                connection->timeout_proxy->set_ew(this);
+        }
+
+        void unregister_proxy_timeout();
 
         void recv_headers();
         void recv_body();
@@ -43,8 +48,6 @@ namespace http
          * @brief Structure connection
          *
          */
-        shared_connection connection_;
-
         shared_socket backend_sock_;
 
         /**

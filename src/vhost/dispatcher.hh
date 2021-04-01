@@ -28,7 +28,7 @@ namespace http
         void add_vhost(const shared_vhost &vhost);
 
         void dispatch(const shared_connection &connection,
-                      struct Request &request);
+                      std::shared_ptr<Request> &request);
 
         iterator begin()
         {
@@ -52,6 +52,8 @@ namespace http
 
         void set_default_vhost(const shared_vhost &default_vhost);
         shared_vhost get_default_vhost();
+
+        ServerConfig serv_config_;
 
     private:
         /* FIXME: Add members to store the information relative to the

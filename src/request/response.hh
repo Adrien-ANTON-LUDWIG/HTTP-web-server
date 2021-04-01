@@ -25,6 +25,8 @@ namespace http
         // Constructor called by RecvResponseEW
         Response(const std::string &resp);
 
+        Response(const STATUS_CODE &, const std::string &);
+
         Response() = default;
         Response(const Response &resp)
         {
@@ -40,6 +42,7 @@ namespace http
 
         Response(const Request &req, const STATUS_CODE &code,
                  std::string &list_directory);
+        void build_err_response(const STATUS_CODE &code);
 
         std::string response;
         std::string file_path = ""; // For copying

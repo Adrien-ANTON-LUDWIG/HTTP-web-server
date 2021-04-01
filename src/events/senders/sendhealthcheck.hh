@@ -28,6 +28,6 @@ namespace http
         std::shared_ptr<Host> host_ = nullptr;
         shared_socket backend_sock_;
         shared_connection connection_;
-        std::string request_;
+        std::string request_string_;
     };
 } // namespace http

@@ -8,10 +8,13 @@
 #include <ev.h>
 #include <memory>
 
-#include "vhost/connection.hh"
+#include "request/request.hh"
 
 namespace http
 {
+    class Connection;
+    using shared_connection = std::shared_ptr<Connection>;
+
     /**
      * \class EventWatcher
      * \brief Abstract class representing event watchers.
@@ -40,6 +43,18 @@ namespace http
         EventWatcher &operator=(EventWatcher &&) = delete;
         virtual ~EventWatcher() = default;
 
+        shared_connection get_connection() const
+        {
+            if (connection_ == nullptr)
+                throw std::runtime_error("Connection is nullptr");
+            return connection_;
+        }
+
+        std::shared_ptr<Request> get_request() const
+        {
+            return request_;
+        }
+
         /**
          * \brief Virtual pure functor
          *
@@ -64,6 +79,9 @@ namespace http
          * \param watcher ev_io* which received an event.
          */
         static void event_callback(struct ev_loop *loop, ev_io *w, int revents);
+
+        shared_connection connection_ = nullptr;
+        std::shared_ptr<Request> request_ = nullptr;
 
         /**
          * \brief Libev's io watcher.

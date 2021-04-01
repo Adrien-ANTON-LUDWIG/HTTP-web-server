@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
     std::string path(argv[1]);
 
     auto config = http::parse_configuration(path);
+    http::dispatcher.serv_config_ = config;
     build_vhost(config);
 
 #ifdef _DEBUG

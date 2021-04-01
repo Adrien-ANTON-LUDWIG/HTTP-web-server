@@ -64,10 +64,8 @@ namespace http
          */
         bool unregister_ew(EventWatcher *);
 
-        static void sigint_cb(struct ev_loop *loop, ev_signal *w, int revents)
+        static void sigint_cb(struct ev_loop *loop, ev_signal *, int)
         {
-            (void)w;
-            (void)revents;
             ev_break(loop, EVBREAK_ALL);
         }
 

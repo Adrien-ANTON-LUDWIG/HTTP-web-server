@@ -103,6 +103,14 @@ SOURCES = \
           src/socket/socket.hh \
           src/socket/ssl-socket.cc \
           src/socket/ssl-socket.hh \
+          src/timeout/timeout_keepalive.hh \
+          src/timeout/timeout_keepalive.cc \
+          src/timeout/timeout_transaction.hh \
+          src/timeout/timeout_transaction.cc \
+          src/timeout/timeout_throughput.hh \
+          src/timeout/timeout_throughput.cc \
+          src/timeout/timeout_proxy.hh \
+          src/timeout/timeout_proxy.cc \
           src/vhost/connection.hh \
           src/vhost/dispatcher.cc \
           src/vhost/dispatcher.hh \

@@ -11,11 +11,10 @@
 
 namespace http
 {
-    Response::Response(const STATUS_CODE &code)
+    void Response::build_err_response(const STATUS_CODE &code)
     {
         auto codepair = statusCode(code);
         char datebuffer[BUFFER_SIZE];
-
         response = "HTTP/1.1 " + std::to_string(codepair.first) + " "
             + codepair.second + "\r\n";
 
@@ -29,6 +28,19 @@ namespace http
         response += "Date: " + std::string(datebuffer, time_size);
         response += "Content-Length: 0\r\n";
         response += "Connection: close\r\n";
+    }
+
+    Response::Response(const STATUS_CODE &code)
+    {
+        build_err_response(code);
+        response += "\r\n";
+    }
+
+    Response::Response(const STATUS_CODE &code, const std::string &timeout)
+    {
+        build_err_response(code);
+        response += "X-Timeout-Reason: " + timeout;
+        response += "\r\n\r\n";
     }
 
     Response::Response(const Request &req, const STATUS_CODE &code)

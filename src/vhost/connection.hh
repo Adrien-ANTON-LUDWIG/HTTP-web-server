@@ -10,6 +10,10 @@
 #include "config/config.hh"
 #include "request/types.hh"
 #include "socket/socket.hh"
+#include "timeout/timeout_keepalive.hh"
+#include "timeout/timeout_proxy.hh"
+#include "timeout/timeout_throughput.hh"
+#include "timeout/timeout_transaction.hh"
 
 namespace http
 {
@@ -40,14 +44,14 @@ namespace http
          * @brief
          *
          */
-        shared_socket sock;
+        shared_socket sock = nullptr;
 
         /**
          * @brief Listener information to check while dispatching.
          *
          */
-        std::string listener_ip;
-        uint listener_port;
+        std::string listener_ip = "";
+        uint listener_port = 0;
 
         VHostConfig vhost_conf;
 
@@ -60,6 +64,10 @@ namespace http
 
         bool is_list_directory = false;
         std::string list_directory = "";
+        std::shared_ptr<TimeoutKeepAlive> timeout_keep_alive = nullptr;
+        std::shared_ptr<TimeoutTransaction> timeout_transaction = nullptr;
+        std::shared_ptr<TimeoutThroughput> timeout_throughput = nullptr;
+        std::shared_ptr<TimeoutProxy> timeout_proxy = nullptr;
     };
     using shared_connection = std::shared_ptr<Connection>;
 } // namespace http
