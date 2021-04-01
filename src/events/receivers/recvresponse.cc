@@ -118,7 +118,7 @@ namespace http
     {
         if (content_length_ == -1)
             recv_headers();
-        if (content_length_ != -1)
+        else if (content_length_ != -1)
             recv_body();
 
         if (recv_finished)
