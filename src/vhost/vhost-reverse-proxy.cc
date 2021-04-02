@@ -106,23 +106,18 @@ namespace http
             auto has_x_proto = x_proto != request->headers.end();
 
             if (has_x_for && !has_x_host && !has_x_proto)
-            {
                 forwarded->second += x_for_to_forwarded(x_for->second);
-                request->headers.erase("X-Forwarded-For");
-            }
             else if (!has_x_for && has_x_host && !has_x_proto)
             {
                 x_host->second += ",";
                 forwarded->second += std::regex_replace(
                     x_host->second, std::regex("([^ ,]*,)"), "host=$1");
-                request->headers.erase("X-Forwarded-Host");
             }
             else if (!has_x_for && !has_x_host && has_x_proto)
             {
                 x_proto->second += ",";
                 forwarded->second += std::regex_replace(
                     x_proto->second, std::regex("([^ ,]*,)"), "proto=$1");
-                request->headers.erase("X-Forwarded-Proto");
             }
         }
 
