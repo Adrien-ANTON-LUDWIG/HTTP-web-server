@@ -138,7 +138,7 @@ namespace http
 
         std::optional<float> timeout_keepalive = std::nullopt;
         std::optional<float> timeout_transaction = std::nullopt;
-        std::optional<float> timeout_throughput_val = std::nullopt;
+        std::optional<unsigned int> timeout_throughput_val = std::nullopt;
         std::optional<float> timeout_throughput_time = std::nullopt;
     };
 

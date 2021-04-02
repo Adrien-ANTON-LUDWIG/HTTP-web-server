@@ -124,7 +124,7 @@ namespace http
         if (recv_finished)
         {
             auto response = build_response();
-            if (response.find("HTTP") == std::string::npos)
+            if (response.size() < 4 || response.substr(0, 4) != "HTTP")
                 response = Response(STATUS_CODE::BAD_REQUEST).response;
             unregister_proxy_timeout();
             event_register.register_event<SendResponseEW>(connection_,

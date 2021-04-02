@@ -174,6 +174,12 @@ namespace http
             if (v.find("timeout") != v.end())
             {
                 proxy.timeout = v["timeout"];
+
+                if (proxy.timeout <= 0)
+                {
+                    std::cerr << "Proxy timeout value should be positive\n";
+                    exit(1);
+                }
             }
 
             if (v.find("proxy_remove_header") != v.end())
@@ -211,16 +217,43 @@ namespace http
         auto timeouts = *j.find("timeout");
 
         if (timeouts.find("keep_alive") != timeouts.end())
+        {
             config.timeout_keepalive = timeouts["keep_alive"];
+            if (config.timeout_keepalive < 0)
+            {
+                std::cerr << "Negative timeout kee_alive value\n";
+                exit(1);
+            }
+        }
 
         if (timeouts.find("transaction") != timeouts.end())
+        {
             config.timeout_transaction = timeouts["transaction"];
+            if (config.timeout_transaction < 0)
+            {
+                std::cerr << "Negative timeout transaction value\n";
+                exit(1);
+            }
+        }
 
         if (timeouts.find("throughput_val") != timeouts.end())
+        {
+            if (timeouts["throughput_val"] < 0)
+            {
+                std::cerr << "Negative timeout throughput_val\n";
+                exit(1);
+            }
             config.timeout_throughput_val = timeouts["throughput_val"];
-
+        }
         if (timeouts.find("throughput_time") != timeouts.end())
+        {
             config.timeout_throughput_time = timeouts["throughput_time"];
+            if (config.timeout_throughput_time < 0)
+            {
+                std::cerr << "Negative timeout throughput time value\n";
+                exit(1);
+            }
+        }
 
         if (config.timeout_throughput_val.has_value()
             != config.timeout_throughput_time.has_value())
