@@ -27,3 +27,5 @@ tests/env
 env
 tests/www/inception.mkv
 tests/www/download/inception.mkv
+SimpleClient.exe
+

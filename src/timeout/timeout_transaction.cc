@@ -19,9 +19,12 @@ namespace http
             *static_cast<std::shared_ptr<TimeoutTransaction> *>(et->data);
         auto response = Response(STATUS_CODE::REQUEST_TIMEOUT, "Transaction");
 
-        timeout->shared_ew_->get_connection()->keep_alive = false;
-        event_register.register_event<SendResponseEW>(
-            timeout->shared_ew_->get_connection(), response);
+        shared_connection c = timeout->shared_ew_->get_connection();
+        c->keep_alive = false;
+        event_register.register_event<SendResponseEW>(c, response);
+        if (c->timeout_throughput != nullptr)
+            event_register.get_loop().unregister_timer_watcher(
+                c->timeout_throughput->get_et().get());
         event_register.unregister_ew(timeout->shared_ew_);
         event_register.get_loop().unregister_timer_watcher(et);
     }
