@@ -19,7 +19,6 @@ namespace http
     {
         auto timeout =
             *static_cast<std::shared_ptr<TimeoutThroughput> *>(et->data);
-        auto request = timeout->shared_ew_->get_request();
 
         if (timeout->received_bytes_ >= timeout->throughput_val_)
         {
