@@ -26,6 +26,8 @@ namespace http
         index += "<!DOCTYPE html>\n<html>\n<head>\n<meta "
                  "charset=utf-8>\n<title>Index of "
             + path_without_root + "</title>\n</head>\n<body>\n<ul>\n";
+        index += "<li><a href=\"" + path_without_root + (add_slash ? "/" : "")
+            + "..\">..</a></li>\n";
         for (auto &file : std::filesystem::directory_iterator(uri_path))
         {
             index += "<li><a href=\"" + path_without_root
