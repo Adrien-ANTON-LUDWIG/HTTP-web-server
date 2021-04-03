@@ -106,23 +106,18 @@ namespace http
             auto has_x_proto = x_proto != request->headers.end();
 
             if (has_x_for && !has_x_host && !has_x_proto)
-            {
                 forwarded->second += x_for_to_forwarded(x_for->second);
-                request->headers.erase("X-Forwarded-For");
-            }
             else if (!has_x_for && has_x_host && !has_x_proto)
             {
                 x_host->second += ",";
                 forwarded->second += std::regex_replace(
                     x_host->second, std::regex("([^ ,]*,)"), "host=$1");
-                request->headers.erase("X-Forwarded-Host");
             }
             else if (!has_x_for && !has_x_host && has_x_proto)
             {
                 x_proto->second += ",";
                 forwarded->second += std::regex_replace(
                     x_proto->second, std::regex("([^ ,]*,)"), "proto=$1");
-                request->headers.erase("X-Forwarded-Proto");
             }
         }
 
@@ -133,8 +128,14 @@ namespace http
         else
             forwarded->second += connection->sock->get_hostname();
 
-        forwarded->second += ";host=" + request->headers["Host"]
-            + ";proto=" + (conf_.ssl_cert.empty() ? "http" : "https");
+        forwarded->second += ";host=";
+        if (request->headers["Host"].find(":") != std::string::npos)
+            forwarded->second += "\"" + request->headers["Host"] + "\"";
+        else
+            forwarded->second += request->headers["Host"];
+
+        forwarded->second += ";proto=";
+        forwarded->second += (conf_.ssl_cert.empty() ? "http" : "https");
 
         request->headers["Host"] = request->host;
     }

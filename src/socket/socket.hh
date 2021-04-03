@@ -32,7 +32,22 @@ namespace http
             struct sockaddr_in addr;
             socklen_t addr_size = sizeof(struct sockaddr_in);
             getpeername(fd->fd_, (struct sockaddr *)&addr, &addr_size);
-            hostname_ = inet_ntoa(addr.sin_addr);
+
+            if (addr.sin_family == AF_INET)
+            {
+                char buf[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &(addr.sin_addr), buf, INET_ADDRSTRLEN);
+                hostname_ = buf;
+            }
+            else
+            {
+                char buf[INET6_ADDRSTRLEN];
+                struct sockaddr_in6 addr6;
+                socklen_t addr6_size = sizeof(struct sockaddr_in6);
+                getpeername(fd->fd_, (struct sockaddr *)&addr6, &addr6_size);
+                inet_ntop(AF_INET6, &(addr6.sin6_addr), buf, INET6_ADDRSTRLEN);
+                hostname_ = buf;
+            }
         }
 
         Socket() = default;

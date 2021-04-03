@@ -140,14 +140,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (argc == 3 && !strcmp(argv[1], "-t"))
-    {
-        std::string path(argv[2]);
-        http::parse_configuration(path);
-        return 0;
-    }
-
     std::string path(argv[1]);
+    if (argc == 3 && !strcmp(argv[1], "-t"))
+        path = std::string(argv[2]);
 
     auto config = http::parse_configuration(path);
     http::dispatcher.serv_config_ = config;
@@ -157,6 +152,9 @@ int main(int argc, char *argv[])
     for (auto v : http::dispatcher)
         std::cout << "Vhost ip = " << v->conf_get().ip << '\n';
 #endif
+
+    if (argc == 3 && !strcmp(argv[1], "-t"))
+        return 0;
 
     start_server();
 
