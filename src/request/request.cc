@@ -1,5 +1,7 @@
 #include "request.hh"
 
+#include <regex>
+
 namespace http
 {
     void Request::build_uri()
@@ -93,7 +95,14 @@ namespace http
             is_proxy = true;
         }
         else if (name == "Connection")
-            keep_alive = value != "close";
+        {
+            std::regex e("[\\s,]*close[,\\s]*");
+            if (std::regex_search(value, e))
+            {
+                keep_alive = false;
+                value = "close";
+            }
+        }
         headers[name] = value;
     }
 

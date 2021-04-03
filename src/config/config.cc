@@ -403,6 +403,14 @@ namespace http
                                      "configuration\n";
                         exit(1);
                     }
+
+                    if (c.ip == vhost.ip && c.port == vhost.port
+                        && c.ssl_key.empty() != vhost.ssl_key.empty())
+                    {
+                        std::cerr << "There are two vhost with same ip and "
+                                     "port but different protocol\n";
+                        exit(1);
+                    }
                 }
                 s_conf.vhosts.push_back(vhost);
             }

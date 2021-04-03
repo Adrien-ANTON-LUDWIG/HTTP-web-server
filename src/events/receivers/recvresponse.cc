@@ -1,5 +1,7 @@
 #include "recvresponse.hh"
 
+#include <regex>
+
 #include "vhost/vhost-reverse-proxy.hh"
 namespace http
 {
@@ -34,10 +36,13 @@ namespace http
             std::cout << "RecvResponseEW response:\n" << response_ << "\n";
 #endif
             std::string str = "Content-Length:";
-            auto start = response_.find(str) + str.size();
-            auto end = response_.find("\r\n", start);
-            content_length_ = std::stoi(std::string(response_.begin() + start,
-                                                    response_.begin() + end));
+            if (response_.find(str) != std::string::npos)
+            {
+                auto start = response_.find(str) + str.size();
+                auto end = response_.find("\r\n", start);
+                content_length_ = std::stoi(std::string(
+                    response_.begin() + start, response_.begin() + end));
+            }
             // TODO Body
             body_ = response_.substr(carriage + 4);
             current_length_ = body_.size();
@@ -114,6 +119,12 @@ namespace http
         return res;
     }
 
+    static bool check_response(std::string response)
+    {
+        std::regex e("HTTP/1.1 [0-9]{3} [a-zA-Z ]*");
+        return std::regex_search(response, e);
+    }
+
     void RecvResponseEW::operator()()
     {
         if (content_length_ == -1)
@@ -124,8 +135,8 @@ namespace http
         if (recv_finished)
         {
             auto response = build_response();
-            if (response.size() < 4 || response.substr(0, 4) != "HTTP")
-                response = Response(STATUS_CODE::BAD_REQUEST).response;
+            if (!check_response(response))
+                response = Response(STATUS_CODE::BAD_GATEWAY).response;
             unregister_proxy_timeout();
             event_register.register_event<SendResponseEW>(connection_,
                                                           Response(response));
