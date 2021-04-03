@@ -16,7 +16,7 @@ Build:
     script:
         - ./autogen.sh
         - ./configure
-        - make
+        - make -j4
 Pre Commit:
     stage: Mandatory
     tags:
@@ -31,6 +31,6 @@ Stress Test:
     script:
         - ./autogen.sh
         - ./configure
-        - make
+        - make -j4
         - ./spider tests/config_tests/config_file.json &
         - siege --reps=10000 127.0.0.1:8000
