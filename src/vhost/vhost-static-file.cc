@@ -51,13 +51,22 @@ namespace http
 
         try
         {
-            if (std::filesystem::is_directory(request->uri))
+            if (std::filesystem::is_directory(request->uri)
+                || request->uri[request->uri.size() - 1] == '/')
             {
                 if (request->uri[request->uri.size() - 1] != '/')
                 {
                     request->uri += "/";
                 }
-                if (conf_.auto_index && !conf_.default_file_found)
+                if (!std::filesystem::is_directory(request->uri))
+                {
+                    request->status_code = STATUS_CODE::NOT_FOUND;
+                    request->content_length = 0;
+                    request->body.erase();
+                }
+                else if (conf_.auto_index
+                         && !std::filesystem::exists(request->uri
+                                                     + conf_.default_file))
                 {
                     connection->is_list_directory = true;
                     connection->list_directory =
@@ -66,8 +75,6 @@ namespace http
                 else
                     request->uri += conf_.default_file;
             }
-            else if (request->uri[request->uri.size() - 1] == '/')
-                request->uri.erase(request->uri.end() - 1);
         }
         catch (const std::exception &e)
         {
